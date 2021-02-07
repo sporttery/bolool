@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>菠萝足球-竞彩欧亚盘显示</title>
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="res/bootstrap.min.css" />
+
+    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="res/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="res/bootstrap.min.js"></script>
+
+    <style type="text/css">
+        #matchlist td{
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="container-fluid theme-showcase" role="main">
+        <div class="view">
+            <table class="table table-bordered">
+                <thead id="thead"></thead>
+                <tbody id="matchlist"></tbody>
+            </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var matchData = {},
+            leagueData = {};
+        var i_count = 0;
+        var load_flag = [0, 0, 0];
+        $.ajaxSetup({
+			async:false
+		});
+        $(() => {
+            $.get("/xml/bf_jc.txt", function (txt) {
+                var matchArr = txt.split("$");
+                // console.log(matchArr);
+                if (matchArr.length == 2) {
+                    leagueArr = matchArr[0].split("!");
+                    for (i = 0; i < leagueArr.length; i++) {
+                        var arr = leagueArr[i].split("^");
+                        var league = {};
+                        league.id = arr[0];
+                        league.color = arr[1];
+                        league.name = arr[3].split(",")[0];
+                        league.link = arr[5];
+                        leagueData["_" + league.id] = league;
+                    }
+                    matchArr = matchArr[1].split("!");
+                    for (var i = 0; i < matchArr.length; i++) {
+                        // console.log(matchArr[i])
+                        //1915421^2021,0,6,19,30,00^2021,0,6,19,30,00^2^周三001^34^^183^卡利亚里,卡利亞里,卡利亚里^1420^贝内文托,賓尼雲圖,贝内文托^1^2^1^2^0^0^1^1^15^10^2021,0,6,00,00,00^0.25
+                        var match = matchArr[i].split("^");
+                        var id = match[0];
+                        var playtime = match[1];
+                        var num = match[4];
+                        var l_id = match[5];
+                        var league = leagueData["_" + l_id];
+                        var l_name = league.name;
+                        var status = match[3];
+                        var hId = match[7];
+                        var h_name = match[8].split(",")[0];
+                        var aId = match[9];
+                        var a_name = match[10].split(",")[0];
+                        var full = match[11] + ":" + match[12];
+                        var half = match[13] + ":" + match[14];
+                        var data = {
+                            id,
+                            num,
+                            l_id,
+                            league,
+                            l_name,
+                            status,
+                            hId,
+                            h_name,
+                            aId,
+                            a_name,
+                            full,
+                            half,
+                            playtime
+                        };
+                        sessionStorage.setItem('m_'+id, JSON.stringify(data));
+                        matchData["_" + id] = data;
+                    }
+                }
+                load_flag[0] = 1;
+                $.get("/xml/goallottery8.txt", function (txt) {
+                    var oddsArr = txt.split("$");
+                    // console.log(oddsArr);
+                    for (var i = 0; i < oddsArr.length; i++) {
+                        //"1915421!12436209^0.25^1.12^0.78^0^1.02^0.88!100012862^3.30^2.40^2.87^3.50^2.70^2.50!13749288^2.75^0.98^0.92^3.00^1.02^0.88"
+                        var oddsDataArr = oddsArr[i].split("!");
+                        var id = oddsDataArr[0];
+                        //12436209^0.25^1.12^0.78^0^1.02^0.88 赔率id^初盘口^初主^初客^即盘^即主^即客
+                        var asia = oddsDataArr[1].split("^");
+                        //100012862^3.30^2.40^2.87^3.50^2.70^2.50  赔率id^初平^初主^初客^即平^即主^即客
+                        var europe = oddsDataArr[2].split("^");
+                        //13749288^2.75^0.98^0.92^3.00^1.02^0.8 赔率id^初盘口^初主^初客^即盘^即主^即客
+                        var dx = oddsDataArr[3].split("^");
+                        if (!matchData["_" + id]) {
+                            continue;
+                        }
+                        matchData["_" + id]["asia"] = asia;
+                        matchData["_" + id]["europe"] = europe;
+                        matchData["_" + id]["dx"] = dx;
+                    }
+                    load_flag[1] = 1;
+                })
+                $.get("/xml/odds_jc.txt", function (txt) {
+                    var jcOddsArr = txt.split("!");
+                    for (var i = 0; i < jcOddsArr.length; i++) {
+                        //1915421^2.40^3.00^2.57^-1^5.15^4.15^1.42
+                        var odds = jcOddsArr[i].split("^");
+                        var id = odds[0];
+                        if (!matchData["_" + id]) {
+                            continue;
+                        }
+                        matchData["_" + id]["had"] = [odds[1], odds[2], odds[3]];
+                        matchData["_" + id]["hhad"] = [odds[5], odds[6], odds[7]];
+                        matchData["_" + id].rq = odds[4];
+                    }
+                    load_flag[2] = 1;
+                });
+                setTimeout(fillData, 100);
+            })
+
+        });
+
+        var GoalCn =
+            "平手,平/半,半球,半/一,一球,一/球半,球半,球半/两,两球,两/两球半,两球半,两球半/三,三球,三/三球半,三球半,三球半/四球,四球,四/四球半,四球半,四球半/五,五球,五/五球半,五球半,五球半/六,六球,六/六球半,六球半,六球半/七,七球,七/七球半,七球半,七球半/八,八球,八/八球半,八球半,八球半/九,九球,九/九球半,九球半,九球半/十,十球"
+            .split(",");
+   
+
+        function Goal2GoalCn(goal) { //数字盘口转汉汉字	
+            if (goal == null || goal + "" == "")
+                return "";
+            else {
+                if (goal > 10 || goal < -10) return goal + "球";
+                if (goal >= 0) return GoalCn[parseInt(goal * 4)];
+                else return "<font style='color:red;'>*</font>" + GoalCn[Math.abs(parseInt(goal * 4))];
+            }
+        }
+
+   
+
+        function fillData() {
+            if (load_flag[0] == 0 || load_flag[1] == 0 || load_flag[2] == 0) {
+                setTimeout(fillData, 100);
+                return;
+            }
+
+            var headhtml = [];
+            headhtml.push('<tr>');
+            headhtml.push('<th rowspan="2">序号</th>');
+            headhtml.push('<th rowspan="2">场次</th>');
+            headhtml.push('<th rowspan="2">联赛</th>');
+            headhtml.push('<th rowspan="2">球队</th>');
+            headhtml.push('<th rowspan="2">比赛时间</th>');
+            headhtml.push('<th rowspan="2">让球</th>');
+            headhtml.push('<th colspan="3" style="text-align:center">胜平负赔率</th>');
+            headhtml.push('<th colspan="3" style="text-align:center">bet365欧赔</th>');
+            headhtml.push('<th colspan="3" style="text-align:center">bet365亚赔</th>');
+            headhtml.push('<th rowspan="2">分析</th>');
+            headhtml.push('</tr>');
+
+            headhtml.push('<tr>');
+            headhtml.push('<th>胜</th>');
+            headhtml.push('<th>平</th>');
+            headhtml.push('<th>负</th>');
+            headhtml.push('<th>胜</th>');
+            headhtml.push('<th>平</th>');
+            headhtml.push('<th>负</th>');
+            headhtml.push('<th>盘</th>');
+            headhtml.push('<th>主</th>');
+            headhtml.push('<th>客</th>');
+            headhtml.push('</tr>');
+
+            $("#thead").html(headhtml.join(""));
+            var html = [];
+            for (var k in matchData) {
+                var match = matchData[k];
+                // if(!match.id){
+                //     continue;
+                // }
+                // console.log(match);
+                var playtimeArr = match.playtime.split(",");
+                var match_time = playtimeArr[3] + ":" + playtimeArr[4];
+
+                html.push('<tr class="lid_' + match.league.id + '">');
+                html.push('<td rowspan="2">' + (++i_count) + '</td>');
+                html.push(
+                    '<td rowspan="2"><a target="_blank" href="http://zq.win007.com/analysis/' +
+                    match["id"] + '.htm">' + match["num"] + '</a></td>');
+                if (match.league.color == "") {
+                    html.push('<td rowspan="2"><a target="_blank" href="http://zq.win007.com/cn/' +
+                        match.league.link + '">' + match.league.name + '</a></td>');
+                } else {
+                    html.push('<td rowspan="2" bgcolor="' + match.league.color +
+                        '" ><a target="_blank" style="color:white" href="http://zq.win007.com/cn/' +
+                        match.league.link + '">' + match.league.name + '</a></td>');
+                }
+                if (match["status"] != "0") {
+                    html.push(
+                        '<td rowspan="2"><a target="_blank" href="http://zq.win007.com/analysis/' +
+                        match["id"] + '.htm">' + match["h_name"] + ' <span style="color:red;font-size:12px;">' +
+                        match["full"] + '(' + match["half"] + ')</span> ' + match["a_name"] + '</a></td>');
+                } else {
+                    html.push(
+                        '<td rowspan="2"><a target="_blank" href="http://zq.win007.com/analysis/' +
+                        match["id"] + '.htm">' + match["h_name"] + ' VS ' + match["a_name"] + '</a></td>');
+                }
+                html.push('<td rowspan="2">' + match_time + '</td>');
+                html.push('<td></td>');
+                html.push('<td>' + match.had[0] + '</td>');
+                html.push('<td>' + match.had[1] + '</td>');
+                html.push('<td>' + match.had[2] + '</td>');
+                var h=match.europe[2];
+                var d=match.europe[1];
+                var a=match.europe[3];
+                html.push('<td rowspan="2">' + h + '</td>');
+                html.push('<td rowspan="2">' + d + '</td>');
+                html.push('<td rowspan="2">' + a + '</td>');
+                var h1=match.asia[2];
+                var pan=match.asia[1];
+                var a1=match.asia[3];
+                html.push('<td rowspan="2">' +Goal2GoalCn( pan) + '</td>');
+                html.push('<td rowspan="2">' + h1 + '</td>');
+                html.push('<td rowspan="2">' + a1 + '</td>');
+                html.push('<td rowspan="2"><a href="/bolool.html?id=' + match.id + '&europe='+h+','+d+','+a+'&asia='+h1+','+pan+','+a1+'&hId='+match.hId+'&aId='+match.aId+'" target="_blank">查看</a></td>');
+                html.push('</tr>');
+                html.push('<tr class="lid_' + match.league.id + '">');
+
+                html.push('<td>' + match.rq + '</td>');
+                html.push('<td>' + match.hhad[0] + '</td>');
+                html.push('<td>' + match.hhad[1] + '</td>');
+                html.push('<td>' + match.hhad[2] + '</td>');
+
+                html.push('</tr>');
+
+            }
+            $("#matchlist").html(html.join(""));
+
+        }
+    </script>
+</body>
+
+</html>

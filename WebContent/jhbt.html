@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-计划投注计算器</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
+
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="res/datetimepicker.css" />
+<script src="res/bootstrap-datetimepicker.min.js"></script>
+<link rel="stylesheet" href="res/headshrinker.min.css" />
+<script src="res/jquery.headshrinker.min.js"></script>
+<script src="res/layer-v2.3/layer/layer.js"></script>
+</head>
+<body>
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="page-header">
+			<div class="view">
+				计划投注 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:showLogin()">登录</a> <span style="display: none" class="saveDiv">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:saveConfig()">保存配置</a>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:loadMyOrder()">我的投注</a>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:testWin()">测试收益</a>
+				</span>
+			</div>
+		</div>
+	
+	<div class="view">
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>首期金额</th>
+					<th>最大期数</th>
+					<th>佣金比例</th>
+					<th>奖金盈利</th>
+					<th>赔率</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><select id="firstMoney" onchange="moneyChange()">
+							<option value="10000">10000</option>
+							<option value="5000">5000</option>
+							<option value="2000">2000</option>
+							<option value="1500">1500</option>
+							<option value="1000">1000</option>
+							<option value="500">500</option>
+							<option value="300" selected="selected">300</option>
+							<option value="200">200</option>
+							<option value="100">100</option>
+							<option value="50">50</option>
+							<option value="30">30</option>
+							<option value="0">自定义</option>
+					</select></td>
+
+					<td><select id="maxNum" onchange="fillData()">
+							<option value="40">40</option>
+							<option value="35">35</option>
+							<option value="30">30</option>
+							<option value="25">25</option>
+							<option value="20">20</option>
+							<option value="15" selected="selected">15</option>
+							<option value="10">10</option>
+					</select></td>
+					<td><select class="selectpicker" id="yjrace"
+						onchange="fillData1(1)" title="最低返点设置">
+							<option value="9">9%</option>
+							<option value="8.5">8.5%</option>
+							<option value="8">8%</option>
+							<option value="7" selected="selected">7%</option>
+							<option value="6">6%</option>
+							<option value="5">5%</option>
+							<option value="4">4%</option>
+							<option value="3">3%</option>
+							<option value="2">2%</option>
+							<option value="1">1%</option>
+							<option value="0">0%</option>
+					</select></td>
+					<td><select class="selectpicker" id="awardrace"
+						onchange="awardraceChange()" title="奖金盈利">
+							<option value="80">80%</option>
+							<option value="50">50%</option>
+							<option value="35">35%</option>
+							<option value="30">30%</option>
+							<option value="25">25%</option>
+							<option value="20" selected="selected">20%</option>
+							<option value="15">15%</option>
+							<option value="10">10%</option>
+							<option value="5">5%</option>
+							<option value="0">0%</option>
+					</select></td>
+					<td><input type="text" value="" onchange="fillData()" id="sp" />
+						<!--&nbsp;&nbsp;&nbsp;&nbsp;代入竞彩单关:&nbsp;&nbsp;<a href="javascript:getJc(2)">平赔</a>&nbsp;&nbsp;<a href="javascript:getJc(1)">一赔</a>&nbsp;&nbsp;<a href="javascript:getJc(3)">三赔</a>-->
+						&nbsp;&nbsp;<a href="javascript:fillData()">计算</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="view">
+		<table class="table table-bordered table-hover">
+			<thead id="thead">
+				<tr>
+					<th>期数</th>
+					<th>赔率</th>
+					<th>收益</th>
+					<th>累计投入</th>
+					<th>本期投入</th>
+					<th>本期倍数</th>
+					<th>本期奖金</th>
+					<th>奖金收益</th>
+					<th>累计佣金</th>
+					<th>累计收益</th>
+				</tr>
+			</thead>
+			<tbody id="showTab"></tbody>
+			<tbody id="testWinTab" style="display:none"></tbody>
+			<tbody id="myOrderTab" style="display:none"></tbody>
+		</table>
+	</div>
+
+</div>
+	<div id="myModal" style="background-color: white; text-align: center;"
+		class="modal hide fade" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"
+				aria-hidden="true">×</button>
+			<h3 style="color: red;">登录</h3>
+		</div>
+		<div class="modal-body">
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<td style="text-align: right">用户名：</td>
+						<td style="text-align: left"><input type="text" id="userName" /></td>
+					</tr>
+					<tr>
+						<td style="text-align: right">密 码：</td>
+						<td style="text-align: left"><input type="password"
+							id="userPwd" /></td>
+					</tr>
+					<tr>
+						<td style="text-align: right">手机号：</td>
+						<td style="text-align: left"><input type="text"
+							id="userMobile" /></td>
+					</tr>
+					<tr>
+						<td colspan=3><input type="button" value="登录"
+							onclick="doLogin()" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true"
+				style="color: red;">关闭</button>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		var g_user;
+		function showLogin(){
+			var myModal = $("#myModal");
+			myModal.removeClass("hide");
+			myModal.modal("show");
+		}
+		function doLogin(){
+			var userName = $("#userName").val();
+			var userPwd = $("#userPwd").val();
+			var userMobile = $("#userMobile").val();
+			$.ajaxSetup({
+				async:false
+			});
+			$.post("/api/userLogin",{userName,userPwd,userMobile},function(d){
+				var arr = d.split(";");
+				if(arr.length==2){
+					g_user = JSON.parse(arr[1]);
+					setSelect("firstMoney",g_user.firstMoney);
+					setSelect("yjrace",g_user.commission,g_user.commission+"%");
+					setSelect("awardrace",g_user.earningsYield,g_user.earningsYield+"%");
+					$(".userDiv").show();
+					$.get("/api/lastOrder",function(data){
+						
+					});
+				}else{
+					alert(arr[0]);
+				}
+			});
+			$.ajaxSetup({
+				async:true
+			});
+		}
+		
+		function saveConfig(){
+			var firstMoney = Number($("#firstMoney").val());//首期金额
+			var commission = Number($("#yjrace").val());//佣金
+			var earningsYield = Number($("#awardrace").val());
+			$.post("/api/saveConfig",{firstMoney,commission,earningsYield},function(d){
+				alert(d);
+			});
+		}
+		
+		function setSelect(id,value,text){
+			if(!text){
+				text = value;
+			}
+			var selectEl = $("#"+id);
+			var hasEl = selectEl.find("option[value="+value+"]");
+			if(hasEl.length==0){
+				$('<option value='+value+'>'+text+'</option>').insertBefore(selectEl.find("option:eq(0)"));
+			}
+			selectEl.val(value).change();
+		}
+		function eMoney(){
+			layer.prompt({title: '输入金额，并确认',formType: 0,closeBtn :0,btn: ['确认']}, function(text, index){
+					if(text.match(/^\d+$/g)){
+						text=parseInt(text);
+						if(text%2!=0){
+							layer.alert("必须是大于0的偶数！")
+							$("#firstMoney").val(100).change();
+						}else{
+							layer.close(index);
+							setSelect("firstMoney",text);
+						}
+					}else{
+						layer.alert("必须是大于0的偶数！")
+						$("#firstMoney").val(100).change();
+					}
+				});
+		}
+		function moneyChange(){
+			//如果数据有手工修改过，就不要重置数据了，直接修改第一行的投注金额即可
+			var firstMoney = Number($("#firstMoney").val());//首期金额
+			var yjrace = Number($("#yjrace").val())/100.0;//佣金
+			var tr = $("#data1");
+			var tds = tr.find("td");
+			var sp = Number(tds[1].innerText);
+			var bs = parseInt(firstMoney/2);
+			var current_award = firstMoney * sp;
+			tds[3].innerText = firstMoney;
+			tds[4].innerText = firstMoney;
+			tds[5].innerText = bs;
+			tds[6].innerText = current_award.toFixed(2);
+			tds[7].innerText = current_award - firstMoney;
+			tds[8].innerText = (firstMoney * yjrace).toFixed(2);
+			tds[8].innerText = (current_award - firstMoney + firstMoney * yjrace).toFixed(2);
+			$("#sp2").change();
+		}
+		function awardraceChange(){
+			var awardrace = Number($("#awardrace").val())/100.0;
+			var firstInput;
+			$("#showTab").find("input[awardraceChange=0]").each((idx,el)=>{
+				if(idx==0){
+					firstInput=el;
+				}
+				el.value=awardrace
+			});
+			var idx = firstInput.id.replace("awardrace","");
+			if(idx==1){
+				idx = 2;
+			}
+			$("#sp"+idx).change();
+		}
+		function getJc(){
+			//从近半年单关来计算
+			//https://info.sporttery.cn/football/match_result.php?page=1&search_league=0&start_date=2020-09-01&end_date=2020-11-25&dan=1
+			var now = new Date();
+			var day = now.getDate();
+			var month = now.getMonth()+1;
+			if(day<10){
+				day = "0"+day;
+			}
+			if(month<10){
+				month = "0"+month;
+			}
+			var year = now.getFullYear();
+			var end_date = year + "-" + month + "-" + day;
+			now = new Date(now.getTime()-1000*60*60*24*60);
+			month = now.getMonth()+1;
+			if(month<10){
+				month = "0"+month;
+			}
+			year = now.getFullYear();
+			var start_date = year + "-" + month + "-" + day;
+			
+			var url = "/football/match_result.php?page=1&search_league=0&start_date="+start_date+"&end_date="+end_date+"&dan=1";
+			
+		}
+		function fillData() {
+			var sp = $("#sp").val();
+			if(sp.indexOf("*")!=-1){
+				var sps = sp.split("*");
+				sp = 1.0;
+				for(var i=0;i<sps.length;i++){
+					sp *= Number(sps[i]);
+				}
+			}
+			sp = Number(Number(sp).toFixed(2));//赔率
+			if(sp == 0 || isNaN(sp)){
+				return;
+			}
+			var maxNum =Number( $("#maxNum").val());//最大投注期
+			var yjrace = Number($("#yjrace").val())/100.0;//佣金
+			var awardrace = Number($("#awardrace").val())/100.0;//每期盈利比例
+			var firstMoney = Number($("#firstMoney").val());//首期金额
+			if(firstMoney==0){
+				eMoney();
+				return;
+			}
+			var trCount = $("#showTab").find("tr").length+1;
+			var total_money = 0;
+			var total_money_ele = $("#total_money"+(trCount-1));
+			if(total_money_ele.length==1){
+				total_money = parseInt(total_money_ele.text());
+			}
+			if(trCount-1 > maxNum){
+				for(var i=maxNum;i<trCount;i++){
+					$("#data"+i).remove();
+				}
+			}else{
+				var html = [];
+				for(var i = trCount; i<= maxNum;i++){
+					var bs = parseInt(((total_money*(1+awardrace)/(sp-1-awardrace))/2).toFixed(2));
+					var current_money = bs * 2;
+					var current_award = current_money * sp;
+					if(current_money < firstMoney){
+						bs = firstMoney/2;
+						current_money = bs*2;
+						current_award = current_money * sp;
+					}
+	// 				while(current_award < total_money + current_money){
+	// 					bs++;
+	// 					current_money = bs * 2;
+	// 					current_award = current_money * sp;
+	// 				}
+					total_money = total_money + current_money;
+					
+					html.push("<tr id=data"+i+">");
+					html.push("<td>" + i + "</td>");
+					if(i==1){
+						html.push("<td>"+sp +"</td>");
+						html.push("<td>"+awardrace +"</td>");
+					}else{
+						html.push("<td><input id=sp"+i+" type=text maxlength=4 size=4 value=" + sp +" onchange='fillData1("+i+")' /></td>");
+						html.push("<td><a href='javascript:add("+i+",-0.1)'>-0.1</a><input id=awardrace"+i+" type=text maxlength=4 size=4 awardraceChange=0 value=" + awardrace +" onchange='fillData1("+i+");$(\"#awardrace"+i+"\").attr(\"awardraceChange\",1);' /><a href='javascript:add("+i+",0.1)'>+0.1</a></td>");
+					}
+					html.push("<td id=total_money"+i+">" + total_money + "</td>");
+					html.push("<td style='color:red'>" + current_money + "</td>");
+					html.push("<td style='color:green'>" + bs + "</td>");
+					html.push("<td>" + current_award.toFixed(2) + "</td>");
+					html.push("<td>" + (current_award - total_money).toFixed(2) + "</td>");
+					html.push("<td>" + (total_money * yjrace).toFixed(2) + "</td>");
+					html.push("<td>" + (current_award - total_money + total_money * yjrace).toFixed(2) + "</td>");
+					html.push("</tr>");
+				}
+				$("#showTab").append(html.join(''));
+			}
+		}
+		function fillData1(idx){
+			var sp = $("#sp").val();
+			if(sp.indexOf("*")!=-1){
+				var sps = sp.split("*");
+				sp = 1.0;
+				for(var i=0;i<sps.length;i++){
+					sp *= Number(sps[i]);
+				}
+			}
+			sp = Number(Number(sp).toFixed(2));//赔率
+			var maxNum =Number( $("#maxNum").val());//最大投注期
+			var yjrace = Number($("#yjrace").val())/100.0;//佣金
+			var awardrace = Number($("#awardrace").val())/100.0;//每期盈利比例
+			var firstMoney = Number($("#firstMoney").val());//首期金额
+			if(firstMoney==0){
+				eMoney();
+				return;
+			}
+			
+			var total_money = 0;
+			var total_money_ele = $("#total_money"+(idx-1));
+			if(total_money_ele.length==1){
+				total_money = parseInt(total_money_ele.text());
+			}
+			for(var i=idx;i<=maxNum;i++){
+				var mysp = Number($("#sp"+i).val());
+				var myawardrace = Number($("#awardrace"+i).val());
+				if(isNaN(mysp) || mysp < 1){
+					mysp = sp;
+				}
+				if(isNaN(myawardrace) || myawardrace < 0){
+					myawardrace = awardrace;
+				}
+				var bs = parseInt(((total_money*(1+myawardrace)/(mysp-1-myawardrace))/2).toFixed(2));
+				var current_money = bs * 2;
+				var current_award = current_money * mysp;
+				if(current_money < firstMoney){
+					bs = firstMoney/2;
+					current_money = bs*2;
+					current_award = current_money * mysp;
+				}
+				total_money = total_money + current_money;
+				var datai = $("#data"+i);
+				var tds = datai.find("td");
+				tds[3].innerText = total_money;
+				tds[4].innerText = current_money;
+				tds[5].innerText = bs;
+				tds[6].innerText = current_award.toFixed(2);
+				tds[7].innerText = (current_award - total_money).toFixed(2);
+				tds[8].innerText = (total_money * yjrace).toFixed(2);
+				tds[9].innerText = (current_award - total_money + total_money * yjrace).toFixed(2);
+			}
+		}
+		function add(idx,num){
+			var oldValue = parseFloat($("#awardrace"+idx).val());
+			$("#awardrace"+idx).val((oldValue+num).toFixed(2)).change();
+		}
+		
+	</script>
+</body>
+</html>

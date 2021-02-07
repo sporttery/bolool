@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-欧亚换算-待完善</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
+
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="res/datetimepicker.css" />
+<script src="res/bootstrap-datetimepicker.min.js"></script>
+<link rel="stylesheet" href="res/headshrinker.min.css" />
+<script src="res/jquery.headshrinker.min.js"></script>
+
+<style type="text/css">
+input {
+	width: 100px;
+}
+
+input.disabled {
+	border: 1px solid #DDD;
+	background-color: #F5F5F5;
+	color: #ACA899;
+}
+</style>
+
+</head>
+<body>
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="page-header">
+			<div class="view">
+				日期:<input type="text" id="date" class="datetimepicker"
+					data-date-format="yyyy-mm-dd" onchange="showdate(this.value)" />
+				&nbsp;&nbsp;比赛：<select class="selectpicker" onchange="fillsp()"
+					id="sellMatchList">
+					<option value="0">自定义</option>
+				</select>
+			</div>
+			&nbsp;&nbsp;&nbsp;总投入：<input type="text" value=10000
+				onkeypress="calc()" id="Q" /> &nbsp;&nbsp;&nbsp;佣金： <select
+				class="selectpicker minfd_control" onchange="calc()" id="c"
+				title="最低返点设置">
+				<option value="0.15">15%</option>
+				<option value="0.10">10%</option>
+				<option value="0.09">9%</option>
+				<option value="0.085">8.5%</option>
+				<option value="0.08" selected="selected">8%</option>
+				<option value="0.07">7%</option>
+				<option value="0.06">6%</option>
+				<option value="0.05">5%</option>
+				<option value="0.04">4%</option>
+				<option value="0.03">3%</option>
+				<option value="0.02">2%</option>
+				<option value="0.01">1%</option>
+				<option value="0">0%</option>
+			</select> &nbsp;&nbsp;&nbsp;胜平负赔率：<input type="text" value=""
+				onkeypress="getsp()" id="sp" /> &nbsp;&nbsp;&nbsp;让球胜平负赔率：<input
+				type="text" value="" onkeypress="getsp()" id="sp1" />
+		</div>
+		<div id="resultList" class="view"></div>
+	</div>
+	<script type="text/javascript" src="res/jc.js"></script>
+	<script type="text/javascript" src="res/odds2asia.js"></script>
+	<script type="text/javascript">
+		function getsp() {
+			$("#resultList").html("");
+			sp = $("#sp").val().replace(/\s+/g, ",").split(/[,+-]/);
+			sp1 = $("#sp1").val().replace(/\s+/g, ",").split(/[,+-]/);
+			calc();
+		}
+		var last_row;
+		function createArea(msg, ext, newrow,s1,s2,s3) {
+			var html = [];
+			if (newrow) {
+				last_row = $("<div class=\"row\"></div>").appendTo("#resultList");
+			}
+			if(!last_row){
+				last_row = $("#resultList").find(".row:last");
+			}
+			if(!s1){
+				s1="";
+				s2="";
+				s3="";
+			}else if(!s2){
+				s2="";
+				s3="";
+			}else if(!s3){
+				s3="";
+			}
+			html.push('<div class="col-md-4">');
+			if(msg.indexOf("盈利持平")!=-1){
+				html.push(msg + '<span id="yl'+ext+'_" style="font-size:35px;color:red">盈利：0</span>');
+			}else{
+				html.push(msg + '<span id="yl'+ext+'" style="font-size:35px;color:red">盈利：0</span>');
+			}
+			html.push('<div class="view">');
+			html.push('	S1：<input type="text" id="s1' + ext + '" onchange="calc(\'' + ext + ')" value="'+s1+'"/> &nbsp;S2：<input');
+			html.push(' type="text" id="s2' + ext + '"  onchange="calc(\'' + ext + '\')" value="'+s2+'"/> &nbsp;S3：<input');
+			html.push(' type="text" id="s3' + ext + '"  onchange="calc(\'' + ext + '\')" value="'+s3+'"/>');
+			html.push('	</div>');
+			html.push('<div class="view">');
+			html.push(' T1：<input type="text" id="t1'+ext+'" disabled="disabled"/> &nbsp;T2：<input');
+			html.push(' type="text" id="t2' + ext + '" disabled="disabled"/> &nbsp;T3：<input');
+			html.push(' type="text" id="t3' + ext + '" disabled="disabled"/>');
+			html.push('	</div>');
+			html.push('	<div class="view">');
+			html.push(' P1：<input type="text" id="p1'+ext+'" disabled="disabled"/> &nbsp;P2：<input');
+			html.push(' type="text" id="p2' + ext + '" disabled="disabled"/> &nbsp;P3：<input');
+			html.push(' type="text" id="p3' + ext + '" disabled="disabled"/>');
+			html.push('	</div>');
+			html.push('</div>');
+			
+			$(html.join("")).appendTo(last_row);
+		}
+		var tt1, tt2, tt3, pp1, pp2, pp3, ss1, ss2, ss3, QQ, cc, yl,sp,sp1,currMatch;
+		function calc(ext) {
+			//$("#resultList").html("");
+			if (!QQ) {
+				QQ = $("#Q");
+				cc = $("#c");
+			}
+			if(!sp){
+				sp = $("#sp").val().replace(/\s+/g, ",").split(/[,+-]/);
+				sp1 = $("#sp1").val().replace(/\s+/g, ",").split(/[,+-]/);
+			}
+			if (!ext) {
+				ext = "";
+				createArea("平手盘 客",ext,true,sp[0],sp[1],sp[2]);
+			}
+			tt1 = $("#t1" + ext);
+			tt2 = $("#t2" + ext);
+			tt3 = $("#t3" + ext);
+			pp1 = $("#p1" + ext);
+			pp2 = $("#p2" + ext);
+			pp3 = $("#p3" + ext);
+			ss1 = $("#s1" + ext);
+			ss2 = $("#s2" + ext);
+			ss3 = $("#s3" + ext);
+			yl = $("#yl" + ext);
+			var Q = parseInt(QQ.val());
+			var c = parseFloat(cc.val());
+			var s1 = parseFloat(ss1.val());
+			var s2 = parseFloat(ss2.val());
+			var s3 = parseFloat(ss3.val());
+			if (s1 > 0 && s2 > 0 && s3 > 0) {
+				t3 = calc_pinshou_money(Q, s1, s2, s3);
+				t1 = (t3 * s3 / s1);
+				t2 = ((t3 * s3 - t3) / s2);
+				tt1.val(t1.toFixed(2));
+				tt2.val(t2.toFixed(2));
+				tt3.val(t3.toFixed(2));
+				pp1.val((t1 * s1).toFixed(2));
+				pp2.val((t2 * s2 + t3).toFixed(2));
+				pp3.val((t3 * s3).toFixed(2));
+				yl.text("盈利：" + ((t1 * s1) + ((t1 + t2) * c) - Q).toFixed(2));
+			} else {
+				tt1.val("");
+				tt2.val("");
+				tt3.val("");
+				pp1.val("");
+				pp2.val("");
+				pp3.val("");
+				yl.text("盈利：");
+			}
+			if (ext == "") {
+				ext = "_min";
+				createArea("平手盘(奖金持平) 客 最低赔率",ext,false,sp[0],sp[1],sp[2]);
+				s1=sp[0];
+				s2=sp[1];
+				s3 = calc_pinshou_minodds(Q, s1, s2);
+				ss3 = $("#s3" + ext);
+				ss3.val(s3.toFixed(3)).css("color", "red");
+				calc(ext);
+
+				ext = "_min_yl";
+				createArea("平手盘 (盈利持平) 客 最低赔率",ext,false,sp[0],sp[1],sp[2]);
+				s1=sp[0];
+				s2=sp[1];
+				s1 = getOddsWithFd(s1);
+				s2 = getOddsWithFd(s2);
+				s3 = calc_pinshou_minodds(Q, s1, s2);
+				ss1 = $("#s1" + ext);
+				ss2 = $("#s2" + ext);
+				ss3 = $("#s3" + ext);
+				ss3.val(s3.toFixed(3)).css("color", "red");
+				ss2.val(s2.toFixed(3));
+				ss1.val(s1.toFixed(3));
+				calc(ext);
+
+				ext = "_z";
+				createArea("平手盘 主",ext,true,sp[2],sp[1],sp[0]);
+				s1=sp[2];
+				s2=sp[1];
+				ss1 = $("#s1" + ext);
+				ss2 = $("#s2" + ext);
+				ss3 = $("#s3" + ext);							
+				calc(ext);
+
+				ext = "_min_z";
+				createArea("平手盘(奖金持平) 主 最低赔率",ext,false,sp[2],sp[1],sp[0]);
+				s1=sp[2];
+				s2=sp[1];
+				s3 = calc_pinshou_minodds(Q, s1, s2);
+				ss3 = $("#s3" + ext);
+				ss3.val(s3.toFixed(3)).css("color", "red");
+				calc(ext);
+
+				ext = "_min_yl_z";
+				createArea("平手盘 (盈利持平)主  最低赔率",ext,false,sp[2],sp[1],sp[0]);
+				s1=sp[2];
+				s2=sp[1];
+				s1 = getOddsWithFd(s1);
+				s2 = getOddsWithFd(s2);
+				s3 = calc_pinshou_minodds(Q, s1, s2);
+				ss1 = $("#s1" + ext);
+				ss2 = $("#s2" + ext);
+				ss3 = $("#s3" + ext);
+				ss3.val(s3.toFixed(3)).css("color", "red");
+				ss2.val(s2.toFixed(3));
+				ss1.val(s1.toFixed(3));
+				calc(ext);
+				
+				
+
+			}
+		}
+		function fillData(match_list) {
+			if (!match_list) {
+				match_list = g_match_list;
+			}
+			var html = [];
+			for ( var k in match_list) {
+				var match = match_list[k];
+				var matchinfo = match["matchinfo"];
+				if (!matchinfo) {
+					var matchinfo = match["num"] + " " + match["l_cn_abbr"] + " " + match["h_cn_abbr"] + "(" + parseInt(match["goalline"]) + ")";
+					if (match["full"] != "" && match["full"] != "undefined" && match["full"] != null) {
+						matchinfo += " " + match["full"] + "(" + match["half"] + ")" + " ";
+					} else {
+						matchinfo += " VS ";
+					}
+					matchinfo += match["a_cn_abbr"];
+					match_list[k]["matchinfo"] = matchinfo;
+				}
+				html.push('<option value="'+k+'">' + matchinfo + '</option>');
+			}
+			html.push('<option value="0">自定义</option>');
+			$("#sellMatchList").html(html.join(""));
+			fillsp();
+		}
+		function showdate(date) {
+			g_match_list = {}, g_status = {};
+			get_match_list_by_date(date);
+		}
+		$(function() {
+			$(".datetimepicker").datetimepicker({
+				minView : "month", //选择日期后，不会再跳转去选择时分秒 
+				language : 'zh-CN',
+				autoclose : true,
+				format : 'yyyy-mm-dd'
+			});
+			get_selling_match_list();
+		});
+	</script>
+</body>
+</html>

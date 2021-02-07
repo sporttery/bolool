@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-竞彩受注赛程列表</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
+
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="res/datetimepicker.css" />
+<script src="res/bootstrap-datetimepicker.min.js"></script>
+<link rel="stylesheet" href="res/headshrinker.min.css" />
+<script src="res/jquery.headshrinker.min.js"></script>
+<style type="text/css">
+.selected{
+background-color:#F5AF19;
+}
+.tz_td{
+display:none;
+}
+#tj1{
+display:none;
+}
+#tj{
+display:none;
+}
+</style>
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="page-header">
+			<div class="view">竞彩受注赛程列表 
+			&nbsp;&nbsp;<button type="button" class="btn btn-default" onclick="dorefresh()">刷新</button>
+			&nbsp;&nbsp;<label for="date">日期</label><input type="text" id="date" class="datetimepicker" data-date-format="yyyy-mm-dd" onchange="showdate(this.value)" />
+			&nbsp;&nbsp;胜平负最小的赔率区间：<label for="minodds">大于等于</label><select id="minodds" onchange="fillData()">
+			<option selected="selected">1</option>
+			<option>1.1</option><option>1.2</option><option>1.3</option><option>1.4</option><option>1.5</option>
+			<option>1.6</option><option>1.7</option><option>1.8</option><option>1.9</option><option>2.0</option>
+			<option>2.1</option><option>2.2</option><option>2.3</option><option>2.4</option><option>2.5</option>
+			</select>
+			&nbsp;&nbsp;<label for="maxodds">小于等于</label><select id="maxodds" onchange="fillData()">
+			<option selected="selected">3</option>
+			<option>1.2</option><option>1.3</option><option>1.4</option><option>1.5</option>
+			<option>1.6</option><option>1.7</option><option>1.8</option><option>1.9</option><option>2.0</option>
+			<option>2.1</option><option>2.2</option><option>2.3</option><option>2.4</option><option>2.5</option>
+			<option>2.6</option>
+			</select>
+			&nbsp;&nbsp;<label for="goalline">让球</label><select id="goalline" onchange="fillData()">
+			<option value="0">不限</option>
+			<option>-1</option><option>-2</option><option>1</option><option>2</option>
+			</select>
+			&nbsp;&nbsp;<label for="singlematch">单关</label><select id="singlematch" onchange="fillData()">
+			<option value="0">全部</option>
+			<option value="1">单关</option>
+			</select>
+<!-- 			onclick="toggle('.bf_td',this.checked);" -->
+			&nbsp;&nbsp;<input type="checkbox" id="bqc_control" onchange="fillData()"/><label for="bqc_control">半全场</label>
+			&nbsp;&nbsp;<input type="checkbox" id="zjq_control" onchange="fillData()"/><label for="zjq_control">总进球</label>
+			&nbsp;&nbsp;<input type="checkbox" id="bf_control" onchange="fillData()" /><label for="bf_control">比分</label>
+			&nbsp;&nbsp;<input type="checkbox" checked="checked" id="fhl_control" onchange="fillData()"/><label for="fhl_control">返还率</label>
+			&nbsp;&nbsp;<input type="checkbox" id="tj_control" onclick="toggle('#tj',this.checked);"/><label for="tj_control">统计</label>
+			&nbsp;&nbsp;<input type="checkbox" id="tz_control" onclick="toggle('.tz_td',this.checked);toggle('#tj1',this.checked);"/><label for="tz_control">投注列</label>
+			</div>
+			<header>
+				<div class="view">
+				返还率：<span class="selectedReturnRace" style="color:red;font-size:30px;">0</span>
+				&nbsp;&nbsp;最低赔率：<span title="返还率100%时的最低赔率" class="selectedMinOdds" style="color:red;font-size:30px;background-color:yellow;">0</span>
+				&nbsp;&nbsp;佣金： <select
+				class="selectpicker minfd_control" onchange="calc()" id="c"
+				title="最低返点设置">
+				<option value="0.15">15%</option>
+				<option value="0.099">9.9%</option>
+				<option value="0.095">9.5%</option>
+				<option value="0.09">9%</option>
+				<option value="0.085">8.5%</option>
+				<option value="0.08" selected="selected">8%</option>
+				<option value="0.07">7%</option>
+				<option value="0.06">6%</option>
+				<option value="0.05">5%</option>
+				<option value="0.04">4%</option>
+				<option value="0.03">3%</option>
+				<option value="0.02">2%</option>
+				<option value="0.01">1%</option>
+				<option value="0">0%</option>
+			</select>
+				<br/><a href="javascript:cleanSelected()">清除</a>
+				&nbsp;&nbsp;<span class="lcndiv">赛事选择：</span> 
+				</div>
+			</header>
+		</div>
+		<div class="view">
+			<table class="table table-bordered">
+				<thead id="thead"></thead>
+				<tbody id="tj"></tbody>
+				<tbody id="tj1"></tbody>
+				<tbody id="matchlist"></tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div id="myModal" style="background-color:yellow;text-align:center;color:yellow" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		  <div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <h3 style="color:red;">平vs让平 奖金优化计算器</h3>
+		  </div>
+		  <div class="modal-body">
+		    <table class="table table-bordered">
+		    	<thead>
+		    	<tr>
+		    	<td colspan="6">
+		    	投注金额：<input type="text" id="betmoney" style="color:#000" value="1000" maxlength="5" />
+		  &nbsp;&nbsp;&nbsp;奖金优化：  <input onchange="jjyh()" name="jjyh" type="radio" checked="checked" id="radio1" value="1"/><label for="radio1">平均优化</label>
+		      &nbsp;<input onchange="jjyh()" name="jjyh" type="radio" id="radio2" value="2"/><label for="radio2">博热优化</label>
+		       &nbsp;<input onchange="jjyh()" name="jjyh" type="radio" id="radio3" value="3"/><label for="radio3">博冷优化</label>
+		        &nbsp; &nbsp;<input type="button" value="计  算" style="color:#000" onclick="jjyh()" />
+		    	</td>
+		    	</tr>
+		    	</thead>
+				<thead id="thead">
+					<tr>
+					<th>序号</th>
+					<th>投注内容</th>
+					<th>计算赔率</th>
+					<th>倍数</th>
+					<th>金额</th>
+					<th>奖金</th>
+					</tr>
+				</thead>
+				<tbody id="matchbetarr"></tbody>
+			</table>
+		  </div>
+		  <div class="modal-footer">
+		    <button class="btn" data-dismiss="modal" aria-hidden="true" style="color:red;">关闭</button>
+		  </div>
+	</div>
+	
+	<script type="text/javascript" src="res/jc.js"></script>
+	<script type="text/javascript">
+	g_max_cell_count = 32;//
+	g_max_return_race_match_id=0;//最高返还率的那场比赛id
+	g_jjyh_betarr = [];
+	var crskeyArrH = "0100,0200,0201,0300,0301,0302,0400,0401,0402,0500,0501,0502,-1-h".split(",");
+	var crskeyArrA = "0001,0002,0003,0004,0005,0102,0103,0104,0105,0203,0204,0205,-1-a".split(",")
+	var crskeyArrD= "0000,0101,0202,0303,-1-d".split(",")
+	function fillData(match_list){
+		if(!match_list){
+			match_list = g_match_list;
+		}
+		var min_odds=$("#minodds").val(),max_odds=$("#maxodds").val();
+		var filter_goalline = parseInt($("#goalline").val());
+		var singlematch = $("#singlematch").val();
+		var html=[];var max_return_race = "0%",max_hafu_return_race = "0%",max_hafu_had_return_race = "0%";
+		var i_count=0,hit_count=0,awardmoney=0,awardmoney1=0;
+		cleanSelected();
+		var l_cn_arr={};
+		var headhtml = [];
+		headhtml.push('<tr>');
+		headhtml.push('<th rowspan="2">序号</th>');
+		headhtml.push('<th rowspan="2">场次</th>');
+		headhtml.push('<th rowspan="2">联赛</th>');
+		headhtml.push('<th rowspan="2">球队</th>');
+		headhtml.push('<th rowspan="2">比赛时间</th>');
+		headhtml.push('<th rowspan="2" class="tz_td">半场彩果</th>');
+		headhtml.push('<th rowspan="2" class="tz_td">投注金额</th>');
+		headhtml.push('<th rowspan="2" class="tz_td">中奖优化</th>');
+		headhtml.push('<th rowspan="2" class="tz_td">均场投注</th>');
+		headhtml.push('<th rowspan="2">让球</th>');
+		headhtml.push('<th colspan="3" style="text-align:center">胜平负赔率</th>');
+		var fhl_check = $("#fhl_control")[0].checked;
+		var zjq_check = $("#zjq_control")[0].checked;
+		var bf_check = $("#bf_control")[0].checked;
+		var bqc_check = $("#bqc_control")[0].checked;
+		if(fhl_check){
+			headhtml.push('<th rowspan="2">胜平负返还</th>');
+			headhtml.push('<th rowspan="2">平和让平<br/>双选赔率</th>');
+			headhtml.push('<th rowspan="2">最高返还</th>');
+		}
+		if(bqc_check){
+			headhtml.push('<th colspan="9" style="text-align:center">半全场赔率</th>');
+			if(fhl_check){
+				headhtml.push('<th rowspan="2">半全返还</th>');
+			}
+		}
+		if(zjq_check){
+			headhtml.push('<th colspan="8" style="text-align:center">总进球</th>');
+			if(fhl_check){
+				headhtml.push('<th rowspan="2">进球返还</th>');
+			}
+		}
+		if(bf_check){
+			headhtml.push('<th rowspan="2" style="text-align:center">展开比分</th>');
+		}
+		headhtml.push('</tr>');
+		headhtml.push('<tr>');
+		headhtml.push('<th>胜</th>');
+		headhtml.push('<th>平</th>');
+		headhtml.push('<th>负</th>');
+		if(bqc_check){
+			headhtml.push('<th class="bqc_td">胜胜</th>');
+			headhtml.push('<th class="bqc_td">平胜</th>');
+			headhtml.push('<th class="bqc_td">负胜</th>');
+			headhtml.push('<th class="bqc_td">胜平</th>');
+			headhtml.push('<th class="bqc_td">平平</th>');
+			headhtml.push('<th class="bqc_td">负平</th>');
+			headhtml.push('<th class="bqc_td">胜负</th>');
+			headhtml.push('<th class="bqc_td">平负</th>');
+			headhtml.push('<th class="bqc_td">负负</th>');
+		}
+		if(zjq_check){
+			headhtml.push('<th class="zjq_td">0</th>');
+			headhtml.push('<th class="zjq_td">1</th>');
+			headhtml.push('<th class="zjq_td">2</th>');
+			headhtml.push('<th class="zjq_td">3</th>');
+			headhtml.push('<th class="zjq_td">4</th>');
+			headhtml.push('<th class="zjq_td">5</th>');
+			headhtml.push('<th class="zjq_td">6</th>');
+			headhtml.push('<th class="zjq_td">7</th>');
+		}
+		headhtml.push('</tr>');
+		$("#thead").html(headhtml.join(""));
+		var selectDateVal = $("#date").val();
+		for(var k in match_list){
+			var match = match_list[k];
+			if(match["had"]=="undefined" || match["had"]==null ){
+				match["had"]={"h":"","a":"","d":"","p_status":"N"};
+			}
+			if(!l_cn_arr["lid_"+match["l_id"]]){
+				l_cn_arr["lid_"+match["l_id"]]=match["l_cn_abbr"];
+			}
+			var h = match["had"]["h"],d = match["had"]["d"],a= match["had"]["a"];
+			var goalline = parseInt(match["goalline"]);
+			var filter_odds_flag=false;
+			
+			if(goalline>0){
+				if(a>=min_odds && a <= max_odds){
+					filter_odds_flag = true;
+				}
+			}else{
+				if(h>=min_odds && h <= max_odds){
+					filter_odds_flag = true;
+				}
+			}
+			if(filter_goalline!=0 && goalline!=filter_goalline){
+				filter_odds_flag = false;
+			}
+			if(singlematch==1){
+				if((!match["had"]["single"]||match["had"]["single"]==0) && (!match["hhad"]["single"] ||match["hhad"]["single"]==0 )){
+					filter_odds_flag = false;
+				}
+			}
+			if(!filter_odds_flag){
+				continue;
+			}
+			var match_date = match["date"]+" "+match["time"];
+			var match_date_arr = match_date.split(/[- :]/);
+			match_date = new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],match_date_arr[3],match_date_arr[4],match_date_arr[5]);
+			match["playtime"] = match_date;
+			if(match["num"].substring(0,2)=="周六"||match["num"].substring(0,2)=="周日"){
+				if(match_date > new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],1,0,0)
+				&& match_date < new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],8,55,0)){
+					match_date = new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],1,0,0);
+				}
+			}else{
+				if(match_date > new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],0,0,0)
+				&& match_date < new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],8,55,0)){
+					match_date = new Date(match_date_arr[0],match_date_arr[1]-1,match_date_arr[2],0,0,0);
+				}
+			}
+			match["endtime"] =match_date;
+			if(selectDateVal==""){//在售赛程
+				if(new Date().getTime() > match_date.getTime()-1000*60*3){//超过3分钟截止的，不再显示
+					continue;
+				}
+			}
+			var end_time = match["date"].substring(5) + " "+ (match_date.getHours()<9?"0"+match_date.getHours():match_date.getHours())+":"+(match_date.getMinutes()<9?"0"+match_date.getMinutes():match_date.getMinutes());
+			match["endtimestr"]=end_time;
+			var h_h = match["hhad"]["h"],h_d = match["hhad"]["d"],h_a= match["hhad"]["a"];
+			var ha_hh=match["hafu"]["hh"],ha_hd=match["hafu"]["hd"],ha_ha=match["hafu"]["ha"],ha_ah=match["hafu"]["ah"],ha_ad=match["hafu"]["ad"],ha_aa=match["hafu"]["aa"],ha_dh=match["hafu"]["dh"],ha_dd=match["hafu"]["dd"],ha_da=match["hafu"]["da"];
+			var h_return_race = return_race(h,d,a);
+			var dd_return_race = return_race_num(h_d,d) ;
+			var hh_return_race=return_race(h_h,h_d,h_a);
+			var hafu_return_race = return_race(ha_hh,ha_hd,ha_ha,ha_dh,ha_dd,ha_da,ha_ah,ha_ad,ha_aa)+"%";
+			var ttg_return_race = return_race(match["ttg"].s0,match["ttg"].s1,match["ttg"].s2,match["ttg"].s3,match["ttg"].s4,match["ttg"].s5,match["ttg"].s6,match["ttg"].s7)+"%";
+			var rh=return_race_num(ha_hh,ha_dh,ha_ah),rd=return_race_num(ha_hd,ha_dd,ha_ad),ra=return_race_num(ha_ha,ha_da,ha_aa);
+			var had_hhad_return_race = 0;
+			if(goalline>0){
+			//无胜负赛果
+				ra=return_race_num(ha_da,ha_aa);
+			}else{
+			//无负胜赛果
+				rh=return_race_num(ha_hh,ha_dh);
+			}
+			if(goalline==-1){
+				had_hhad_return_race = return_race(h,h_a);
+			}else if(goalline == 1){
+				had_hhad_return_race = return_race(a,h_h);
+			}
+			var max_had_return_race = Math.max(had_hhad_return_race,h_return_race,hh_return_race) + "%";
+			h_return_race = h_return_race+"%";
+			hh_return_race = hh_return_race+"%";
+			//没有胜负或者胜负 赛果 的半全场全包,
+			var hafu_had_return_race=return_race(rh>h?rh:h,d,ra>a?ra:a)+"%";
+			//全场全包
+			var rh=return_race_num(ha_hh,ha_dh,ha_ah),rd=return_race_num(ha_hd,ha_dd,ha_ad),ra=return_race_num(ha_ha,ha_da,ha_aa);
+			//半场全包
+			var wdl_w=return_race_num(ha_hh,ha_hd,ha_ha),wdl_d=return_race_num(ha_dh,ha_dd,ha_da),wdl_l=return_race_num(ha_ah,ha_ad,ha_aa);
+			if(goalline>0){
+				ra=return_race_num(ha_da,ha_aa);
+			}else{
+				rh=return_race_num(ha_hh,ha_dh);
+			}
+			if(h_return_race==""||h_return_race=="0.00%"){
+				hafu_had_return_race="";
+				h_return_race="";
+				max_had_return_race = "";
+			}
+			
+			html.push('<tr class="lid_'+match["l_id"]+'">');
+			html.push('<td rowspan="2">'+(++i_count)+'</td>');
+			html.push('<td rowspan="2"><a target="_blank" href="http://info.sporttery.cn/football/pool_result.php?id='+match["id"]+'">'+match["num"]+'</a></td>');
+			if(match["l_bg_color"]==""){
+				html.push('<td rowspan="2">'+match["l_cn_abbr"]+'</td>');
+			}else{
+				html.push('<td rowspan="2" bgcolor="'+match["l_bg_color"]+'" style="color:white">'+match["l_cn_abbr"]+'</td>');
+			}
+			if(match["match_status"]=="Final"){
+				html.push('<td rowspan="2"><a target="_blank" href="http://info.sporttery.cn/football/info/fb_match_info.php?m='+match["id"]+'">'+match["h_cn_abbr"]+' <span style="color:red;font-size:12px;">'+match["final"]+'('+match["half"]+')</span> '+match["a_cn_abbr"]+'</a></td>');
+			}else{
+				html.push('<td rowspan="2"><a target="_blank" href="http://info.sporttery.cn/football/info/fb_match_info.php?m='+match["id"]+'">'+match["h_cn_abbr"]+' VS '+match["a_cn_abbr"]+'</a></td>');
+			}
+			html.push('<td rowspan="2">'+match["date"].substring(5)+" "+match["time"].substring(0,5)+'<br/>'+end_time+'</td>');
+			var hafu_result_odds = 0;
+			if(match["hafu_result"]){
+				if(match["hafu_result"]=="平胜"){
+					hafu_result_odds = ha_dh;
+				}else if(match["hafu_result"]=="平平"){
+					hafu_result_odds = ha_dd;
+				}else if(match["hafu_result"]=="平负"){
+					hafu_result_odds = ha_da;
+				}else if(match["final"]=="取消"){
+					hafu_result_odds = 1;
+				}
+				var ha_result = match["hafu_result"].charAt(0);
+				if(ha_result=="平"){
+					hit_count++;
+					awardmoney+=wdl_d*300;
+					awardmoney1+=hafu_result_odds*100;
+					html.push('<td rowspan="2" style="color:red" class="tz_td">平</td>');
+					html.push('<td rowspan="2" style="color:red" class="tz_td">300</td>');
+					html.push('<td rowspan="2" style="color:red" class="tz_td">'+(wdl_d*300).toFixed(2)+'</td>');
+					html.push('<td rowspan="2" style="color:red" class="tz_td">'+(hafu_result_odds*100).toFixed(2)+'</td>');
+				}else if(match["final"]=="取消"){
+					hit_count++;
+					awardmoney+=300;
+					awardmoney1+=300;
+					html.push('<td rowspan="2" style="color:#ccc" class="tz_td">取消</td>');
+					html.push('<td rowspan="2" style="color:#ccc" class="tz_td">300</td>');
+					html.push('<td rowspan="2" style="color:#ccc" class="tz_td">300</td>');
+					html.push('<td rowspan="2" style="color:#ccc" class="tz_td">300</td>');
+				}else{
+					html.push('<td rowspan="2" class="tz_td">'+ha_result+'</td>');
+					html.push('<td rowspan="2" class="tz_td">300</td>');
+					html.push('<td rowspan="2" class="tz_td">0</td>');
+					html.push('<td rowspan="2" class="tz_td">0</td>');
+				}
+			}else{
+				html.push("<td rowspan=2 class=\"tz_td\">--</td>");
+				html.push("<td rowspan=2 class=\"tz_td\">--</td>");
+				html.push("<td rowspan=2 class=\"tz_td\">--</td>");
+				html.push("<td rowspan=2 class=\"tz_td\">--</td>");
+			}
+			if(match["had"]["single"]==1){
+				html.push('<td>0<font color="red" size="+2">单关</font></td>');
+			}else{
+				html.push('<td>0</td>');
+			}
+			if(match["had"]["p_status"]=="N"){
+				h_return_race="";
+				h=0;
+				d=0;
+				a=0;
+			}
+			html.push('<td class="odds" '+(match["had_result"]=="胜"?"style=\"color:red\"":"")+'>'+h+'</td>');
+			html.push('<td class="odds" '+(match["had_result"]=="平"?"style=\"color:red\"":"")+'>'+d+'</td>');
+			html.push('<td class="odds" '+(match["had_result"]=="负"?"style=\"color:red\"":"")+'>'+a+'</td>');
+			if(fhl_check){
+				//胜平负返还率
+				html.push('<td class="return_race fhl_td">'+h_return_race+'</td>');
+				//平和让平返还率
+				html.push('<td class="return_race fhl_td" rowspan=2>'+dd_return_race+'<br/><a href="javascript:void(0);" onclick="showCalcDiv('+match["id"]+')">投注计算</a></td>');
+				//最高返还率 			
+				html.push('<td class="return_race fhl_td" rowspan=2>'+max_had_return_race+'</td>');
+			}
+			//比分
+			var crs3="",crs1="",crs0="";
+			if(match["crs"]){
+				var crs = match["crs"];
+				crs3='&nbsp;<span style="border:1px solid #ccc;'+("1:0,2:0,2:1".indexOf(match["crs_result"])!=-1?"color:red":"")+'" title="1:0 2:0 2:1 返还率" class="odds">'+return_race_num(crs["0100"],crs["0200"],crs["0201"])+'</span>';
+				crs1='&nbsp;<span style="border:1px solid #ccc;'+("0:0,2:2,1:1".indexOf(match["crs_result"])!=-1?"color:red":"")+'" title="0:0 1:1 2:2 返还率" class="odds">'+return_race_num(crs["0000"],crs["0101"],crs["0202"])+'</span>';
+				crs0='&nbsp;<span style="border:1px solid #ccc;'+("0:1,0:2,1:2".indexOf(match["crs_result"])!=-1?"color:red":"")+'" title="0:1 0:2 1:2 返还率" class="odds">'+return_race_num(crs["0001"],crs["0002"],crs["0102"])+'</span>';
+			}
+			var half_draw_count_html="";
+			if(match["half_draw_count"]){
+				half_draw_count_html='&nbsp;<font color=red size=+2>'+match["half_draw_count"]+'</font>';
+			}
+			if(bqc_check){
+				html.push('<td class="bqc_td" colspan="3"><span style="border:1px solid #ccc" title="全场胜不包括负胜赔率" class="odds">'+rh+"</span>  <span title=半场胜全包赔率 style='border:1px solid #ccc' class=odds>"+wdl_w+'</span>'+crs3+'</td>');
+				html.push('<td class="bqc_td" colspan="3"><span style="border:1px solid #ccc" title="全场平全包赔率" class="odds">'+rd+"</span> <span title=半场平全包赔率 style='border:1px solid #ccc' class=odds>"+wdl_d+'</span>'+half_draw_count_html+crs1+'</td>');
+				html.push('<td class="bqc_td" colspan="3"><span style="border:1px solid #ccc" title="全场负不包括胜负全包赔率" class="odds">'+ra+"</span>  <span style='border:1px solid #ccc' title=半场负全包赔率 class=odds>"+wdl_l+'</span>'+crs0+'</td>');
+				if(fhl_check){
+					//没有胜负或者胜负 赛果 的半全场全包与胜平负返还率中的高者 	
+					html.push('<td class="return_race2 fhl_td" style="'+(hafu_had_return_race>h_return_race?"color:red":"")+'" title="没有胜负或者胜负 赛果 的半全场全包" >'+hafu_had_return_race+'</td>');
+					
+				}
+			}
+			if(zjq_check){
+				//总进球
+				if(match["ttg"]["p_status"]=="N"){
+					ttg_return_race="";
+					for(var i=0;i<8;i++){
+						html.push('<td class="odds zjq_td" rowspan="2" >&nbsp;</td>');
+					}
+				}else{
+					for(var i=0;i<8;i++){
+						html.push('<td class="odds zjq_td" rowspan="2" '+(match["ttg_result"]==(""+i)?"style=\"color:red\"":"")+'>'+match["ttg"]["s"+i]+'</td>');
+					}
+				}
+				if(fhl_check){
+					//总进球返还率			
+					html.push('<td class="fhl_td" rowspan=2>'+ttg_return_race+'</td>');
+				}
+			}
+			if(bf_check){
+				html.push('<td rowspan=2 style="cursor:pointer" class="bf_td" onclick="showbf(\''+k+'\',this)">展开比分</td>')
+			}
+			html.push('</tr>');
+			html.push('<tr class="lid_'+match["l_id"]+'">');
+			if(match["hhad"]["single"]==1){
+				html.push('<td>'+goalline+'<font color="red" size="+2">单关</font></td>');
+			}else{
+				html.push('<td>'+goalline+'</td>');
+			}
+			html.push('<td class="odds" '+(match["hhad_result"]=="胜"?"style=\"color:red\"":"")+'>'+h_h+'</td>');
+			html.push('<td class="odds" '+(match["hhad_result"]=="平"?"style=\"color:red\"":"")+'>'+h_d+'</td>');
+			html.push('<td class="odds" '+(match["hhad_result"]=="负"?"style=\"color:red\"":"")+'>'+h_a+'</td>');
+			if(fhl_check){
+				//让球胜平负返还率				
+				html.push('<td class="return_race fhl_td">'+hh_return_race+'</td>');
+			}
+			if(bqc_check){
+				//半全场
+				if(match["hafu"]["p_status"]=="N"){
+					hafu_return_race="";
+					for(var i=0;i<9;i++){
+						html.push('<td class="bqc_td">&nbsp;</td>');
+					}
+				}else{
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="胜胜"?"style=\"color:red\"":"")+'>'+ha_hh+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="平胜"?"style=\"color:red\"":"")+'>'+ha_dh+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="负胜"?"bgcolor=\"yellow\" style=\"color:red\"":"")+'>'+ha_ah+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="胜平"?"style=\"color:red\"":"")+'>'+ha_hd+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="平平"?"style=\"color:red\"":"")+'>'+ha_dd+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="负平"?"style=\"color:red\"":"")+'>'+ha_ad+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="胜负"?"bgcolor=\"yellow\" style=\"color:red\"":"")+'>'+ha_ha+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="平负"?"style=\"color:red\"":"")+'>'+ha_da+'</td>');
+					html.push('<td class="odds bqc_td" '+(match["hafu_result"]=="负负"?"style=\"color:red\"":"")+'>'+ha_aa+'</td>');
+				}
+				//半全场返还率
+				html.push('<td class="return_race1 fhl_td">'+hafu_return_race+'</td>');
+			}
+			html.push('</tr>');
+			
+			html.push('<tr class="bf_tr'+k+' hide">');
+			html.push("<td colspan=9 rowspan=6 style=\"font-size:35px;text-align:right;\">比分</td>")
+			var shtml=[],phtml=[],fhtml=[];
+			for(var crsidx =0;crsidx<crskeyArrH.length;crsidx++){
+				var crskey  = crskeyArrH[crsidx];
+				if(crskey.charAt(0)=="0"){
+					bf = parseInt(crskey.substring(0,2))+":"+parseInt(crskey.substring(2));
+					html.push('<th>'+bf+'</th>');
+				}else if(crskey=="-1-a"){
+					html.push('<th>负其它</th>');
+				}else if(crskey=="-1-d"){
+					html.push('<th>平其它</th>');
+				}else if(crskey=="-1-h"){
+					html.push('<th>胜其它</th>');
+				}
+				shtml.push('<td class="odds">'+match["crs"][crskey]+'</td>');
+			}
+			html.push('</tr>');
+			html.push('<tr class="bf_tr'+k+' hide">');
+			html.push(shtml.join(""));
+			html.push('</tr>');
+			
+			html.push('<tr class="bf_tr'+k+' hide">');
+			for(var crsidx =0;crsidx<crskeyArrD.length;crsidx++){
+				var crskey  = crskeyArrD[crsidx];
+				if(crskey.charAt(0)=="0"){
+					bf = parseInt(crskey.substring(0,2))+":"+parseInt(crskey.substring(2));
+					html.push('<th>'+bf+'</th>');
+				}else if(crskey=="-1-a"){
+					html.push('<th>负其它</th>');
+				}else if(crskey=="-1-d"){
+					html.push('<th>平其它</th>');
+				}else if(crskey=="-1-h"){
+					html.push('<th>胜其它</th>');
+				}
+				phtml.push('<td class="odds">'+match["crs"][crskey]+'</td>');
+			}
+			html.push('</tr>');
+			html.push('<tr class="bf_tr'+k+' hide">');
+			html.push(phtml.join(""));
+			html.push('</tr>');
+			html.push('<tr class="bf_tr'+k+' hide">');
+			for(var crsidx =0;crsidx<crskeyArrA.length;crsidx++){
+				var crskey  = crskeyArrA[crsidx];
+				if(crskey.charAt(0)=="0"){
+					bf = parseInt(crskey.substring(0,2))+":"+parseInt(crskey.substring(2));
+					html.push('<th>'+bf+'</th>');
+				}else if(crskey=="-1-a"){
+					html.push('<th>负其它</th>');
+				}else if(crskey=="-1-d"){
+					html.push('<th>平其它</th>');
+				}else if(crskey=="-1-h"){
+					html.push('<th>胜其它</th>');
+				}
+				fhtml.push('<td class="odds">'+match["crs"][crskey]+'</td>');
+			}
+			html.push('</tr>');
+			html.push('<tr class="bf_tr'+k+' hide">');
+			html.push(fhtml.join(""));
+			html.push('</tr>');
+			if(max_return_race<h_return_race){
+				max_return_race = h_return_race ;
+				g_max_return_race_match_id=match["id"];
+			}
+			if(max_return_race<hh_return_race){
+				max_return_race = hh_return_race ;
+				g_max_return_race_match_id=match["id"];
+			}
+			if(max_return_race<max_had_return_race){
+				max_return_race = max_had_return_race ;
+				g_max_return_race_match_id=match["id"];
+			}
+			if(max_hafu_return_race<hafu_return_race){
+				max_hafu_return_race = hafu_return_race ;
+			}
+			if(max_hafu_had_return_race<hafu_had_return_race){
+				max_hafu_had_return_race = hafu_had_return_race ;
+			}
+			match["max_return_race"] = max_return_race;//胜平负最大返还率
+			match["h_return_race"] = h_return_race;//胜平负不让球返还率
+			match["hh_return_race"] = hh_return_race;//让球胜平负返还率
+			match["max_had_return_race"] = max_had_return_race;//不让球和让球胜平负返还率
+			match["max_hafu_return_race"] = max_hafu_return_race;//半全场最高
+			match["max_hafu_had_return_race"] = max_hafu_had_return_race;//半全场和胜平负结合的最高
+		}
+		$("#matchlist").html(html.join(""));
+		/* var bqcChecked = $("#bqc_control")[0].checked;
+		var zjqChecked = $("#zjq_control")[0].checked;
+		if(bqcChecked){
+			toggle('.bqc_td',bqcChecked);
+		}
+		if(zjqChecked){
+			toggle('.zjq_td',zjqChecked);
+		} */
+		
+		html=[];
+		html.push('<tr><td colspan="'+g_max_cell_count+'">汇总(单关半场平):');
+		html.push((hit_count*100.0/i_count).toFixed(2)+'%,');
+		html.push("投注金额："+i_count*300);
+		html.push(',奖金优化奖金：'+awardmoney.toFixed(2));
+		html.push(',均场投注奖金：'+awardmoney1.toFixed(2));
+		html.push(',优化奖金-投注金额:'+(awardmoney-i_count*300).toFixed(2));
+		html.push(',均场奖金-投注金额:'+(awardmoney1-i_count*300).toFixed(2));
+		html.push(',佣金'+$("#c").val()+':'+(i_count*300*Number($("#c").val())).toFixed(2)+'</td>');
+		html.push("</tr>");
+		$("#tj1").html(html.join(""));
+		var lcnhtml=["赛事选择："];
+		lcnhtml.push("<a onclick=changelidqf('q') style=cursor:pointer >全选</a>&nbsp;");
+		lcnhtml.push("<a onclick=changelidqf('f') style=cursor:pointer >反选</a>&nbsp;");
+		for(var lid in l_cn_arr){
+			lcnhtml.push("<input type=checkbox id="+lid+" class=cbk onchange=changelid(this) value="+lid+" checked=checked />");
+			lcnhtml.push("<label for="+lid+">");
+			lcnhtml.push(l_cn_arr[lid]);
+			lcnhtml.push("</label>");
+		}
+		$(".lcndiv").html(lcnhtml.join("&nbsp;"));
+		$("#matchlist").find(".return_race").each(function(){
+			if(this.innerHTML==max_return_race){
+				$(this).attr("bgcolor","yellow");
+			}
+		});
+		/*if(max_hafu_return_race!="0%"){
+			$("#matchlist").find(".return_race1").each(function(){
+				if(this.innerHTML==max_hafu_return_race){
+					$(this).attr("bgcolor","red");
+				}
+			});
+		}*/
+		$("#matchlist").find(".return_race2").each(function(){
+			if(this.innerHTML==max_hafu_had_return_race){
+				$(this).attr("bgcolor","yellow");
+			}
+		});
+		$("#matchlist").find(".odds").click(function(){
+			calc(this);
+		});
+		var yl = (awardmoney-i_count*300*0.92),yl1=(awardmoney1-i_count*300*0.92);
+		var sum = "<tr><td colspan=\""+g_max_cell_count+"\">日期："+$("#date").val()+"&nbsp;&nbsp;"+min_odds+" ~ "+max_odds+"&nbsp;&nbsp;&nbsp;共"+i_count+"场，每场下注300元,共"+i_count*300+"，中奖"+hit_count+"场，平均优化奖金:"+awardmoney.toFixed(2)+
+				",均场投注奖金:"+awardmoney1.toFixed(2)+",佣金:"+i_count*300*Number($("#c").val());
+		if(yl<0){
+			sum+=",<font color=green>盈利:"+yl.toFixed(2)+" </font> ~ ";
+		}else{
+			sum+=",<font size=+2 color=red>盈利:"+yl.toFixed(2)+" </font> ~ ";
+		}
+		if(yl1<0){
+			sum += "<font color=green>"+yl1.toFixed(2)+"</font>";
+		}else{
+			sum += "<font color=red size=+2>"+yl1.toFixed(2)+"</font>";
+		}
+		$(sum+"</td></tr>").appendTo("#tj");
+	}
+	function showbf(id,obj){
+		if(obj){
+			if($(obj).text()=="展开比分"){
+				$(obj).text("隐藏比分")
+			}else{
+				$(obj).text("展开比分")
+			}
+		}
+		$(".bf_tr"+id).toggleClass("hide");
+	}
+	function calc(obj){
+		if(obj){
+			$(obj).toggleClass("selected");
+		}
+		var return_race = 0;
+		$(".selected").each(function(){
+			var val = $(this).text();
+			if(!isNaN(val)){
+				return_race+=1/Number(val);
+			}
+		});
+		
+		var minOdds = 0;
+		var fd = $("#c").val();
+		var r1 =0 , mo1=0;
+		if(return_race>0){
+			return_race = 1.0/return_race;
+			r1 = return_race+parseFloat(fd);
+			//Z=1; 最终返还率，可以设定为100%,最低96% 才能有盈利
+			//Q=1/(1/sp1+1/sp2)
+			//sp3=Z*Q/(Q-Z)
+			minOdds = (1/(1-1/return_race)).toFixed(3);
+			mo1 =  (1/(1-1/r1)).toFixed(3);
+			return_race=(return_race*100).toFixed(2)+"%";
+			r1=(r1*100).toFixed(2)+"%";
+		}
+		$(".selectedReturnRace").text(return_race+"~"+r1);
+		$(".selectedMinOdds").text(minOdds+"~"+mo1);
+	}
+	
+	function showCalcDiv(matchidx){
+		var myModal = $("#myModal");
+		var ddmatch = g_match_list["_"+matchidx];//平和让平的比赛
+		var match = g_match_list["_"+g_max_return_race_match_id];//最大返还率的比赛
+		var betarr = [];
+		if(match["max_return_race"]==match["h_return_race"]){//胜平负的返还率最高
+			var row = {};
+			row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 胜['+match["had"]["h"]+']';
+			row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["had"]["h"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 平['+match["had"]["d"]+']';
+			row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["had"]["d"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 负['+match["had"]["a"]+']';
+			row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["had"]["a"]);
+			betarr.push(row);
+			
+			row = {};
+			row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 胜['+match["had"]["h"]+']';
+			row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["had"]["h"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 平['+match["had"]["d"]+']';
+			row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["had"]["d"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 负['+match["had"]["a"]+']';
+			row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["had"]["a"]);
+			betarr.push(row);
+			
+		}else if(match["max_return_race"]==match["hh_return_race"]){//让球的最高
+			var row = {};
+			row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 让胜['+match["hhad"]["h"]+']';
+			row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["hhad"]["h"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 让平['+match["hhad"]["d"]+']';
+			row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["hhad"]["d"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 让负['+match["hhad"]["a"]+']';
+			row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["hhad"]["a"]);
+			betarr.push(row);
+			
+			row = {};
+			row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 让胜['+match["hhad"]["h"]+']';
+			row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["hhad"]["h"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 让平['+match["hhad"]["d"]+']';
+			row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["hhad"]["d"]);
+			betarr.push(row);
+			row = {};
+			row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 让负['+match["hhad"]["a"]+']';
+			row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["hhad"]["a"]);
+			betarr.push(row);
+		}else{//组合的最高
+			if(match["goalline"]==-1){
+				var row = {};
+				row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 胜['+match["had"]["h"]+']';
+				row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["had"]["h"]);
+				betarr.push(row);
+				row = {};
+				row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 让负['+match["hhad"]["a"]+']';
+				row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["hhad"]["a"]);
+				betarr.push(row);
+				
+				row = {};
+				row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 胜['+match["had"]["h"]+']';
+				row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["had"]["h"]);
+				betarr.push(row);
+				row = {};
+				row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 让负['+match["hhad"]["a"]+']';
+				row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["hhad"]["a"]);
+				betarr.push(row);
+			}else if(match["goalline"]==1){
+				var row = {};
+				row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 负['+match["had"]["a"]+']';
+				row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["had"]["a"]);
+				betarr.push(row);
+				row = {};
+				row.info = ddmatch["num"]+' 平['+ddmatch["had"]["d"]+'] x '+match["num"]+' 让胜['+match["hhad"]["h"]+']';
+				row.odds = parseFloat(ddmatch["had"]["d"]) *  parseFloat(match["hhad"]["h"]);
+				betarr.push(row);
+				row = {};
+				row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 负['+match["had"]["a"]+']';
+				row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["had"]["a"]);
+				betarr.push(row);
+				row = {};
+				row.info = ddmatch["num"]+' 让平['+ddmatch["hhad"]["d"]+'] x '+match["num"]+' 让胜['+match["hhad"]["h"]+']';
+				row.odds = parseFloat(ddmatch["hhad"]["d"]) *  parseFloat(match["hhad"]["h"]);
+				betarr.push(row);
+			}
+		}
+		g_jjyh_betarr = betarr;
+		jjyh();
+		myModal.removeClass("hide");
+		myModal.modal("show");
+	}
+	function jjyh(){
+		if(g_jjyh_betarr.length==0){
+			$("#matchbetarr").html('<tr><td colspan=6>数据有误，没有计算对象</td></tr>');
+			return;
+		}
+		var totalmoney = parseInt($("#betmoney").val());
+		var jjyhselect = parseInt($("input[name=jjyh]:checked").val());
+		var odds = [];
+		var minoddsidx=100;//最小赔率下标
+		var maxoddsidx=0;//最大赔率下标
+		for(var i=0;i<g_jjyh_betarr.length;i++){
+			var row = g_jjyh_betarr[i];
+			odds.push(row.odds);
+			if(minoddsidx>row.odds){
+				minoddsidx = i;
+			}
+			if(maxoddsidx < row.odds){
+				maxoddsidx = i;
+			}
+		}
+		
+		var return_race_num = return_race_num_arr(odds);
+		var notSumIdx = g_jjyh_betarr.length-1;//平均优化,最后一项投注金额不需要计算
+		if(jjyhselect==1){//平均优化
+			
+		}else if(jjyhselect==2){//博热优化
+			notSumIdx = minoddsidx;
+			return_race_num = 1;
+		}else{//博冷优化
+			notSumIdx = maxoddsidx;
+			return_race_num = 1;
+		}
+		var betmoneyfix = 0;
+		for(var i=0;i<g_jjyh_betarr.length;i++){
+			var row = g_jjyh_betarr[i];
+			if(i!=notSumIdx){
+				var betmoney = totalmoney * return_race_num / row.odds;
+				row.mul = parseInt(betmoney/2);
+				if(Math.abs(row.mul *2 * row.odds - totalmoney)>2){
+					row.mul+=1;
+				}
+				row.betmoney = row.mul *2;
+				row.awardmoney = row.betmoney * row.odds;
+				betmoneyfix+=betmoney;
+			}
+		}
+		var row = g_jjyh_betarr[notSumIdx];
+		var betmoney = totalmoney - betmoneyfix;
+		row.mul = parseInt(betmoney/2);
+		row.betmoney = row.mul *2;
+		row.awardmoney = row.betmoney * row.odds;
+		
+		var html = [];
+		for(var i=0;i<g_jjyh_betarr.length;i++){
+			var row = g_jjyh_betarr[i];
+			html.push('<tr>');
+			html.push('<td>'+(i+1)+'</td>');
+			html.push('<td>'+row.info+'</td>');
+			html.push('<td>'+row.odds.toFixed(3)+'</td>');
+			html.push('<td>'+row.mul+'</td>');
+			html.push('<td>'+row.betmoney+'</td>');
+			html.push('<td>'+row.awardmoney.toFixed(2)+'</td>');
+			html.push('</tr>');
+		}
+		$("#matchbetarr").html(html.join(""));
+	}
+	var singleMatch={};
+	$(function() {
+		$(".datetimepicker").datetimepicker({
+			minView: "month", //选择日期后，不会再跳转去选择时分秒 
+			language:  'zh-CN',
+			autoclose: true ,
+			format : 'yyyy-mm-dd'
+		});
+		var url = location.href;
+		if(url.indexOf("date=")!=-1){
+			var date = url.split("date=")[1].split("&")[0];
+			var minodds = url.split("minodds=")[1].split("&")[0];
+			var maxodds = url.split("maxodds=")[1].split("&")[0];
+			$("#minodds").val(minodds);
+			$("#maxodds").val(maxodds);
+			$("#date").val(date).change();
+		}else{
+			//加载最新赛程
+// 			$.get("http://t.sporttery.cn/datacenter/wap/football/getbetmatchs.htm?matchtype=0",function(json){
+// 				for(var i=0;i<json[0].length;i++){
+// 					if(json[0][i].single==1){
+// 						singleMatch[json[0].matchNum]
+// 					}
+// 				}
+// 			})
+			get_selling_match_list();
+		}
+		jQuery('header').headshrinker();
+		jQuery('.headshrunk').css("background-color","greenyellow");
+		//t4=Q*s1*s2*s3/(s1*s3*s4+s2*s3*s4+s1*s2*s4+s1*s2*s3-(s1*s2*N+s2*s3*N))
+	});
+	</script>
+</body>
+</html>

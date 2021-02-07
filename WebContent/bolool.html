@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-2代指数</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
+
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
+<script src="res/bootstrap-paginator.min.js"></script>
+<link rel="stylesheet" href="res/datetimepicker.css" />
+<script src="res/bootstrap-datetimepicker.min.js"></script>
+<link rel="stylesheet" href="res/headshrinker.min.css" />
+<script src="res/jquery.headshrinker.min.js"></script>
+<script src="res/layer-v2.3/layer/layer.js"></script>
+<style type="text/css">
+.europe{
+vertical-align: middle;
+}
+</style>
+</head>
+<body>
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="view">
+			<table class="table table-bordered">
+				<thead id="thead"></thead>
+				<tbody id="matchlist"></tbody>
+			</table>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+function safeHtml(d) {
+    return d.replace(/[\r\n]/g, "").replace(/<head.+?<\/head>/g, "").replace(/<script.+?<\/script>/g, "").replace(/<img.+?>/g, "").replace(/<link.+?>/g, "").replace(/<style.+?<\/style>/g, "");
+}
+var g_match={};
+$(()=>{
+	$.get("/api/getOkoooJc?url=/jingcai/",function(d){
+		var headhtml = [];
+        headhtml.push('<tr>');
+        //headhtml.push('<th rowspan="2">序号</th>');
+        headhtml.push('<th rowspan="2">场次</th>');
+        headhtml.push('<th rowspan="2">联赛</th>');
+        headhtml.push('<th rowspan="2">球队</th>');
+        headhtml.push('<th rowspan="2">比赛时间</th>');
+        headhtml.push('<th rowspan="2">让球</th>');
+        headhtml.push('<th colspan="3" style="text-align:center">胜平负赔率</th>');
+        headhtml.push('<th colspan="3" style="text-align:center">bet365欧赔</th>');
+        headhtml.push('<th colspan="3" style="text-align:center">bet365亚赔</th>');
+        headhtml.push('<th rowspan="2">分析</th>');
+        headhtml.push('</tr>');
+
+        headhtml.push('<tr>');
+        headhtml.push('<th>胜</th>');
+        headhtml.push('<th>平</th>');
+        headhtml.push('<th>负</th>');
+        headhtml.push('<th>胜</th>');
+        headhtml.push('<th>平</th>');
+        headhtml.push('<th>负</th>');
+        headhtml.push('<th>盘</th>');
+        headhtml.push('<th>主</th>');
+        headhtml.push('<th>客</th>');
+        headhtml.push('</tr>');
+
+        $("#thead").html(headhtml.join(""));
+		d=safeHtml(d);
+		body = $(d);
+		var html=[],ids=[];
+		body.find(".touzhu").children().each((idx,el)=>{
+			var div = $(el);
+			if(div.find(".more_weik:hidden").length==1){
+				var id = div.attr("data-mid");
+				var leagueName = div.find(".saiming").text();
+				var leagueId = div.attr("filterdata").split(",")[1];
+				var leagueColor=div.find(".saiming").css("background-color");
+				var leagueHref=div.find(".saiming").attr("href");
+				var playtime = div.find(".shijian").attr("title").replace("比赛时间:","");
+				var num = div.find(".xulie").attr("title");
+				var hostName = div.find(".shenpf .zhu .zhum").text();
+				var hostOrder = div.find(".shenpf .zhu .paim").text();
+				var homeName = div.find(".shenpf .zhu .zhum").text();
+				var homeOrder = div.find(".shenpf .zhu .paim").text().trim();
+				var awayName = div.find(".shenpf .fu .zhum").text();
+				var awayOrder = div.find(".shenpf .fu .paim").text().trim();
+				var h = div.find(".shenpf .zhu .peilv").text().trim();
+				var d = div.find(".shenpf .ping .peilv").text().trim();
+				var a = div.find(".shenpf .fu .peilv").text().trim();
+				
+				var h1 = div.find(".rangqiuspf .zhu .peilv").text().trim();
+				var d1 = div.find(".rangqiuspf .ping .peilv").text().trim();
+				var a1 = div.find(".rangqiuspf .fu .peilv").text().trim();
+				
+				var rq = div.attr("filterdata").split(",")[0];
+				var fengxin1 = div.find(".fengxin1").html();
+				fengxin1 = fengxin1.replace(/onclick.+?href/g,"href");
+				html.push('<tr id="m'+id+'">');
+				html.push('<td rowspan="2">'+num+'</td>');
+				html.push('<td rowspan="2" style="background-color:'+leagueColor+'"><a href="'+leagueHref+'" style="color:white">'+leagueName+'</a></td>');
+				html.push('<td rowspan="2"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> '+homeName +' VS '+awayName +' <span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
+				html.push('<td rowspan="2">'+playtime+'</td>');
+				html.push('<td rowspan="2">'+rq +'</td>');
+				html.push('<td>'+h+'</td>');
+				html.push('<td>'+d+'</td>');
+				html.push('<td>'+a+'</td>');
+				html.push('<td rowspan="2" class="europe"></td>');
+				html.push('<td rowspan="2" class="europe"></td>');
+				html.push('<td rowspan="2" class="europe"></td>');
+				html.push('<td rowspan="2" class="asia"></td>');
+				html.push('<td rowspan="2" class="asia"></td>');
+				html.push('<td rowspan="2" class="asia"></td>');
+				html.push('<td rowspan="2">'+fengxin1+' <a href="" target="_blank">菠萝</a></td>');
+				html.push('</tr>');
+				html.push('<tr>');
+				html.push('<td>'+h1+'</td>');
+				html.push('<td>'+d1+'</td>');
+				html.push('<td>'+a1+'</td>');
+				html.push('</tr>');
+				g_match["_"+id] = {id,leagueId,leagueName,leagueColor,homeName,homeOrder,num,playtime,awayName,awayOrder,h,d,a,h1,d1,a1,rq,fengxin1};
+				ids.push(id);
+			}
+		});
+		$("#matchlist").html(html.join(""));
+		 
+		$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=1&providerId=27&matchIds="+ids.join(","),method:"post"},function(d1){
+			var data = JSON.parse(d1);
+			for(var key in data){
+				tr = $("#m"+key);
+				if(tr.length==1){
+					tr.find(".europe").each((idx,el)=>{
+						$(el).text(data[key][idx]);
+					})
+				}
+			}
+		});
+		$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=2&providerId=27&matchIds="+ids.join(","),method:"post"},function(d1){
+			var data = JSON.parse(d1);
+			for(var key in data){
+				tr = $("#m"+key);
+				if(tr.length==1){
+					tr.find(".asia").each((idx,el)=>{
+						$(el).text(data[key][idx]);
+					})
+				}
+			}
+		});
+	});
+});
+</script>
+</html>

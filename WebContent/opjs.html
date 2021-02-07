@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-竞彩受注赛程-单关最佳组合计算</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
+
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="res/datetimepicker.css" />
+<script src="res/bootstrap-datetimepicker.min.js"></script>
+<link rel="stylesheet" href="res/headshrinker.min.css" />
+<script src="res/jquery.headshrinker.min.js"></script>
+
+<style type="text/css">
+input.disabled {
+	border: 1px solid #DDD;
+	background-color: #F5F5F5;
+	color: #ACA899;
+}
+</style>
+
+</head>
+<body>
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="page-header">
+			<div class="view">
+				日期:<input type="text" id="date" class="datetimepicker"
+					data-date-format="yyyy-mm-dd" onchange="showdate(this.value)" />
+				&nbsp;&nbsp;比赛：<select class="selectpicker" onchange="fillsp()"
+					id="sellMatchList">
+					<option value="0">自定义</option>
+				</select>&nbsp;<a href="javascript:void(0)" onclick="goMatch(-1)">上一个</a>&nbsp;<a href="javascript:void(0)" onclick="goMatch(1)">下一个</a>&nbsp;<a href="javascript:void(0)" onclick="window.open('http://info.sporttery.cn/football/info/yizhanjc.php?m='+currMatch.id)">一站竞彩</a>
+			</div>
+			<header>
+				<div class="view">
+				<span class="lcndiv">赛事选择：</span> 
+				</div>
+			</header>
+			&nbsp;&nbsp;&nbsp;总投入：<input type="text" value=10000
+				onkeypress="calc()" id="Q" /> &nbsp;&nbsp;&nbsp;佣金： <select
+				class="selectpicker minfd_control" onchange="calc()" id="c" title="最低返点设置">
+				<option value="0.15">15%</option>
+				<option value="0.14">14%</option>
+				<option value="0.13">13%</option>
+				<option value="0.12">12%</option>
+				<option value="0.11">11%</option>
+				<option value="0.105">10.5%</option>
+				<option value="0.10">10%</option>
+				<option value="0.095">9.5%</option>
+				<option value="0.09">9%</option>
+				<option value="0.085">8.5%</option>
+				<option value="0.08" selected="selected">8%</option>
+				<option value="0.07">7%</option>
+				<option value="0.06">6%</option>
+				<option value="0.05">5%</option>
+				<option value="0.04">4%</option>
+				<option value="0.03">3%</option>
+				<option value="0.02">2%</option>
+				<option value="0.01">1%</option>
+				<option value="0">0%</option>
+			</select> &nbsp;&nbsp;&nbsp;胜平负赔率：<input type="text" value=""
+				onchange="calc()" id="sp" /> &nbsp;&nbsp;&nbsp;让球胜平负赔率：<input
+				type="text" value="" onchange="calc()" id="sp1" />
+				&nbsp;&nbsp;&nbsp;&nbsp;计算：<input
+				type="text" value="1" class="selected" onchange="getzhibo()" id="s1" />				
+				返还率<span class="selectedReturnRace">1</span>&nbsp;
+				值博赔率<span class="selectedMinOdds">0</span>
+				<div class="view">最高赔率：<span id="sp_high" ></span></div>
+		</div>
+		<div class="view">
+			<table class="table table-bordered table-hover">
+				<thead id="thead">
+					<tr>
+					<th>序号</th>
+					<th>竞彩投注</th>
+					<th>原始赔率</th>
+					<th>计算赔率</th>
+					<th>值博赔率</th>
+					<th>值博率</th>	
+					<th>外围投注</th>
+					<th>最高返还率</th>			
+					</tr>
+				</thead>
+				<tbody id="resultList"></tbody>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript" src="res/jc.js"></script>
+	<script type="text/javascript">
+		
+		function getsp(){
+			calc();
+		}
+		function getzhibo() {
+			var sp = $("#s1").val().replace(/\s+/g, ",").split(/[,+-]/);
+			calcOdds(sp);
+		}
+		//
+		var comp={"327":"利记","365":"金宝博","282":"皇冠","126":"BET365","285":"沙巴","13":"博天堂","83":"平博"};
+		function getEurope(json){
+			if(json.status.code==0){
+				var data = json.result.data;
+				for(var i = 0;i<data.length;i++){
+					var obj = data[i];
+					if(comp[obj["id"]]){
+						if(!currMatch["europe"]){
+							currMatch["europe"]=[];
+						}
+						obj.cn=comp[obj["id"]];
+						currMatch["europe"].push(obj);
+					}
+				}
+				if(!currMatch["europe"]){
+					currMatch["europe"]=[];
+				}
+			}else{
+				currMatch["europe"]=[];
+			}
+		}
+		function getAsia(json){
+			if(json.status.code==0){
+				var data = json.result;
+				for(var i = 0;i<data.length;i++){
+					var obj = data[i];
+					if(comp[obj["id"]]){
+						if(!currMatch["asia"]){
+							currMatch["asia"]=[];
+						}
+						obj.cn=comp[obj["id"]];
+						currMatch["asia"].push(obj);
+					}
+				}
+				if(!currMatch["asia"]){
+					currMatch["asia"]=[];
+				}
+			}else{
+				currMatch["asia"]=[];
+			}
+		}
+		var getEuropeFlag={},getAsiaFlag={};
+		function get_europe_asia_by_id(mid){
+			if(!getEuropeFlag["_"+mid]){
+				getEuropeFlag["_"+mid]=1;
+				$.getScript("http://i.sporttery.cn/api/fb_match_info/get_europe/?f_callback=getEurope&mid="+mid , function() {
+				});
+			}
+			if(!getAsiaFlag["_"+mid]){
+				getAsiaFlag["_"+mid]=1;
+				$.getScript("http://i.sporttery.cn/api/fb_match_info/get_asia/?f_callback=getAsia&mid=" + mid , function() {
+				});
+			}
+		}
+		var tt1, tt2, tt3, pp1, pp2, pp3, ss1, ss2, ss3, QQ, cc, yl;
+		function calc(ext) {
+			$("#resultList").html("");
+			$("#sp_high").html("");
+			var s1 = $("#s1").val().replace(/\s+/g, ",").split(/[,+-]/);
+			if(s1[0]!=1){
+				getzhibo();
+			}
+			var sp = $("#sp").val().replace(/\s+/g, ",").split(/[,+-]/);
+			var sp1 = $("#sp1").val().replace(/\s+/g, ",").split(/[,+-]/);
+			var h = match["had"]["h"],d = match["had"]["d"],a= match["had"]["a"];
+			var goalline = parseInt(match["goalline"]);
+			var h_h = match["hhad"]["h"],h_d = match["hhad"]["d"],h_a= match["hhad"]["a"];
+			var mid = currMatch["id"];
+			var asia = currMatch["asia"];
+			var europe = currMatch["europe"];
+			if(!asia||!europe){
+				console.log("wait for europe And asia data ");
+				get_europe_asia_by_id(mid);
+				setTimeout("calc()",500);
+				return;
+			}
+			
+			var key = "_"+mid+$("#c").val();
+			var fd_had_h,fd_had_d,fd_had_a;
+			var highest=currMatch["highest"];
+			var arr_tmp=[];//用于排序
+			if(!highest){
+				//计算胜平负的值博赔率
+				fd_had_h = getOddsWithFd(h);
+				fd_had_d=getOddsWithFd(d);
+				fd_had_a=getOddsWithFd(a);
+				
+				highest=[]
+				//胜赔
+				arr_tmp=[];
+				arr_tmp.push({"名":"竞彩","赔率":fd_had_h});
+				for(var i = 0;i<europe.length;i++){
+					var eur = europe[i];
+					arr_tmp.push({"名":eur.cn,"赔率":eur.win});
+				}
+				arr_tmp.sort(by_str("赔率"));
+				highest.push(arr_tmp[arr_tmp.length-1]);
+				//平赔
+				arr_tmp=[];
+				arr_tmp.push({"名":"竞彩","赔率":fd_had_d});
+				for(var i = 0;i<europe.length;i++){
+					var eur = europe[i];
+					arr_tmp.push({"名":eur.cn,"赔率":eur.draw});
+				}
+				arr_tmp.sort(by_str("赔率"));
+				highest.push(arr_tmp[arr_tmp.length-1]);
+				//负赔
+				arr_tmp=[];
+				arr_tmp.push({"名":"竞彩","赔率":fd_had_a});
+				for(var i = 0;i<europe.length;i++){
+					var eur = europe[i];
+					arr_tmp.push({"名":eur.cn,"赔率":eur.lose});
+				}
+				arr_tmp.sort(by_str("赔率"));
+				highest.push(arr_tmp[arr_tmp.length-1]);
+				currMatch["highest"]=highest;
+			}
+			
+			var highestodds=[],highsp_value=[];
+			for(var j=0;j<highest.length;j++){
+				if(highest[j]["名"]=="竞彩"){
+					highestodds.push("<font color=red>"+highest[j]["名"]+":"+highest[j]["赔率"]+"</font>");
+				}else{
+					highestodds.push(highest[j]["名"]+":"+highest[j]["赔率"]);
+				}
+				highsp_value.push(highest[j]["赔率"]);
+			}
+			var high_return_race = return_race_arr(highsp_value);
+			$("#sp_high").html(highestodds.join("&nbsp;")+"返还率："+high_return_race);
+			
+			var zhiboinfo = g_zhibo_info[key];			
+			if(!zhiboinfo){
+				//计算胜平负的值博赔率
+				if(!fd_had_h){
+					fd_had_h = getOddsWithFd(h);
+					fd_had_d=getOddsWithFd(d);
+					fd_had_a=getOddsWithFd(a);
+				}
+				var fd_hhad_h = getOddsWithFd(h_h),fd_hhad_d=getOddsWithFd(h_d),fd_hhad_a=getOddsWithFd(h_a);
+				
+				var fd_had_hd = getOddsWithFd(return_race_num(h,d)),fd_had_da = getOddsWithFd(return_race_num(d,a)),fd_had_ha = getOddsWithFd(return_race_num(h,a));
+				var fd_hhad_hd = getOddsWithFd(return_race_num(h_h,h_d)),fd_hhad_da = getOddsWithFd(return_race_num(h_d,h_a)),fd_hhad_ha = getOddsWithFd(return_race_num(h_h,h_a));
+				var fd_had_hhad_ha = getOddsWithFd(return_race_num(h,h_a)),fd_had_hhad_ah = getOddsWithFd(return_race_num(a,h_h));
+				zhibo_had_h = getZhiBoOdds(fd_had_h,1);
+				zhibo_had_d = getZhiBoOdds(fd_had_d,1);
+				zhibo_had_a = getZhiBoOdds(fd_had_a,1);
+				zhibo_hhad_h = getZhiBoOdds(fd_hhad_h,1);
+				zhibo_hhad_d = getZhiBoOdds(fd_hhad_d,1);
+				zhibo_hhad_a = getZhiBoOdds(fd_hhad_a,1);
+				var zhiboinfo = [];
+				var zhibo_had_hhad = -10,yp_bet="亚盘-客",bet_zhiboli;
+				if(goalline<0){//胜负全包 goalline-0.5
+					//投注客		
+					yp_bet="亚盘_让负"
+					zhibo_had_hhad=getZhiBoOdds(fd_hhad_a,1);
+					bet_zhiboli = fd_had_h/zhibo_had_hhad;
+					high_zhibo = "胜["+highest[0]["名"]+":"+highest[0]["赔率"]+"]";
+					high_return_race = return_race(fd_hhad_a,highest[0]["赔率"]);
+					zhiboinfo.push({"原始赔率":h_a,"计算赔率":fd_hhad_a,"值博投注":yp_bet,"值博赔率":zhibo_had_hhad,"值博率":bet_zhiboli,"最高赔率":high_zhibo,"最高返还":high_return_race});
+					//投注主
+					yp_bet="亚盘_胜";
+					zhibo_had_hhad=getZhiBoOdds(fd_had_h,1);
+					bet_zhiboli = fd_hhad_a/zhibo_had_hhad;
+					zhiboinfo.push({"原始赔率":h,"计算赔率":fd_had_h,"值博投注":yp_bet,"值博赔率":zhibo_had_hhad,"值博率":bet_zhiboli,"最高赔率":"--","最高返还":0});
+				}else if(goalline>0){
+					//投注客		
+					yp_bet="亚盘_让胜"
+					zhibo_had_hhad=getZhiBoOdds(fd_hhad_h,1);
+					bet_zhiboli = fd_had_a/zhibo_had_hhad;
+					high_zhibo = "负["+highest[2]["名"]+":"+highest[2]["赔率"]+"]";
+					high_return_race = return_race(fd_hhad_h,highest[2]["赔率"]);
+					zhiboinfo.push({"原始赔率":h_h,"计算赔率":fd_hhad_h,"值博投注":yp_bet,"值博赔率":zhibo_had_hhad,"值博率":bet_zhiboli,"最高赔率":high_zhibo,"最高返还":high_return_race});
+					//投注主
+					yp_bet="亚盘_负";
+					zhibo_had_hhad=getZhiBoOdds(fd_had_a,1);
+					bet_zhiboli = fd_hhad_h/zhibo_had_hhad;
+					zhiboinfo.push({"原始赔率":a,"计算赔率":fd_had_a,"值博投注":yp_bet,"值博赔率":zhibo_had_hhad,"值博率":bet_zhiboli,"最高赔率":"--","最高返还":0});
+				}
+				zhibo_had_hd=getZhiBoOdds(fd_had_hd,1);
+				zhibo_had_da=getZhiBoOdds(fd_had_da,1);
+				zhibo_had_ha=getZhiBoOdds(fd_had_ha,1);
+				zhibo_hhad_hd=getZhiBoOdds(fd_hhad_hd,1);
+				zhibo_hhad_da=getZhiBoOdds(fd_hhad_da,1);
+				zhibo_hhad_ha=getZhiBoOdds(fd_hhad_ha,1);
+				
+				high_zhibo="平负["+highest[1]["名"]+":"+highest[1]["赔率"]+","+highest[2]["名"]+":"+highest[2]["赔率"]+" = "+return_race_num(highest[1]["赔率"],highest[2]["赔率"])+"]";
+				high_return_race=return_race(fd_had_h,highest[1]["赔率"],highest[2]["赔率"]);
+				zhiboinfo.push({"原始赔率":h,"计算赔率":fd_had_h,"值博投注":"胜","值博赔率":zhibo_had_h,"值博率":fd_had_da/zhibo_had_h,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				high_zhibo="胜负["+highest[0]["名"]+":"+highest[0]["赔率"]+","+highest[2]["名"]+":"+highest[2]["赔率"]+" = "+return_race_num(highest[0]["赔率"],highest[2]["赔率"])+"]";
+				high_return_race=return_race(fd_had_d,highest[0]["赔率"],highest[2]["赔率"]);
+				zhiboinfo.push({"原始赔率":d,"计算赔率":fd_had_d,"值博投注":"平","值博赔率":zhibo_had_d,"值博率":fd_had_ha/zhibo_had_d,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				high_zhibo="胜平["+highest[0]["名"]+":"+highest[0]["赔率"]+","+highest[1]["名"]+":"+highest[1]["赔率"]+" = "+return_race_num(highest[0]["赔率"],highest[1]["赔率"])+"]";
+				high_return_race=return_race(fd_had_a,highest[0]["赔率"],highest[1]["赔率"]);
+				zhiboinfo.push({"原始赔率":a,"计算赔率":fd_had_a,"值博投注":"负","值博赔率":zhibo_had_a,"值博率":fd_had_hd/zhibo_had_a,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				high_zhibo="负["+highest[2]["名"]+":"+highest[2]["赔率"]+"]";
+				high_return_race=return_race(fd_had_h,fd_had_d,highest[2]["赔率"]);
+				zhiboinfo.push({"原始赔率":h+" "+d,"计算赔率":fd_had_h+" "+fd_had_d,"值博投注":"胜平","值博赔率":zhibo_had_hd,"值博率":fd_had_a/zhibo_had_hd,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				high_zhibo="平["+highest[1]["名"]+":"+highest[1]["赔率"]+"]";
+				high_return_race=return_race(fd_had_h,fd_had_a,highest[1]["赔率"]);
+				zhiboinfo.push({"原始赔率":h+" "+a,"计算赔率":fd_had_h+" "+fd_had_a,"值博投注":"胜负","值博赔率":zhibo_had_ha,"值博率":fd_had_d/zhibo_had_ha,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				high_zhibo="胜["+highest[0]["名"]+":"+highest[0]["赔率"]+"]";
+				high_return_race=return_race(fd_had_d,fd_had_a,highest[0]["赔率"]);
+				zhiboinfo.push({"原始赔率":d+" "+a,"计算赔率":fd_had_d+" "+fd_had_a,"值博投注":"平负","值博赔率":zhibo_had_da,"值博率":fd_had_h/zhibo_had_da,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				high_zhibo="--";
+				high_return_race=0;
+				zhiboinfo.push({"原始赔率":h_h,"计算赔率":fd_hhad_h,"值博投注":"让_胜","值博赔率":zhibo_hhad_h,"值博率":fd_hhad_da/zhibo_hhad_h,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				zhiboinfo.push({"原始赔率":h_d,"计算赔率":fd_hhad_d,"值博投注":"让_平","值博赔率":zhibo_hhad_d,"值博率":fd_hhad_ha/zhibo_hhad_d,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				zhiboinfo.push({"原始赔率":h_a,"计算赔率":fd_hhad_a,"值博投注":"让_负","值博赔率":zhibo_hhad_a,"值博率":fd_hhad_hd/zhibo_hhad_a,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				
+				zhiboinfo.push({"原始赔率":h_h+" "+h_d,"计算赔率":fd_hhad_h+" "+fd_hhad_d,"值博投注":"让_胜平","值博赔率":zhibo_hhad_hd,"值博率":fd_hhad_a/zhibo_hhad_hd,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				zhiboinfo.push({"原始赔率":h_h+" "+h_a,"计算赔率":fd_hhad_h+" "+fd_hhad_a,"值博投注":"让_胜负","值博赔率":zhibo_hhad_ha,"值博率":fd_hhad_d/zhibo_hhad_ha,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				zhiboinfo.push({"原始赔率":h_d+" "+h_a,"计算赔率":fd_hhad_d+" "+fd_hhad_a,"值博投注":"让_平负","值博赔率":zhibo_hhad_da,"值博率":fd_hhad_h/zhibo_hhad_da,"最高赔率":high_zhibo,"最高返还":high_return_race});
+				zhiboinfo.sort(by_str("最高返还",by_str("值博率")));
+				zhiboinfo.reverse();
+				g_zhibo_info[key]=zhiboinfo;
+			}
+			
+			var html = [];
+			for(var i= 0;i<zhiboinfo.length;i++){
+				html.push('<tr>');
+				html.push('<td>'+(i+1)+'</td>');
+				html.push('<td>'+zhiboinfo[i]["值博投注"]+'</td>');
+				html.push('<td>'+zhiboinfo[i]["原始赔率"]+'</td>');
+				html.push('<td>'+zhiboinfo[i]["计算赔率"]+'</td>');
+				html.push('<td>'+zhiboinfo[i]["值博赔率"].toFixed(3)+'</td>');
+				html.push('<td>'+zhiboinfo[i]["值博率"].toFixed(3)+'</td>');
+				html.push('<td>'+zhiboinfo[i]["最高赔率"]+'</td>');
+				html.push('<td>'+zhiboinfo[i]["最高返还"]+'</td>');
+				html.push('</tr>');
+			}
+			$("#resultList").html($(html.join("")));
+		}
+		function fillData(match_list) {
+			if (!match_list) {
+				match_list = g_match_list;
+			}
+			var html = [],list=[],l_cn_arr=[];
+			for ( var k in match_list) {
+				var match = match_list[k];
+				var matchinfo = match["matchinfo"];
+				if (!matchinfo) {
+					var matchinfo = match["num"] + " " + match["l_cn_abbr"] + " " + match["h_cn_abbr"] + "(" + parseInt(match["goalline"]) + ")";
+					if (match["full"] != "" && match["full"] != "undefined" && match["full"] != null) {
+						matchinfo += " " + match["full"] + "(" + match["half"] + ")" + " ";
+					} else {
+						matchinfo += " VS ";
+					}
+					matchinfo += match["a_cn_abbr"];
+					match_list[k]["matchinfo"] = matchinfo;
+				}
+				if(match["had"]["p_status"]!="N" || match["hhad"]["p_status"]!="N"){
+					html.push('<option value="'+k+'" class="lid_'+match["l_id"]+'">' + matchinfo + '</option>');
+					if(!l_cn_arr["lid_"+match["l_id"]]){
+						l_cn_arr["lid_"+match["l_id"]]=match["l_cn_abbr"];
+					}
+				}
+			}
+			html.push('<option value="0">自定义</option>');
+			var lcnhtml=["赛事选择："];
+			lcnhtml.push("<a onclick=changelidqf('q') style=cursor:pointer >全选</a>&nbsp;");
+			lcnhtml.push("<a onclick=changelidqf('f') style=cursor:pointer >反选</a>&nbsp;");
+			for(var lid in l_cn_arr){
+				lcnhtml.push("<input type=checkbox id="+lid+" class=cbk onchange=changelid(this) value="+lid+" checked=checked />");
+				lcnhtml.push("<label for="+lid+">");
+				lcnhtml.push(l_cn_arr[lid]);
+				lcnhtml.push("</label>");
+			}
+			$(".lcndiv").html(lcnhtml.join("&nbsp;"));
+			$("#sellMatchList").html(html.join(""));
+			fillsp();
+		}
+		function goMatch(pos){
+			var sellMatchList = $("#sellMatchList")[0];
+			var idx =sellMatchList.selectedIndex;
+			var newidx = pos + idx;
+			while(sellMatchList.options[newidx].style.display=="none"){//定位到最近一个没有隐藏的option
+				newidx+=pos;
+			}
+			sellMatchList.selectedIndex = newidx;
+			$(sellMatchList).change();
+		}
+		function changelid(ckb) {
+			if (ckb.checked) {
+				$("." + ckb.value).show();
+			} else {
+				$("." + ckb.value).hide();
+				var selectMatchList = $("#sellMatchList");
+				var option = selectMatchList[0].options[selectMatchList[0].selectedIndex];
+				if(option.style.display=="none"){
+					for(var i = 0;i<selectMatchList[0].options.length;i++){
+						option = selectMatchList[0].options[i];
+						if(option.style.display!="none"){
+							selectMatchList.val(option.value);
+							selectMatchList.change();
+							break;
+						}
+					}
+				}
+			}
+		}
+		function showdate(date) {
+			g_match_list = {}, g_status = {};
+			get_match_list_by_date(date);
+		}
+		$(function() {
+			$(".datetimepicker").datetimepicker({
+				minView : "month", //选择日期后，不会再跳转去选择时分秒 
+				language : 'zh-CN',
+				autoclose : true,
+				format : 'yyyy-mm-dd'
+			});
+			get_selling_match_list();
+		});
+	</script>
+</body>
+</html>
+
