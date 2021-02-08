@@ -133,11 +133,13 @@ function matchHistoryCallback(id){
 		d=safeHtml(d);
 		var data = getMatchDataFromHistoryHtml(d,id);
 		if(data && data.match){
-			
+			g_match["_"+id].matchListHistory=data.matchListHistory;
+			g_match["_"+id].boloolData=data.boloolData;
+			g_match["_"+id].match=data.match;
 		}
 	}
 }
-var g_match={},g_team;
+var g_match={},g_team,g_data;
 $(()=>{
 	$.getJSON("/team.json",function(team){
 		g_team=team;
