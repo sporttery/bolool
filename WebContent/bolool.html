@@ -21,7 +21,15 @@
 <link rel="stylesheet" href="res/headshrinker.min.css" />
 <script src="res/jquery.headshrinker.min.js"></script>
 <script src="res/layer-v2.3/layer/layer.js"></script>
+<script src="res/bolool.js"></script>
 <style type="text/css">
+.aRight {
+	text-align: right;
+}
+
+.aLeft {
+	text-align: left;
+}
 </style>
 </head>
 <body>
@@ -32,14 +40,108 @@
 				<tbody id="matchlist"></tbody>
 			</table>
 		</div>
+
+		<div id="myModal" style="background-color: white; text-align: center;"
+			class="modal hide fade" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">×</button>
+				<h3 style="color: red;" id="matchTitle">xxx比赛的菠萝数据</h3>
+			</div>
+			<div class="modal-body">
+				<table class="table table-bordered">
+					<tr>
+						<td class="aRight">欧盘</td>
+						<td class="aLeft"><input type="text" value=""
+							id="matchEurope" maxlength="12" /></td>
+						<td class="aRight">亚盘</td>
+						<td class="aLeft"><input type="text" value="" id="matchAsia"
+							maxlength="12" /></td>
+						<td class="aRight">主队分区</td>
+						<td class="aLeft"><input type="text" value="" id="hSection"
+							maxlength="4" /></td>
+						<td class="aRight">客队分区</td>
+						<td class="aLeft"><input type="text" value="" id="aSection"
+							maxlength="4" /></td>
+						<td width="40%"><a href="javascript:getBoloolList();">查询</a></td>
+					</tr>
+				</table>
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th rowspan="2">联赛</th>
+							<th rowspan="2">赛季</th>
+							<th rowspan="2">轮次</th>
+							<th rowspan="2">时间</th>
+							<th rowspan="2">主队</th>
+							<th rowspan="2">客队</th>
+							<th rowspan="2">比分</th>
+							<th colspan="3">欧盘</th>
+							<th colspan="3">亚盘</th>
+							<th colspan="2">积分</th>
+							<th colspan="2">分区</th>
+							<th colspan="2">近3场</th>
+							<th colspan="2">强弱</th>
+						</tr>
+						<tr>
+							<th>胜</th>
+							<th>平</th>
+							<th>负</th>
+							<th>主</th>
+							<th>盘</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+						</tr>
+					</thead>
+					<tbody id="boloolList">
+
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal" aria-hidden="true"
+					style="color: red;">关闭</button>
+			</div>
+		</div>
+
 	</div>
+
+
 </body>
 <script type="text/javascript">
-function safeHtml(d) {
-    return d.replace(/[\r\n]/g, "").replace(/<head.+?<\/head>/g, "").replace(/<script.+?<\/script>/g, "").replace(/<img.+?>/g, "").replace(/<link.+?>/g, "").replace(/<style.+?<\/style>/g, "");
+function getBoloolList(){
+	
 }
-var g_match={};
+function showBolool(id){
+	var match = g_match["_"+id];
+	$("#matchTitle").text(match.homeName + " VS "+match.awayName + "菠萝数据");
+	$("#matchEurope").val();
+	$("#matchAsia").val();
+	$("#hSection").val();
+	$("#aSection").val();
+}
+function matchHistoryCallback(id){
+	return function(d){
+		d=safeHtml(d);
+		var data = getMatchDataFromHistoryHtml(d,id);
+		if(data && data.match){
+			
+		}
+	}
+}
+var g_match={},g_team;
 $(()=>{
+	$.getJSON("/team.json",function(team){
+		g_team=team;
+	});
 	$.get("/api/getOkoooJc?url=/jingcai/",function(d){
 		var headhtml = [];
         headhtml.push('<tr>');
@@ -49,10 +151,14 @@ $(()=>{
         headhtml.push('<th rowspan="2">球队</th>');
         headhtml.push('<th rowspan="2">比赛时间</th>');
         headhtml.push('<th rowspan="2">让球</th>');
-        headhtml.push('<th colspan="3" style="text-align:center">胜平负赔率</th>');
+        headhtml.push('<th colspan="3" style="text-align:center">竞彩赔率</th>');
         headhtml.push('<th colspan="3" style="text-align:center">bet365欧赔</th>');
         headhtml.push('<th colspan="3" style="text-align:center">bet365亚赔</th>');
-        headhtml.push('<th rowspan="2">分析</th>');
+        headhtml.push('<th colspan="2" style="text-align:center">积分</th>');
+        headhtml.push('<th colspan="2" style="text-align:center">分区</th>');
+        headhtml.push('<th colspan="2" style="text-align:center">近3场</th>');
+        headhtml.push('<th colspan="2" style="text-align:center">强弱</th>');
+        headhtml.push('<th rowspan="2" style="text-align:center">分析</th>');
         headhtml.push('</tr>');
 
         headhtml.push('<tr>');
@@ -62,7 +168,15 @@ $(()=>{
         headhtml.push('<th>胜</th>');
         headhtml.push('<th>平</th>');
         headhtml.push('<th>负</th>');
+        headhtml.push('<th>主</th>');
         headhtml.push('<th>盘</th>');
+        headhtml.push('<th>客</th>');
+        headhtml.push('<th>主</th>');
+        headhtml.push('<th>客</th>');
+        headhtml.push('<th>主</th>');
+        headhtml.push('<th>客</th>');
+        headhtml.push('<th>主</th>');
+        headhtml.push('<th>客</th>');
         headhtml.push('<th>主</th>');
         headhtml.push('<th>客</th>');
         headhtml.push('</tr>');
@@ -107,13 +221,21 @@ $(()=>{
 				html.push('<td>'+h+'</td>');
 				html.push('<td>'+d+'</td>');
 				html.push('<td>'+a+'</td>');
-				html.push('<td rowspan="2" class="europe"></td>');
-				html.push('<td rowspan="2" class="europe"></td>');
-				html.push('<td rowspan="2" class="europe"></td>');
-				html.push('<td rowspan="2" class="asia"></td>');
-				html.push('<td rowspan="2" class="asia"></td>');
-				html.push('<td rowspan="2" class="asia"></td>');
-				html.push('<td rowspan="2">'+fengxin1+' <a href="" target="_blank">菠萝</a></td>');
+				html.push('<td rowspan="2" class="europe">-</td>');
+				html.push('<td rowspan="2" class="europe">-</td>');
+				html.push('<td rowspan="2" class="europe">-</td>');
+				html.push('<td rowspan="2" class="asia">-</td>');
+				html.push('<td rowspan="2" class="asia">-</td>');
+				html.push('<td rowspan="2" class="asia">-</td>');
+				html.push('<td rowspan="2" class="hScore">-</td>');
+				html.push('<td rowspan="2" class="aScore">-</td>');
+				html.push('<td rowspan="2" class="hSection">-</td>');
+				html.push('<td rowspan="2" class="aSection">-</td>');
+				html.push('<td rowspan="2" class="hNear3">-</td>');
+				html.push('<td rowspan="2" class="aNear3">-</td>');
+				html.push('<td rowspan="2" class="hStrong">-</td>');
+				html.push('<td rowspan="2" class="aStrong">-</td>');
+				html.push('<td rowspan="2">'+fengxin1+' <a href="showBolool('+id+')">菠萝</a></td>');
 				html.push('</tr>');
 				html.push('<tr>');
 				html.push('<td>'+h1+'</td>');
@@ -148,6 +270,22 @@ $(()=>{
 				}
 			}
 		});
+		$.ajaxSetup({async:false})
+		$.post("/api/getMatchHistory",{matchIds:ids.join(",")},function(d){
+			var arr = JSON.parse(d);
+			for(var i=0;i<arr.length;i++){
+				var history = arr[i];
+				g_match["_"+history.id].matchlist=history.matchlist;
+			}
+			for(var key in g_match){
+				if(!g_match[key].matchlist){
+					var id = key.substring(1);
+					$.get("/api/getOkoooJc",{url:"/soccer/match/"+id+"/history/"},matchHistoryCallback(id));
+				}
+			}
+			
+		});
+		$.ajaxSetup({async:true})
 	});
 });
 </script>

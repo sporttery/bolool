@@ -66,101 +66,164 @@ public class AjaxServlet extends HttpServlet {
 		response.setCharacterEncoding("utf-8"); // 设置 HttpServletResponse使用utf-8编码
 		response.setHeader("Content-Type", "text/html;charset=utf-8"); // 设置响应头的编码
 		@SuppressWarnings("unchecked")
-		HashMap<String, Object> map = (HashMap<String, Object>) request.getSession().getAttribute("web-cache");
-		if (map == null) {
-			map = new HashMap<String, Object>();
-			request.getSession().setAttribute("web-cache",map);
+		HashMap<String, Object> cacheMap = (HashMap<String, Object>) request.getSession().getAttribute("web-cache");
+		if (cacheMap == null) {
+			cacheMap = new HashMap<String, Object>();
+			request.getSession().setAttribute("web-cache",cacheMap);
 		}
 		String uri = request.getRequestURI();
-		String msg = null;
 		if (uri.equals("/xml/odds_jc.txt") || uri.equals("/xml/bf_jc.txt") || uri.equals("/xml/goallottery8.txt")) {
-			String content = null;
-			if (map.get(uri) == null
-					|| (Long) map.get(uri + "_datetime") < System.currentTimeMillis() - Const.WEB_CACHE_SECONDS) {
-				content = getFromWin007(uri);
-				map.put(uri, content);
-				map.put(uri + "_datetime", System.currentTimeMillis());
-			} else {
-				content = (String) map.get(uri);
-			}
-			response.getWriter().write(content);
+			getWin007XmlTxt(response, cacheMap, uri);
 		} else if (uri.equals("/api/userLogin")) {
-			String userName = request.getParameter("userName");
-			String userPwd = request.getParameter("userPwd");
-			String userMobile = request.getParameter("userMobile");
-
-			if (userName == null || userName.length() < 3 || userPwd == null || userPwd.length() < 3
-					|| userMobile == null || userMobile.length() < 3) {
-				msg = "参数不符合要求";
-				response.getWriter().write(msg);
-			} else {
-				User user = doLogin(userName, userPwd, userMobile);
-				if (user == null) {
-					msg = "找不到用户";
-				} else if (user.getUserStatus().intValue() == 0) {
-					msg = "用户未激活，请联系管理员激活";
-				} else if (user.getUserStatus().intValue() == 2) {
-					msg = "用户异常，请联系管理员";
-				} else if (user.getLeidaExpire().getTime() < System.currentTimeMillis()) {
-					msg = "用户已经过期，请联系管理员";
-				}
-				if (msg == null) {
-					msg = "登录成功，可以使用会员所有功能;" + user;
-					request.getSession().setAttribute("user", user);
-				}
-				response.getWriter().write(msg);
-			}
+			userLogin(request, response);
 		} else if (uri.equals("/api/saveConfig")) {
-			User user = (User) request.getSession().getAttribute("user");
-			if (user == null) {
-				msg = "这属于高级功能，只有会员用户才能使用";
-				response.getWriter().write(msg);
-				return;
-			}
-			String firstMoney = request.getParameter("firstMoney");
-			String commission = request.getParameter("commission");
-			String earningsYield = request.getParameter("earningsYield");
-			if (!StringUtils.isNumeric(firstMoney) || !StringUtils.isNumeric(commission)
-					|| !StringUtils.isNumeric(earningsYield)) {
-				msg = "参数不符合要求";
-				response.getWriter().write(msg);
-			} else {
-				Integer fm = Integer.parseInt(firstMoney);
-				Integer cs = Integer.parseInt(commission);
-				Integer ey = Integer.parseInt(earningsYield);
-				String sql = "update tb_user set firstMoney=" + fm + ",commission=" + cs + ",earningsYield=" + ey
-						+ " where id = " + user.getId();
-				if (DBHelper.insertOrUpdate(sql)) {
-					msg = "保存成功";
-				} else {
-					msg = "保存失败";
-				}
-				response.getWriter().write(msg);
-			}
+			saveConfig(request, response);
 		} else if (uri.equals("/api/myOrder")) {
-			int count = 0;
-			User user = (User) request.getSession().getAttribute("user");
+			getMyOrder(request, response);
+		} else if (uri.equals("/api/getOkoooJc")) {
+			getOkoooJc(request, response, cacheMap);
+		} else if (uri.equals("/api/getMatchHistory")) {
+			getMatchHistory(request, response);
+		}else {
+			response.getWriter().append("Served at: ").append(request.getContextPath());
+		}
+	}
+
+	/**
+	 * 根据ids从数据库里查菠萝指数数据
+	 * @param request
+	 * @param response
+	 */
+	private void getMatchHistory(HttpServletRequest request, HttpServletResponse response)throws IOException  {
+		String ids = request.getParameter("matchIds");
+		if(StringUtils.isEmpty(ids) ) {
+			response.getWriter().write("参数不符合要求");
+		}else {
+			ids = DBHelper.getSafeSqlParam(ids);
+			String sql = "select id,matchlist from t_match_history where id in ("+ids+")";
+			List<HashMap<String,String>> historyMatchList = DBHelper.selectListSql(sql, new String[]{"id","matchlist"});
+			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+			response.getWriter().write(new Gson().toJson(historyMatchList));
+		}
+		
+	}
+
+	/**
+	 * 从win007网上获取xml,txt 竞彩数据并返回，
+	 * @param response
+	 * @param cacheMap
+	 * @param uri
+	 * @throws IOException
+	 */
+	private void getWin007XmlTxt(HttpServletResponse response, HashMap<String, Object> cacheMap, String uri)
+			throws IOException {
+		String content = null;
+		if (cacheMap.get(uri) == null
+				|| (Long) cacheMap.get(uri + "_datetime") < System.currentTimeMillis() - Const.WEB_CACHE_SECONDS) {
+			content = getFromWin007(uri);
+			cacheMap.put(uri, content);
+			cacheMap.put(uri + "_datetime", System.currentTimeMillis());
+		} else {
+			content = (String) cacheMap.get(uri);
+		}
+		response.getWriter().write(content);
+	}
+/**
+ * 判断用户登录
+ * @param request
+ * @param response
+ * @throws IOException
+ */
+	private void userLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String userName = request.getParameter("userName");
+		String userPwd = request.getParameter("userPwd");
+		String userMobile = request.getParameter("userMobile");
+		String msg = null;
+		if (userName == null || userName.length() < 3 || userPwd == null || userPwd.length() < 3
+				|| userMobile == null || userMobile.length() < 3) {
+			msg = "参数不符合要求";
+			response.getWriter().write(msg);
+		} else {
+			User user = doLogin(userName, userPwd, userMobile);
 			if (user == null) {
-				msg = "这属于高级功能，只有会员用户才能使用";
-				response.getWriter().write(msg);
-				return;
+				msg = "找不到用户";
+			} else if (user.getUserStatus().intValue() == 0) {
+				msg = "用户未激活，请联系管理员激活";
+			} else if (user.getUserStatus().intValue() == 2) {
+				msg = "用户异常，请联系管理员";
+			} else if (user.getLeidaExpire().getTime() < System.currentTimeMillis()) {
+				msg = "用户已经过期，请联系管理员";
 			}
-			String totalCountSql = "select count(*) as c from tb_user_order where userId=" + user.getId();
-			count = Integer.parseInt(DBHelper.selectListSql(totalCountSql).get(0));
-			String columns = "id,money,earningsYield,odds,isWin,inserttime";
-			String pageNoStr = request.getParameter("pageNo");
-			String pageSizeStr = request.getParameter("pageSize");
-			int pageSize = 50;
-			int pageNo = 1;
-			if (StringUtils.isNumeric(pageSizeStr)) {
-				pageSize = Integer.parseInt(pageSizeStr);
+			if (msg == null) {
+				msg = "登录成功，可以使用会员所有功能;" + user;
+				request.getSession().setAttribute("user", user);
 			}
-			if (StringUtils.isNumeric(pageNoStr)) {
-				pageNo = Integer.parseInt(pageNoStr);
+			response.getWriter().write(msg);
+		}
+	}
+/**
+ * 保存用户信息
+ */
+	private void saveConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String msg;
+		User user = (User) request.getSession().getAttribute("user");
+		if (user == null) {
+			msg = "这属于高级功能，只有会员用户才能使用";
+			response.getWriter().write(msg);
+			return;
+		}
+		String firstMoney = request.getParameter("firstMoney");
+		String commission = request.getParameter("commission");
+		String earningsYield = request.getParameter("earningsYield");
+		if (!StringUtils.isNumeric(firstMoney) || !StringUtils.isNumeric(commission)
+				|| !StringUtils.isNumeric(earningsYield)) {
+			msg = "参数不符合要求";
+			response.getWriter().write(msg);
+		} else {
+			Integer fm = Integer.parseInt(firstMoney);
+			Integer cs = Integer.parseInt(commission);
+			Integer ey = Integer.parseInt(earningsYield);
+			String sql = "update t_user set firstMoney=" + fm + ",commission=" + cs + ",earningsYield=" + ey
+					+ " where id = " + user.getId();
+			if (DBHelper.insertOrUpdate(sql)) {
+				msg = "保存成功";
+			} else {
+				msg = "保存失败";
 			}
-			String sql = "select " + columns + " from tb_user_order where userId= " + user.getId()
-					+ " order by id desc limit " + ((pageNo - 1) * pageSize) + "," + pageSize;
-			List<HashMap<String, String>> list = DBHelper.selectListSql(sql, columns.split(","));
+			response.getWriter().write(msg);
+		}
+	}
+/**
+ * 查看我的订单
+ * @param request
+ * @param response
+ * @throws IOException
+ */
+	private void getMyOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String msg;
+		int count = 0;
+		User user = (User) request.getSession().getAttribute("user");
+		if (user == null) {
+			msg = "这属于高级功能，只有会员用户才能使用";
+			response.getWriter().write(msg);
+			return;
+		}
+		String totalCountSql = "select count(*) as c from t_user_order where userId=" + user.getId();
+		count = Integer.parseInt(DBHelper.selectListSql(totalCountSql).get(0));
+		String columns = "id,money,earningsYield,odds,isWin,inserttime";
+		String pageNoStr = request.getParameter("pageNo");
+		String pageSizeStr = request.getParameter("pageSize");
+		int pageSize = 50;
+		int pageNo = 1;
+		if (StringUtils.isNumeric(pageSizeStr)) {
+			pageSize = Integer.parseInt(pageSizeStr);
+		}
+		if (StringUtils.isNumeric(pageNoStr)) {
+			pageNo = Integer.parseInt(pageNoStr);
+		}
+		String sql = "select " + columns + " from t_user_order where userId= " + user.getId()
+				+ " order by id desc limit " + ((pageNo - 1) * pageSize) + "," + pageSize;
+		List<HashMap<String, String>> list = DBHelper.selectListSql(sql, columns.split(","));
 //			List<UserOrder> listOrder = new ArrayList<UserOrder>(list.size());
 //			list.forEach(map->{
 //				String id = map.get("id");
@@ -172,38 +235,50 @@ public class AjaxServlet extends HttpServlet {
 //				UserOrder order = new UserOrder(id,money,earningsYield,odds,isWin,inserttime);
 //				listOrder.add(order);
 //			});
-			HashMap<String, Object> data = new HashMap<String, Object>();
-			data.put("totalCount", count);
-			data.put("pageSize", pageSize);
-			data.put("pageNo", pageNo);
-			data.put("list", list);
-			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
-			response.getWriter().write(new Gson().toJson(data));
-
-		} else if (uri.equals("/api/getOkoooJc")) {
-			String url = request.getParameter("url");
-			String args = request.getParameter("args");
-			String method = request.getParameter("method");
-			String content = null;
-			String cacheKey = url+args+method;
-			if (map.get(cacheKey) == null
-					|| (Long) map.get(cacheKey + "_datetime") < System.currentTimeMillis() - Const.WEB_CACHE_SECONDS) {
-				content = getFromOkooo(url, method, args);
-				map.put(cacheKey, content);
-				map.put(cacheKey + "_datetime", System.currentTimeMillis());
-			} else {
-				content = (String) map.get(cacheKey);
-			}
-			response.getWriter().write(content);
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		data.put("totalCount", count);
+		data.put("pageSize", pageSize);
+		data.put("pageNo", pageNo);
+		data.put("list", list);
+		response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+		response.getWriter().write(new Gson().toJson(data));
+	}
+/**
+ * 从okooo网上获取数据并返回
+ * @param request
+ * @param response
+ * @param cacheMap
+ * @throws IOException
+ */
+	private void getOkoooJc(HttpServletRequest request, HttpServletResponse response, HashMap<String, Object> cacheMap)
+			throws IOException {
+		String url = request.getParameter("url");
+		String args = request.getParameter("args");
+		String method = request.getParameter("method");
+		String content = null;
+		String cacheKey = url+args+method;
+		if (cacheMap.get(cacheKey) == null
+				|| (Long) cacheMap.get(cacheKey + "_datetime") < System.currentTimeMillis() - Const.WEB_CACHE_SECONDS) {
+			content = getFromOkooo(url, method, args);
+			cacheMap.put(cacheKey, content);
+			cacheMap.put(cacheKey + "_datetime", System.currentTimeMillis());
 		} else {
-			response.getWriter().append("Served at: ").append(request.getContextPath());
+			content = (String) cacheMap.get(cacheKey);
 		}
+		response.getWriter().write(content);
 	}
 
+	/**
+	 * 验证登录并返回user
+	 * @param userName
+	 * @param userPwd
+	 * @param userMobile
+	 * @return
+	 */
 	private User doLogin(String userName, String userPwd, String userMobile) {
 
 		String columns = "id,userName,userPwd,userMobile,userStatus,commission,earningsYield,leidaExpire,userMoney,firstMoney";
-		String sql = "select " + columns + " from tb_user where userName = '" + DBHelper.getSafeSqlParam(userName)
+		String sql = "select " + columns + " from t_user where userName = '" + DBHelper.getSafeSqlParam(userName)
 				+ "' and userPwd = '" + DBHelper.getSafeSqlParam(userPwd) + "' and userMobile = '"
 				+ DBHelper.getSafeSqlParam(userMobile) + "' ";
 		HashMap<String, String> userInfo = DBHelper.selectSql(sql, columns.split(","));

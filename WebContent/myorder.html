@@ -29,100 +29,100 @@
 				我的投注 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:showLogin()">登录</a>
 			</div>
 		</div>
-	
-	<div class="view">
-		<table class="table table-bordered table-hover">
-			<thead>
-				<tr>
-					<th>首期金额</th>
-					<th>最大期数</th>
-					<th>佣金比例</th>
-					<th>奖金盈利</th>
-					<th>赔率</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><select id="firstMoney" onchange="moneyChange()">
-							<option value="10000">10000</option>
-							<option value="5000">5000</option>
-							<option value="2000">2000</option>
-							<option value="1500">1500</option>
-							<option value="1000">1000</option>
-							<option value="500">500</option>
-							<option value="300" selected="selected">300</option>
-							<option value="200">200</option>
-							<option value="100">100</option>
-							<option value="50">50</option>
-							<option value="30">30</option>
-							<option value="0">自定义</option>
-					</select></td>
 
-					<td><select id="maxNum" onchange="fillData()">
-							<option value="40">40</option>
-							<option value="35">35</option>
-							<option value="30">30</option>
-							<option value="25">25</option>
-							<option value="20">20</option>
-							<option value="15" selected="selected">15</option>
-							<option value="10">10</option>
-					</select></td>
-					<td><select class="selectpicker" id="yjrace"
-						onchange="fillData1(1)" title="最低返点设置">
-							<option value="9">9%</option>
-							<option value="8.5">8.5%</option>
-							<option value="8">8%</option>
-							<option value="7" selected="selected">7%</option>
-							<option value="6">6%</option>
-							<option value="5">5%</option>
-							<option value="4">4%</option>
-							<option value="3">3%</option>
-							<option value="2">2%</option>
-							<option value="1">1%</option>
-							<option value="0">0%</option>
-					</select></td>
-					<td><select class="selectpicker" id="awardrace"
-						onchange="awardraceChange()" title="奖金盈利">
-							<option value="80">80%</option>
-							<option value="50">50%</option>
-							<option value="35">35%</option>
-							<option value="30">30%</option>
-							<option value="25">25%</option>
-							<option value="20" selected="selected">20%</option>
-							<option value="15">15%</option>
-							<option value="10">10%</option>
-							<option value="5">5%</option>
-							<option value="0">0%</option>
-					</select></td>
-					<td><input type="text" value="" onchange="fillData()" id="sp" />
-						<!--&nbsp;&nbsp;&nbsp;&nbsp;代入竞彩单关:&nbsp;&nbsp;<a href="javascript:getJc(2)">平赔</a>&nbsp;&nbsp;<a href="javascript:getJc(1)">一赔</a>&nbsp;&nbsp;<a href="javascript:getJc(3)">三赔</a>-->
-						&nbsp;&nbsp;<a href="javascript:fillData()">计算</a></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	<div class="view">
-		<table class="table table-bordered table-hover">
-			<thead id="thead">
-				<tr>
-					<th>期数</th>
-					<th>赔率</th>
-					<th>收益</th>
-					<th>累计投入</th>
-					<th>本期投入</th>
-					<th>本期倍数</th>
-					<th>本期奖金</th>
-					<th>奖金收益</th>
-					<th>累计佣金</th>
-					<th>累计收益</th>
-				</tr>
-			</thead>
-			<tbody id="showTab"></tbody>
-			
-		</table>
-	</div>
+		<div class="view">
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>首期金额</th>
+						<th>最大期数</th>
+						<th>佣金比例</th>
+						<th>奖金盈利</th>
+						<th>赔率</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><select id="firstMoney" onchange="moneyChange()">
+								<option value="10000">10000</option>
+								<option value="5000">5000</option>
+								<option value="2000">2000</option>
+								<option value="1500">1500</option>
+								<option value="1000">1000</option>
+								<option value="500">500</option>
+								<option value="300" selected="selected">300</option>
+								<option value="200">200</option>
+								<option value="100">100</option>
+								<option value="50">50</option>
+								<option value="30">30</option>
+								<option value="0">自定义</option>
+						</select></td>
 
-</div>
+						<td><select id="maxNum" onchange="fillData()">
+								<option value="40">40</option>
+								<option value="35">35</option>
+								<option value="30">30</option>
+								<option value="25">25</option>
+								<option value="20">20</option>
+								<option value="15" selected="selected">15</option>
+								<option value="10">10</option>
+						</select></td>
+						<td><select class="selectpicker" id="yjrace"
+							onchange="fillData1(1)" title="最低返点设置">
+								<option value="9">9%</option>
+								<option value="8.5">8.5%</option>
+								<option value="8">8%</option>
+								<option value="7" selected="selected">7%</option>
+								<option value="6">6%</option>
+								<option value="5">5%</option>
+								<option value="4">4%</option>
+								<option value="3">3%</option>
+								<option value="2">2%</option>
+								<option value="1">1%</option>
+								<option value="0">0%</option>
+						</select></td>
+						<td><select class="selectpicker" id="awardrace"
+							onchange="awardraceChange()" title="奖金盈利">
+								<option value="80">80%</option>
+								<option value="50">50%</option>
+								<option value="35">35%</option>
+								<option value="30">30%</option>
+								<option value="25">25%</option>
+								<option value="20" selected="selected">20%</option>
+								<option value="15">15%</option>
+								<option value="10">10%</option>
+								<option value="5">5%</option>
+								<option value="0">0%</option>
+						</select></td>
+						<td><input type="text" value="" onchange="fillData()" id="sp" />
+							<!--&nbsp;&nbsp;&nbsp;&nbsp;代入竞彩单关:&nbsp;&nbsp;<a href="javascript:getJc(2)">平赔</a>&nbsp;&nbsp;<a href="javascript:getJc(1)">一赔</a>&nbsp;&nbsp;<a href="javascript:getJc(3)">三赔</a>-->
+							&nbsp;&nbsp;<a href="javascript:fillData()">计算</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="view">
+			<table class="table table-bordered table-hover">
+				<thead id="thead">
+					<tr>
+						<th>期数</th>
+						<th>赔率</th>
+						<th>收益</th>
+						<th>累计投入</th>
+						<th>本期投入</th>
+						<th>本期倍数</th>
+						<th>本期奖金</th>
+						<th>奖金收益</th>
+						<th>累计佣金</th>
+						<th>累计收益</th>
+					</tr>
+				</thead>
+				<tbody id="showTab"></tbody>
+
+			</table>
+		</div>
+
+	</div>
 	<div id="myModal" style="background-color: white; text-align: center;"
 		class="modal hide fade" tabindex="-1" role="dialog"
 		aria-labelledby="myModalLabel" aria-hidden="true">
