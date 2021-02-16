@@ -164,6 +164,18 @@ function getBolool(hbolool, abolool) {
     return bolool;
 }
 
+function getMatchDataFromHistoryJson(json){
+	if(json.matchlist){
+		var matchlist = JSON.parse(json.matchlist);
+		var match = json;
+		var all_h = matchlist.h;
+		var all_a = matchlist.a;
+		var boloolData = getBoloolData(match,all_h, all_a);
+		return boloolData;
+	}
+	return null;
+}
+
 function getMatchDataFromHistoryHtml(d, id) {
     d = $(safeHtml(d));
     var tr = d.find(".jsThisMatch");
@@ -266,10 +278,12 @@ function getMatchDataFromHistoryHtml(d, id) {
         }
     });
 
-    //俱乐部最近33场比赛，要去掉友谊赛
-    //国家队比赛保留友谊赛
+    return getBoloolData(match,all_h,all_a);
+}
 
-
+function getBoloolData(match,all_h,all_a){
+	//俱乐部最近33场比赛，要去掉友谊赛
+	//国家队比赛保留友谊赛
     var isCountryTeamA = false,
         isCountryTeamH = false;
     if (typeof g_team == "object") {

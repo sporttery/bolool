@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,7 +15,12 @@ import org.apache.commons.logging.LogFactory;
 
 public class DBHelper {
 	private static final Log log = LogFactory.getLog(DBHelper.class);
-	
+
+	/**
+	 * 
+	 * @param param
+	 * @return param.replaceAll("['-]", " ");
+	 */
 	public static String getSafeSqlParam(String param) {
 		return param.replaceAll("['-]", " ");
 	}
@@ -27,9 +33,10 @@ public class DBHelper {
 		DataSourceFactory.closeCon(rs, stmt, conn);
 	}
 
-	public static void closeDB(Connection conn, PreparedStatement ps , ResultSet rs) {
-		DataSourceFactory.closeCon(rs,ps , conn);
+	public static void closeDB(Connection conn, PreparedStatement ps, ResultSet rs) {
+		DataSourceFactory.closeCon(rs, ps, conn);
 	}
+
 	public static int insertOrUpdateC(String sql, Connection conn) {
 		Statement stmt = null;
 		try {
@@ -40,7 +47,7 @@ public class DBHelper {
 			int count = stmt.executeUpdate(sql);
 			return count;
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sql);
+			log.error(e.getMessage() + " sql:" + sql);
 			e.printStackTrace();
 		} finally {
 			closeDB(conn, stmt, null);
@@ -64,7 +71,7 @@ public class DBHelper {
 			if (count > 0)
 				result = true;
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sql);
+			log.error(e.getMessage() + " sql:" + sql);
 			e.printStackTrace();
 		} finally {
 			closeDB(conn, stmt, null);
@@ -93,7 +100,7 @@ public class DBHelper {
 			if (count.length > 0)
 				result = true;
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sqls);
+			log.error(e.getMessage() + " sql:" + sqls);
 			e.printStackTrace();
 			try {
 				conn.rollback();
@@ -122,7 +129,7 @@ public class DBHelper {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sql);
+			log.error(e.getMessage() + " sql:" + sql);
 			e.printStackTrace();
 		} finally {
 			closeDB(conn, stmt, rs);
@@ -149,7 +156,7 @@ public class DBHelper {
 				list.add(map);
 			}
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sql);
+			log.error(e.getMessage() + " sql:" + sql);
 			e.printStackTrace();
 		} finally {
 			closeDB(conn, stmt, rs);
@@ -172,7 +179,7 @@ public class DBHelper {
 				list.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sql);
+			log.error(e.getMessage() + " sql:" + sql);
 			e.printStackTrace();
 		} finally {
 			closeDB(conn, stmt, rs);
@@ -202,13 +209,44 @@ public class DBHelper {
 				list.add(rs.getString(1));
 			}
 		} catch (SQLException e) {
-			log.error(e.getMessage() + " sql:"+sql);
+			log.error(e.getMessage() + " sql:" + sql);
 			e.printStackTrace();
 		} finally {
 			closeDB(conn, stmt, rs);
 		}
 
 		return list;
+	}
+
+	public static int insertOrUpdatePre(String sql, Object... os) {
+		PreparedStatement ps = null;
+		Connection conn = null;
+		try {
+			conn = getConnection();
+			ps = conn.prepareStatement(sql);
+			int parameterIndex = 1;
+			for (Object o : os) {
+				if (o instanceof String) {
+					ps.setString(parameterIndex++, (String) o);
+				} else if (o instanceof Integer) {
+					ps.setInt(parameterIndex++, (Integer) o);
+				} else if (o instanceof Float) {
+					ps.setFloat(parameterIndex++, (Float) o);
+				} else if (o instanceof java.sql.Date) {
+					ps.setDate(parameterIndex++, (java.sql.Date) o);
+				}else if(o instanceof Date) {
+					ps.setDate(parameterIndex++, new java.sql.Date(((Date)o).getTime()));
+				}
+			}
+			int count = ps.executeUpdate();
+			return count;
+		} catch (SQLException e) {
+			log.error(e.getMessage() + " sql:" + sql);
+			e.printStackTrace();
+		} finally {
+			closeDB(conn, ps, null);
+		}
+		return 0;
 	}
 
 	public static void main(String[] args) {

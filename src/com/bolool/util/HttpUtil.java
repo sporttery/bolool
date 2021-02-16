@@ -54,6 +54,7 @@ public class HttpUtil {
 //	    headers.add(new BasicHeader(WEBMATE_USER_HEADERKEY, authInfo.emailAddress));
 //	    headers.add(new BasicHeader(WEBMATE_APITOKEN_HEADERKEY, authInfo.apiKey));
 
+
 		if (header != null) {
 			for (Iterator iter = header.keySet().iterator(); iter.hasNext();) {
 				String name = (String) iter.next();
@@ -68,6 +69,7 @@ public class HttpUtil {
 			headers.add(new BasicHeader("Accept-Encoding", "br, gzip, deflate"));
 			headers.add(new BasicHeader("Connection", "keep-alive"));
 			headers.add(new BasicHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+			
 			
 		}
 
@@ -240,12 +242,14 @@ public class HttpUtil {
 					response.close();
 				} catch (IOException e) {
 					log.error(e);
+					e.printStackTrace();
 				}
 			}
 			try {
 				httpclient.close();
 			} catch (IOException e) {
 				log.error(e);
+				e.printStackTrace();
 			}
 		}
 		return null;
@@ -298,4 +302,25 @@ public class HttpUtil {
 	public static String doPost(String url, String params, Map header) throws Exception {
 		return doPost(url, params, "utf-8", header);
 	}
+	
+	 public static String execCurl(String[] cmds) {
+	        ProcessBuilder process = new ProcessBuilder(cmds);
+	        Process p;
+	        try {
+	            p = process.start();
+	            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+	            StringBuilder builder = new StringBuilder();
+	            String line = null;
+	            while ((line = reader.readLine()) != null) {
+	                builder.append(line);
+	                builder.append(System.getProperty("line.separator"));
+	            }
+	            return builder.toString();
+	 
+	        } catch (IOException e) {
+	        	log.error(e);
+	            e.printStackTrace();
+	        }
+	        return null;
+	    }
 }

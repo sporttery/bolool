@@ -20,7 +20,8 @@ public class DataSourceFactory {
 	private static Logger log = Logger.getLogger(DataSourceFactory.class);
 	private static BasicDataSource bs = null;
 
-	private static final String driver = "com.mysql.jdbc.Driver";
+//	private static final String driver = "com.mysql.jdbc.Driver";
+	private static final String driver = "com.mysql.cj.jdbc.Driver";
 	static {
 		PropKit.use("config.properties");
 	}

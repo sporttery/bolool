@@ -17,7 +17,7 @@ public class UserOrder {
 		this.odds = Float.valueOf(odds);
 		this.isWin = Integer.valueOf(isWin);
 		try {
-			this.inserttime = new SimpleDateFormat(Const.ymd_hms).parse(inserttime);
+			this.inserttime = new SimpleDateFormat(Const.YMD_HMS).parse(inserttime);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,6 +69,6 @@ public class UserOrder {
 	
 	@Override
 	public String toString() {
-		return new GsonBuilder().setDateFormat(Const.ymd_hms).create().toJson(this);
+		return new GsonBuilder().setDateFormat(Const.YMD_HMS).create().toJson(this);
 	}
 }

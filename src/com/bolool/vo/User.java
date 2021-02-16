@@ -79,6 +79,6 @@ public class User {
 	}
 	@Override
 	public String toString() {
-		return new GsonBuilder().setDateFormat(Const.ymd_hms).create().toJson(this);
+		return new GsonBuilder().setDateFormat(Const.YMD_HMS).create().toJson(this);
 	}
 }
