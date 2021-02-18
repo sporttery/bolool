@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-2代指数</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
+
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
+<script src="res/bootstrap-paginator.min.js"></script>
+<link rel="stylesheet" href="res/datetimepicker.css" />
+<script src="res/bootstrap-datetimepicker.min.js"></script>
+<link rel="stylesheet" href="res/headshrinker.min.css" />
+<script src="res/jquery.headshrinker.min.js"></script>
+<script src="res/layer-v2.3/layer/layer.js"></script>
+<script src="res/bolool.js"></script>
+<style type="text/css">
+.aRight {
+	text-align: right;
+}
+
+.aLeft {
+	text-align: left;
+}
+
+input {
+	color: #000;
+}
+</style>
+</head>
+<body>
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="page-header">
+			<div class="view matchTitle">xxx比赛的菠萝数据</div>
+			<div class="view">
+				<table class="table table-bordered">
+					<tr>
+						<td class="aRight">欧盘</td>
+						<td class="aLeft"><input type="text" value=""
+							id="matchEurope" maxlength="12" onchange="changeOdds()" /></td>
+						<td class="aRight">亚盘</td>
+						<td class="aLeft"><input type="text" value="" id="matchAsia"
+							maxlength="12" onchange="changeOdds()" /></td>
+						<td class="aRight">主队分区</td>
+						<td class="aLeft"><select id="hsection"
+							onchange="filterSection()">
+								<option value="-1">全部</option>
+								<option value="0">0</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
+								<option value="10">10</option>
+						</select></td>
+						<td class="aRight">客队分区</td>
+						<td class="aLeft"><select id="asection"
+							onchange="filterSection()">
+								<option value="-1">全部</option>
+								<option value="0">0</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
+								<option value="10">10</option>
+						</select></td>
+						<td width="40%"><a id="searchBtn"
+							href="javascript:getBoloolList();">查询</a></td>
+					</tr>
+				</table>
+			</div>
+			<div class="view">
+				<table class="table table-bordered">
+					<thead id="thead">
+						<tr>
+							<th rowspan="2">场次</th>
+							<th rowspan="2">联赛</th>
+							<th rowspan="2">赛季</th>
+							<th rowspan="2">球队</th>
+							<th rowspan="2">比赛时间</th>
+							<th rowspan="2">让球</th>
+							<th colspan="3" style="text-align: center">竞彩赔率</th>
+							<th colspan="3" style="text-align: center">bet365欧赔</th>
+							<th colspan="3" style="text-align: center">bet365亚赔</th>
+							<th colspan="2" style="text-align: center">积分<select
+								id="topNSection" onchange="changeTopN()"><option
+										value="30">30</option>
+									<option value="33">33</option></select></th>
+							<th colspan="2" style="text-align: center">分区</th>
+							<th colspan="2" style="text-align: center">近3场</th>
+							<th colspan="2" style="text-align: center">强弱</th>
+							<th rowspan="2" style="text-align: center">分析</th>
+						</tr>
+						<tr>
+							<th>胜</th>
+							<th>平</th>
+							<th>负</th>
+							<th>胜</th>
+							<th>平</th>
+							<th>负</th>
+							<th>主</th>
+							<th>盘</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+							<th>主</th>
+							<th>客</th>
+						</tr>
+					</thead>
+					<tbody id="matchtr"></tbody>
+				</table>
+			</div>
+		</div>
+		<div class="view">
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th rowspan="2">联赛</th>
+						<th rowspan="2">赛季</th>
+						<th rowspan="2">轮次</th>
+						<th rowspan="2">时间</th>
+						<th rowspan="2">主队</th>
+						<th rowspan="2">客队</th>
+						<th rowspan="2">比分</th>
+						<th colspan="3">欧盘<select id="europeSec"
+							style="display: none" onchange="filterOdds()"></select></th>
+						<th colspan="3">亚盘<select id="asiaSec" style="display: none"
+							onchange="filterOdds()"></select></th>
+						<th colspan="2">积分</th>
+						<th colspan="2">分区 <label for="sameSection"
+							style="cursor: pointer; font-size: 22px; color: red;"><input
+								id="sameSection" type="checkbox" onchange="filterSection()" />同</label></th>
+						<th colspan="2">近3场</th>
+						<th colspan="2">强弱</th>
+					</tr>
+					<tr>
+						<th>胜</th>
+						<th>平</th>
+						<th>负</th>
+						<th>主</th>
+						<th>盘</th>
+						<th>客</th>
+						<th>主</th>
+						<th>客</th>
+						<th>主</th>
+						<th>客</th>
+						<th>主</th>
+						<th>客</th>
+						<th>主</th>
+						<th>客</th>
+					</tr>
+				</thead>
+				<tbody id="boloolList">
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+function changeOdds(){
+	console.log("odds has changed");
+	$("#searchBtn").show();
+}
+function filterSection(){
+	filterOdds();
+}
+function filterOdds(){
+	var europe = $("#europeSec").val();
+	var asia = $("#asiaSec").val();
+	var hsection = $("#hsection").val();
+	var asection = $("#asection").val();
+	var sameSection = $("#sameSection")[0].checked;
+	$("#boloolList").find("tr").each((idx,el)=>{
+		var tr=$(el);
+		var trEurope=tr.attr("data-europe");
+		var trAsia=tr.attr("data-asia");
+		var hshow=false,ashow=false;
+		if(europe==-1 || trEurope == europe){
+			hshow=true;
+		}
+		if(asia==-1 || trAsia == asia){
+			ashow=true;
+		}
+		if(hshow && ashow && sameSection){
+			var trHsection=tr.attr("data-hsection");
+			var trAsection=tr.attr("data-asection");
+			if(hsection !=-1 && trHsection != hsection){
+				hshow=false;
+			}
+			if(asection !=-1 && trAsection != asection){
+				ashow=false;
+			}
+		}
+		if(hshow && ashow){
+			tr.show();
+		}else{
+			tr.hide();
+		}
+	});
+}
+function getBoloolList(){
+	var europe=$("#matchEurope").val();
+	var asia=$("#matchAsia").val();
+	layer.load(2);
+	$.post("/api/getBoloolList",{europe,asia,hsection,asection,topN},function(d){
+		if(typeof d == "string"){
+			layer.alert(d);
+		}else{
+			if(d.length==0){
+				layer.closeAll();
+				layer.alert("没有查到数据");
+				return;
+			}
+			var html=[];
+			var noBoloolIds=[];
+			var europeMap={};
+			var asiaMap={};
+			d.forEach(item=>{
+				var eKey = item.s+" "+item.p+" "+item.f;
+				var aKey = item.h+" "+item.pan+" "+item.a;
+				var show = europe==eKey && asia == aKey;
+				var noBolool = !item.hresult || item.hresult.length < 3;
+				var className="";
+				if(noBolool){
+					className="noBolool";
+					noBoloolIds.push(item.id);
+				}
+				html.push('<tr id="bolool_'+item.id+'" class="'+className+'" style="'+(show?"":"display:none")+'" data-europe="'+eKey+'" data-asia="'+aKey+'" data-hsection="'+item.hsection+'" data-asection="'+item.asection+'">' );
+				html.push('<td>'+item.leagueName+'</td>');
+				html.push('<td>'+item.seasonName+'</td>');
+				html.push('<td>'+item.round+'</td>');
+				html.push('<td>'+item.playtime+'</td>');
+				html.push('<td>'+item.homeName+'</td>');
+				html.push('<td>'+item.awayName+'</td>');
+				html.push('<td>'+item.fullscore+"<br/>"+item.halfscore+'</td>');
+				html.push('<td>'+item.s+'</td>');
+				html.push('<td>'+item.p+'</td>');
+				html.push('<td>'+item.f+'</td>');
+				if(!europeMap[eKey]){
+					europeMap[eKey]=[];
+				}
+				europeMap[eKey].push(item.id);
+				html.push('<td>'+item.h+'</td>');
+				html.push('<td>'+item.pan+'</td>');
+				html.push('<td>'+item.a+'</td>');
+				if(!asiaMap[aKey]){
+					asiaMap[aKey]=[];
+				}
+				asiaMap[aKey].push(item.id);
+				/* boloolData = getMatchDataFromHistoryJson(item);
+				if(!boloolData){
+					boloolData={};
+					boloolData["top"+topN]={hscore:'-',ascore:'-',hsection:'-',asection:'-'};
+					boloolData["top3"]={hresult:'-',aresult:'-',hstrong:'-',astrong:'-'};
+				}
+				html.push('<td>'+boloolData["top"+topN].hscore+'</td>');
+				html.push('<td>'+boloolData["top"+topN].ascore+'</td>');
+				html.push('<td>'+boloolData["top"+topN].hsection+'</td>');
+				html.push('<td>'+boloolData["top"+topN].asection+'</td>');
+				html.push('<td>'+boloolData["top3"].hresult+'</td>');
+				html.push('<td>'+boloolData["top3"].aresult+'</td>');
+				html.push('<td>'+boloolData["top3"].hstrong+'</td>');
+				html.push('<td>'+boloolData["top3"].astrong+'</td>'); */
+				//hresult,aresult,hscore,ascore,hsection,asection
+				if(noBolool){
+					html.push('<td class="hscore">--</td>');
+					html.push('<td>--</td>');
+					html.push('<td>--</td>');
+					html.push('<td>--</td>');
+					html.push('<td>--</td>');
+					html.push('<td>--</td>');
+					html.push('<td>--</td>');
+					html.push('<td>--</td>');
+				}else{
+					html.push('<td>'+item.hscore+'</td>');
+					html.push('<td>'+item.ascore+'</td>');
+					html.push('<td>'+item.hsection+'</td>');
+					html.push('<td>'+item.asection+'</td>');
+					var bolool3=getBoloolFromResult(item.hresult,item.aresult,3);
+					html.push('<td>'+bolool3.hresult+'</td>');
+					html.push('<td>'+bolool3.aresult+'</td>');
+					html.push('<td>'+bolool3.hstrong+'</td>');
+					html.push('<td>'+bolool3.astrong+'</td>');
+				}
+				html.push('</tr>');
+			});
+			ids = noBoloolIds;
+			$("#boloolList").html(html.join(''));
+			html=['<option value="-1">全部</option>'];
+			var keys = Object.keys(europeMap);
+			keys.sort();
+			keys.forEach((key)=>{
+				html.push('<option value="'+key+'" '+ (europe==key?"selected":"") +'>'+key+'</option>');
+			});
+			$("#europeSec").html(html.join('')).show();
+			html=['<option value="-1">全部</option>'];
+			var keys = Object.keys(asiaMap);
+			keys.sort();
+			keys.forEach((key)=>{
+				html.push('<option value="'+key+'" '+ (asia==key?"selected":"")+'>'+key+'</option>');
+			});
+			$("#asiaSec").html(html.join('')).show();
+			$("#searchBtn").hide();
+			for (var i = 0; i < noBoloolIds.length; i++) {
+				var id=noBoloolIds[i];
+				$.get("/api/getOkoooJc",{url:"/soccer/match/"+id+"/history/"},matchHistoryCallback(id));
+			}
+		}
+	});
+}
+function showBolool(match){
+	$(".matchTitle").text(match.homeName + " VS "+match.awayName + "菠萝数据");
+	if(match.europe){
+		$("#matchEurope").val(match.europe.join(" "));
+	}else{
+		$("#matchEurope").val("-");
+	}
+	if(match.asia){
+		$("#matchAsia").val(match.asia.slice(0,3).join(" "));
+	}else{
+		$("#matchAsia").val("-");
+	}
+	$("#matchtr").html(match.trHtml);
+	$("#hsection").val(hsection);
+	$("#asection").val(asection);
+	$("#boloolList").html('');
+}
+var g_match={},topN=30,hsection=-1,asection=-1,ids=[],g_team={};
+$(()=>{
+	var cache_g_team = localStorage.getItem("g_team");
+    if(!cache_g_team){
+		$.getJSON("/team.json",function(team){
+			g_team=team;
+			localStorage.setItem("g_team",JSON.stringify(g_team));
+		});
+    }else{
+    	g_team=JSON.parse(cache_g_team);
+    }
+	var params=getRequest();
+	if(!params){
+		layer.alert("没有数据0");
+		return;
+	}
+	if(!params.id){
+		layer.alert("没有数据1");
+		return;
+	}
+	var id = params.id;
+	if(params.topN){
+		topN=params.topN;
+	}
+	if(params.hsection){
+		hsection=params.hsection;
+	}
+	if(params.asection){
+		asection=params.asection;
+	}
+	var cache_b_match = sessionStorage.getItem("b_match_"+id);
+	if(!cache_b_match){
+		layer.alert("没有数据2");
+		return;
+	}
+	g_match["_"+id]=JSON.parse(cache_b_match);
+	var match = g_match["_"+id];
+	if(!match){
+		layer.alert("没有数据3");
+		return;
+	}
+	showBolool(match);
+});
+</script>
+</html>

@@ -22,22 +22,16 @@ public class DataSourceFactory {
 
 //	private static final String driver = "com.mysql.jdbc.Driver";
 	private static final String driver = "com.mysql.cj.jdbc.Driver";
-	static {
-		PropKit.use("config.properties");
-	}
-	private static final String url = PropKit.get("jdbcUrl");
-	private static final String uid = PropKit.get("user");
-	private static final String pwd = PropKit.get("password");
 	
 	
 	public static void init() {
 		if(bs==null) {
-			log.info("数据库连接信息：[driver:" + driver + ",url:" + url + ",userName:" + uid + ",password:" + pwd + "]");
+			log.info("数据库连接信息：[driver:" + driver + ",url:" + Const.DB_URL + ",userName:" + Const.DB_UID + ",password:" + Const.DB_PWD + "]");
 			bs = new BasicDataSource();
 			bs.setDriverClassName(driver);
-			bs.setUrl(url);
-			bs.setUsername(uid);
-			bs.setPassword(pwd);
+			bs.setUrl( Const.DB_URL);
+			bs.setUsername( Const.DB_UID);
+			bs.setPassword( Const.DB_PWD);
 			bs.setMaxActive(200);// 设置最大并发数
 			bs.setInitialSize(30);// 数据库初始化时，创建的连接个数
 			bs.setMinIdle(50);// 最小空闲连接数

@@ -13,7 +13,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.gson.Gson;
+
 public class DBHelper {
+	
+	
 	private static final Log log = LogFactory.getLog(DBHelper.class);
 
 	/**
@@ -38,6 +42,9 @@ public class DBHelper {
 	}
 
 	public static int insertOrUpdateC(String sql, Connection conn) {
+		if(Const.showSql) {
+			log.error("sql= "+sql);
+		}
 		Statement stmt = null;
 		try {
 			if (conn == null) {
@@ -60,6 +67,9 @@ public class DBHelper {
 	}
 
 	public static boolean insertOrUpdate(String sql, Connection conn) {
+		if(Const.showSql) {
+			log.error("sql= "+sql);
+		}
 		Statement stmt = null;
 		boolean result = false;
 		try {
@@ -84,6 +94,9 @@ public class DBHelper {
 	}
 
 	public static boolean insertOrUpdateMany(List<String> sqls, Connection conn) {
+		if(Const.showSql) {
+			log.error("sql= "+ new Gson ().toJson(sqls));
+		}
 		boolean result = false;
 		Statement stmt = null;
 		try {
@@ -114,6 +127,9 @@ public class DBHelper {
 	}
 
 	public static HashMap<String, String> selectSql(String sql, String[] columns, Connection conn) {
+		if(Const.showSql) {
+			log.error("sql= "+sql);
+		}
 		HashMap<String, String> rtnmap = new HashMap<String, String>();
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -139,6 +155,9 @@ public class DBHelper {
 	}
 
 	public static List<HashMap<String, String>> selectListSql(String sql, String[] columns, Connection conn) {
+		if(Const.showSql) {
+			log.error("sql= "+sql);
+		}
 		List<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -166,6 +185,9 @@ public class DBHelper {
 	}
 
 	public static List<String> selectListSql(String sql, Connection conn) {
+		if(Const.showSql) {
+			log.error("sql= "+sql);
+		}
 		List<String> list = new ArrayList<String>();
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -197,6 +219,9 @@ public class DBHelper {
 	}
 
 	public static List<String> selectListSql(String sql) {
+		if(Const.showSql) {
+			log.error("sql= "+sql);
+		}
 		List<String> list = new ArrayList<String>();
 		Connection conn = null;
 		Statement stmt = null;
@@ -219,6 +244,9 @@ public class DBHelper {
 	}
 
 	public static int insertOrUpdatePre(String sql, Object... os) {
+		if(Const.showSql) {
+			log.error("sql= "+sql+",param:" + new Gson().toJson(os));
+		}
 		PreparedStatement ps = null;
 		Connection conn = null;
 		try {

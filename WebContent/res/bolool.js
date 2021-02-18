@@ -18,9 +18,103 @@ function getStrong(hscore, ascore) {
     return hscore > ascore ? '强' : hscore == ascore ? '平' : '弱';
 }
 
+/**
+ * [获取URL中的参数名及参数值的集合]
+ * 示例URL:http://htmlJsTest/getrequest.html?uid=admin&rid=1&fid=2&name=小明
+ * @param {[string]} urlStr [当该参数不为空的时候，则解析该url中的参数集合]
+ * @return {[string]}       [参数集合]
+ */
+function getRequest(urlStr) {
+	var url;
+    if (typeof urlStr == "undefined") {
+        url = decodeURI(location.search); //获取url中"?"符后的字符串
+    } else {
+        url = "?" + urlStr.split("?")[1];
+    }
+    var theRequest = new Object();
+    if (url.indexOf("?") != -1) {
+        var str = url.substr(1);
+        strs = str.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+        }
+    }
+    return theRequest;
+}
+
+function setMatchBoloolData(id,data){
+	if(g_match["_"+id]){
+		g_match["_"+id].matchlist=JSON.parse(data.matchListHistory.matchlist);
+		g_match["_"+id].boloolData=data.boloolData;
+		g_match["_"+id].match=data.match;
+		tr = g_match["_"+id].tr;
+		if(!tr){
+			tr = $("#m"+id);
+			g_match["_"+id].tr = tr;
+		}
+		tr.find(".season").text(data.match.seasonName + " " + data.match.round);
+		if(data.match.fullscore.length>2){
+			var teamInfo = tr.find(".teamInfo");
+			teamInfo.html(teamInfo.html().replace("VS",data.match.fullscore+"("+data.match.halfscore+")"));
+		}
+		changeTopN(id);
+	}
+	trBolool = $("#bolool_"+id);
+	if(trBolool.length == 1){
+		var hscore = trBolool.find(".hscore");
+		var bolool = data.boloolData["top"+topN];
+		trBolool.attr({"data-hsection":bolool.hsection,"data-asection":bolool.asection});
+		hscore.text(bolool.hscore);
+		(hscore=hscore.next()).text(bolool.ascore);
+		(hscore=hscore.next()).text(bolool.hsection);
+		(hscore=hscore.next()).text(bolool.asection);
+		var bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
+		(hscore=hscore.next()).text(bolool3.hresult);
+		(hscore=hscore.next()).text(bolool3.aresult);
+		(hscore=hscore.next()).text(bolool3.hstrong);
+		(hscore=hscore.next()).text(bolool3.astrong);
+	}
+	
+	if(ids && id==ids[ids.length-1]){
+		layer.closeAll();
+	}
+}
+
+function matchHistoryCallback(id){
+	return function(d){
+		d=safeHtml(d);
+		var data = getMatchDataFromHistoryHtml(d,id);
+		if(data && data.match){
+			$.post("/api/saveBolool",{match:JSON.stringify(data.match),matchlist:data.matchListHistory.matchlist,bolool:JSON.stringify(data.boloolData)},function(cc){
+				console.log(cc);
+			}); 
+			setMatchBoloolData(id,data);
+		}
+	}
+}
+
+function getBoloolFromResult(hResult,aResult,topN){
+	if(!topN){
+		topN=3;
+	}
+	if(hResult.length<topN || aResult.length<topN){
+		return {hresult:"--",aresult:"--",hscore:"--",ascore:"--",hstrong:"--",astrong:"--"};
+	}
+	var hresult=hResult.substring(0,topN).replace(/胜/g,"3").replace(/平/g,"1").replace(/负/g,"0");
+	var aresult=aResult.substring(0,topN).replace(/胜/g,"3").replace(/平/g,"1").replace(/负/g,"0");
+	var hscore=sum(hresult.split(/|/));
+	var ascore=sum(aresult.split(/|/));
+	var hstrong=getStrong(hscore,ascore);
+	var astrong=getStrong(ascore,hscore);
+	return {hresult,aresult,hscore,ascore,hstrong,astrong};
+}
+
 //获取分区
 function getScoreSection(score, count) {
     score = parseInt(score)
+    if(isNaN(score)){
+    	return -1;
+    }
     if (count < 33) {
         return 9 - parseInt(score / 10);
     } else {
@@ -106,6 +200,7 @@ function concat(arr, key, split) {
     }
     return s.join(split);
 }
+
 
 
 
@@ -313,9 +408,7 @@ function getBoloolData(match,all_h,all_a){
     abolool.strong = getStrong(abolool.score, hbolool.score);
 
     var bolool = getBolool(hbolool, abolool);
-    bolool.topN = topN;
-    bolool.friendly = 0;
-    bolool.matchId = match.id;
+    bolool.id = match.id;
     boloolData["top" + topN] = bolool;
 
 
@@ -325,32 +418,10 @@ function getBoloolData(match,all_h,all_a){
     hbolool.strong = getStrong(hbolool.score, abolool.score);
     abolool.strong = getStrong(abolool.score, hbolool.score);
     bolool = getBolool(hbolool, abolool);
-    bolool.topN = topN;
-    bolool.friendly = 1;
-    bolool.matchId = match.id;
+    bolool.id = match.id;
     boloolData["top" + topN] = bolool;
 
-    topN = 6;
-    hbolool = calcBolool(all_h, topN, isCountryTeamH ? 1 : 0);
-    abolool = calcBolool(all_a, topN, isCountryTeamH ? 1 : 0);
-    hbolool.strong = getStrong(hbolool.score, abolool.score);
-    abolool.strong = getStrong(abolool.score, hbolool.score);
-    bolool = getBolool(hbolool, abolool);
-    bolool.topN = topN;
-    bolool.friendly = 1;
-    bolool.matchId = match.id;
-    boloolData["top" + topN] = bolool;
-
-    topN = 3;
-    hbolool = calcBolool(all_h, topN, isCountryTeamH ? 1 : 0);
-    abolool = calcBolool(all_a, topN, isCountryTeamH ? 1 : 0);
-    hbolool.strong = getStrong(hbolool.score, abolool.score);
-    abolool.strong = getStrong(abolool.score, hbolool.score);
-    bolool = getBolool(hbolool, abolool);
-    bolool.topN = topN;
-    bolool.friendly = 1;
-    bolool.matchId = match.id;
-    boloolData["top" + topN] = bolool;
+   
 
 
     var matchListHistory = {

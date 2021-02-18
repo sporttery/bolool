@@ -3,7 +3,6 @@ package com.bolool.vo;
 import java.util.Date;
 
 import com.bolool.util.Const;
-import com.google.gson.Gson;
 
 public class Match {
 	//{"id":1114283,"leagueId":238,"leagueName":"葡超","leagueType":"league","homeId":11271,"homeName":"法马利康","awayId":217,"awayName":"摩雷伦斯","fullscore":"0-2","halfscore":"0-2",

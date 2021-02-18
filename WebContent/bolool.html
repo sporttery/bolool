@@ -44,83 +44,9 @@ input {
 				<tbody id="matchlist"></tbody>
 			</table>
 		</div>
-
-		<div id="myModal"
-			style="background-color: green; text-align: center; color: #fff"
-			class="modal hide fade" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"
-					aria-hidden="true">×</button>
-				<h3 style="color: red;" class="matchTitle">xxx比赛的菠萝数据</h3>
-				
-			</div>
-			<div class="modal-body">
-				<table class="table table-bordered">
-					<tr>
-						<td class="aRight">欧盘</td>
-						<td class="aLeft"><input type="text" value=""
-							id="matchEurope" maxlength="12" /></td>
-						<td class="aRight">亚盘</td>
-						<td class="aLeft"><input type="text" value="" id="matchAsia"
-							maxlength="12" /></td>
-						<td class="aRight">主队分区</td>
-						<td class="aLeft"><input type="text" value="" id="hSection"
-							maxlength="4" /></td>
-						<td class="aRight">客队分区</td>
-						<td class="aLeft"><input type="text" value="" id="aSection"
-							maxlength="4" /></td>
-						<td width="40%"><a href="javascript:getBoloolList();">查询</a></td>
-					</tr>
-				</table>
-				<table class="table table-bordered">
-					<thead>
-						<tr>
-							<th rowspan="2">联赛</th>
-							<th rowspan="2">赛季</th>
-							<th rowspan="2">轮次</th>
-							<th rowspan="2">时间</th>
-							<th rowspan="2">主队</th>
-							<th rowspan="2">客队</th>
-							<th rowspan="2">比分</th>
-							<th colspan="3">欧盘</th>
-							<th colspan="3">亚盘</th>
-							<th colspan="2">积分</th>
-							<th colspan="2">分区</th>
-							<th colspan="2">近3场</th>
-							<th colspan="2">强弱</th>
-						</tr>
-						<tr>
-							<th>胜</th>
-							<th>平</th>
-							<th>负</th>
-							<th>主</th>
-							<th>盘</th>
-							<th>客</th>
-							<th>主</th>
-							<th>客</th>
-							<th>主</th>
-							<th>客</th>
-							<th>主</th>
-							<th>客</th>
-							<th>主</th>
-							<th>客</th>
-						</tr>
-					</thead>
-					<tbody id="boloolList">
-
-					</tbody>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true"
-					style="color: red;">关闭</button>
-			</div>
-		</div>
-
 	</div>
 	<div id="matchHistoryTip"
-		style="background-color: red; text-align: center; color: #fff"
+		style="background-color: purple; text-align: center; color: #fff"
 		class="modal hide fade" tabindex="-1" role="dialog"
 		aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-header">
@@ -153,72 +79,6 @@ input {
 </body>
 <script type="text/javascript">
 var topN = 30;
-function getBoloolList(){
-	var europe=$("#matchEurope").val();
-	var asia=$("#matchAsia").val();
-	var hSection=$("#hSection").val();
-	var aSection=$("#aSection").val();
-	$.post("/api/getBoloolList",{europe,asia,hSection,aSection,topN},function(d){
-		if(typeof d == "string"){
-			layer.alert(d);
-		}else{
-			var html=[];
-			d.forEach(item=>{
-				html.push('<tr>');
-				html.push('<td>'+item.leagueName+'</td>');
-				html.push('<td>'+item.seasonName+'</td>');
-				html.push('<td>'+item.round+'</td>');
-				html.push('<td>'+item.playtime+'</td>');
-				html.push('<td>'+item.homeName+'</td>');
-				html.push('<td>'+item.awayName+'</td>');
-				html.push('<td>'+item.fullscore+"<br/>"+item.halfscore+'</td>');
-				html.push('<td>'+item.s+'</td>');
-				html.push('<td>'+item.p+'</td>');
-				html.push('<td>'+item.f+'</td>');
-				html.push('<td>'+item.h+'</td>');
-				html.push('<td>'+item.pan+'</td>');
-				html.push('<td>'+item.a+'</td>');
-				boloolData = getMatchDataFromHistoryJson(item);
-				if(!boloolData){
-					boloolData={};
-					boloolData["top"+topN]={hscore:'-',ascore:'-',hsection:'-',asection:'-'};
-					boloolData["top3"]={hresult:'-',aresult:'-',hstrong:'-',astrong:'-'};
-				}
-				html.push('<td>'+boloolData["top"+topN].hscore+'</td>');
-				html.push('<td>'+boloolData["top"+topN].ascore+'</td>');
-				html.push('<td>'+boloolData["top"+topN].hsection+'</td>');
-				html.push('<td>'+boloolData["top"+topN].asection+'</td>');
-				html.push('<td>'+boloolData["top3"].hresult+'</td>');
-				html.push('<td>'+boloolData["top3"].aresult+'</td>');
-				html.push('<td>'+boloolData["top3"].hstrong+'</td>');
-				html.push('<td>'+boloolData["top3"].astrong+'</td>');
-				html.push('</tr>');
-			});
-			$("#boloolList").html(html.join(''));
-		}
-	});
-}
-function showBolool(id){
-	var match = g_match["_"+id];
-	var myModal = $("#myModal");
-	myModal.find(".matchTitle").text(match.homeName + " VS "+match.awayName + "菠萝数据");
-	if(match.europe){
-		$("#matchEurope").val(match.europe.join(" "));
-	}else{
-		$("#matchEurope").val("-");
-	}
-	if(match.asia){
-		$("#matchAsia").val(match.asia.slice(0,3).join(" "));
-	}else{
-		$("#matchAsia").val("-");
-	}
-	var boloolData = g_match["_"+id].boloolData;
-	$("#hSection").val(boloolData["top"+topN].hsection);
-	$("#aSection").val(boloolData["top"+topN].asection);
-	$("#boloolList").html('');
-	myModal.removeClass("hide");
-	myModal.modal("show");
-}
 function showHistory(id,hOra){
 	var match = g_match["_"+id];
 	var matchlist = match.matchlist;
@@ -250,39 +110,6 @@ function showHistory(id,hOra){
 		}); */     
 		matchHistoryTip.removeClass("hide");
 		matchHistoryTip.modal("show");
-	}
-}
-function setMatchBoloolData(id,data){
-	g_match["_"+id].matchlist=JSON.parse(data.matchListHistory.matchlist);
-	g_match["_"+id].boloolData=data.boloolData;
-	g_match["_"+id].match=data.match;
-	tr = g_match["_"+id].tr;
-	if(!tr){
-		tr = $("#m"+id);
-		g_match["_"+id].tr = tr;
-	}
-	tr.find(".season").text(data.match.seasonName + " " + data.match.round);
-	if(data.match.fullscore.length>2){
-		var teamInfo = tr.find(".teamInfo");
-		teamInfo.html(teamInfo.html().replace("VS",data.match.fullscore+"("+data.match.halfscore+")"));
-	}
-	changeTopN(id);
-	if(id==ids[ids.length-1]){
-		layer.closeAll();
-	}
-}
-
-function matchHistoryCallback(id){
-	return function(d){
-		d=safeHtml(d);
-		debugger;
-		var data = getMatchDataFromHistoryHtml(d,id);
-		if(data && data.match){
-			$.post("/api/saveBolool",{match:JSON.stringify(data.match),matchlist:JSON.stringify(data.matchListHistory.matchlist),bolool:JSON.stringify(data.boloolData)},function(cc){
-				console.log(cc);
-			}); 
-			setMatchBoloolData(id,data);
-		}
 	}
 }
 function getMatchCallback(d){
@@ -341,7 +168,7 @@ function getMatchCallback(d){
 			html.push('<td rowspan="2" class="aNear3">-</td>');
 			html.push('<td rowspan="2" class="hStrong">-</td>');
 			html.push('<td rowspan="2" class="aStrong">-</td>');
-			html.push('<td rowspan="2">'+fengxin1+' <a href="javascript:showBolool('+id+')">菠萝</a></td>');
+			html.push('<td rowspan="2">'+fengxin1+' <a href="javascript:gotoBoloolDetail('+id+')">菠萝</a></td>');
 			html.push('</tr>');
 			html.push('<tr>');
 			html.push('<td>'+h1+'</td>');
@@ -355,12 +182,25 @@ function getMatchCallback(d){
 	$("#matchlist").html(html.join(""));
 	return ids;
 }
+function gotoBoloolDetail(id){
+	var bolool = g_match["_"+id].boloolData["top"+topN];
+	var match = g_match["_"+id];
+	match.trHtml= "<tr>" + match.tr.html() + "</tr><tr>" + match.tr.next().html()+"</tr>";
+	sessionStorage.setItem("b_match_"+id,JSON.stringify(match));
+	window.open('boloolDetail.html?id='+id+'&topN='+topN+'&hsection='+bolool.hsection+'&asection='+bolool.asection);
+}
 function setBolool(tr,boloolData){
 	["h","a"].forEach((n)=>{
-		tr.find("."+n+"Score").text(boloolData["top"+topN][n+"score"]).attr("title",boloolData["top"+topN][n+"result"]);
-		tr.find("."+n+"Section").text(boloolData["top"+topN][n+"section"]);
-		tr.find("."+n+"Near3").text(boloolData.top3[n+"result"].replace(/胜/g,"3").replace(/平/g,"1").replace(/负/g,"0"));
-		tr.find("."+n+"Strong").text(boloolData.top3[n+"strong"]);
+		var bolool = boloolData["top"+topN];
+		tr.find("."+n+"Score").text(bolool[n+"score"]).attr("title",bolool[n+"result"]);
+		tr.find("."+n+"Section").text(bolool[n+"section"]);
+		var bolool3 = bolool.top3;
+		if(!bolool3){
+			bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
+			bolool.top3=bolool3;
+		}
+		tr.find("."+n+"Near3").text(bolool3[n+"result"]);
+		tr.find("."+n+"Strong").text(bolool3[n+"strong"]);
 	});
 }
 
@@ -422,9 +262,15 @@ $(()=>{
 
     $("#thead").html(headhtml.join(""));
     layer.load(2);
-	$.getJSON("/team.json",function(team){
-		g_team=team;
-	});
+    var cache_g_team = localStorage.getItem("g_team");
+    if(!cache_g_team){
+		$.getJSON("/team.json",function(team){
+			g_team=team;
+			localStorage.setItem("g_team",JSON.stringify(g_team));
+		});
+    }else{
+    	g_team=JSON.parse(cache_g_team);
+    }
 	$.get("/api/getOkoooJc?url=/jingcai/",function(d){
 		ids = getMatchCallback(d);
 		if(ids.length==0){
@@ -446,6 +292,7 @@ $(()=>{
 					}
 					g_match["_"+key].europe=data[key];
 				}
+				/* sessionStorage.setItem("g_match",JSON.stringify(g_match)); */
 			});
 			$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=2&providerId=27&matchIds="+ids.join(","),method:"post"},function(d1){
 				var data = JSON.parse(d1);
@@ -458,6 +305,7 @@ $(()=>{
 					}
 					g_match["_"+key].asia=data[key];
 				}
+				/* sessionStorage.setItem("g_match",JSON.stringify(g_match)); */
 			});
 // 			$.ajaxSetup({async:false})
 			$.post("/api/getMatchHistory",{matchIds:ids.join(",")},function(arr){

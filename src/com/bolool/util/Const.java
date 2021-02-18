@@ -4,10 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Const {
+	
+	
 	/**
 	 * utf-8
 	 */
 	public static String DEFAULT_ENCODING="utf-8";
+	
+	static {
+		PropKit.use("config.properties");
+	}
+	
 	/**
 	 * yyyy-MM-dd HH:mm:ss
 	 */
@@ -36,12 +43,29 @@ public class Const {
 	
 
 	/**
-	 * insert into t_bolool(matchId,hscore,ascore,hresult,aresult,hsection,asection,hstrong,astrong,topN,friendly) values (?,?,?,?,?,?,?,?,?,?,?)"  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection),hstrong = values(hstrong),astrong = values(astrong)
+	 * "insert into t_bolool33(id,hscore,ascore,hresult,aresult,hsection,asection) values (?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)" ;
 	 */
-	public static String BOLOOL_SQL =
-			  "insert into t_bolool(matchId,hscore,ascore,hresult,aresult,hsection,asection,hstrong,astrong,topN,friendly) values (?,?,?,?,?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection),hstrong = values(hstrong),astrong = values(astrong)" ;
+	public static String BOLOOL_SQL30 =
+			  "insert into t_bolool30(id,hscore,ascore,hresult,aresult,hsection,asection) values (?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)" ;
+	/**
+	 * "insert into t_bolool33(id,hscore,ascore,hresult,aresult,hsection,asection) values (?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)" ;
+	 */
+	public static String BOLOOL_SQL33 =
+			  "insert into t_bolool33(id,hscore,ascore,hresult,aresult,hsection,asection) values (?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)" ;
+	
 	/**
 	 * insert into t_match_history(id,matchlist) values (?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1 
 	 */
 	public static String MATCH_HISTORY_SQL = "insert into t_match_history(id,matchlist) values (?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1  ";
+	
+	/**
+	 * "true".equalsIgnoreCase(PropKit.get("showSql"))
+	 */
+	public static boolean showSql = "true".equalsIgnoreCase(PropKit.get("showSql"));
+	
+	
+	public static final String DB_URL = PropKit.get("jdbcUrl");
+	public static final String DB_UID = PropKit.get("user");
+	public static final String DB_PWD = PropKit.get("password");
+	
 }
