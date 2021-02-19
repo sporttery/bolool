@@ -180,13 +180,16 @@ function getMatchCallback(d){
 		}
 	});
 	$("#matchlist").html(html.join(""));
+	jQuery('header').headshrinker();
+	jQuery('.headshrunk').css("background-color","greenyellow");
 	return ids;
 }
 function gotoBoloolDetail(id){
 	var bolool = g_match["_"+id].boloolData["top"+topN];
 	var match = g_match["_"+id];
 	match.trHtml= "<tr>" + match.tr.html() + "</tr><tr>" + match.tr.next().html()+"</tr>";
-	sessionStorage.setItem("b_match_"+id,JSON.stringify(match));
+// 	sessionStorage.setItem("b_match_"+id,JSON.stringify(match));
+	sessionStorage.setItem("g_match",JSON.stringify(g_match));
 	window.open('boloolDetail.html?id='+id+'&topN='+topN+'&hsection='+bolool.hsection+'&asection='+bolool.asection);
 }
 function setBolool(tr,boloolData){
@@ -220,13 +223,14 @@ function changeTopN(id){
 	}
 }
 var g_match={},g_team,g_data;
+var params = getRequest();
 $(()=>{
 	var headhtml = [];
     headhtml.push('<tr>');
     //headhtml.push('<th rowspan="2">序号</th>');
     headhtml.push('<th rowspan="2">场次</th>');
     headhtml.push('<th rowspan="2">联赛</th>');
-    headhtml.push('<th rowspan="2">赛季</th>');
+    headhtml.push('<th rowspan="2" width="100px">赛季</th>');
     headhtml.push('<th rowspan="2">球队</th>');
     headhtml.push('<th rowspan="2">比赛时间</th>');
     headhtml.push('<th rowspan="2">让球</th>');
@@ -271,7 +275,11 @@ $(()=>{
     }else{
     	g_team=JSON.parse(cache_g_team);
     }
-	$.get("/api/getOkoooJc?url=/jingcai/",function(d){
+    var url = "/api/getOkoooJc?url=/jingcai/";
+    if(params.date){
+    	url = "/api/getOkoooJc?url=/jingcai/"+ params.date + "/";
+    }
+	$.get(url,function(d){
 		ids = getMatchCallback(d);
 		if(ids.length==0){
 			$.ajaxSetup({async:false})
