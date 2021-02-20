@@ -115,6 +115,7 @@ function showHistory(id,hOra){
 function getMatchCallback(d){
 	d=safeHtml(d);
 	body = $(d);
+	body.remove(".endday");
 	var html=[],ids=[];
 	
 	body.find(".touzhu").children().each((idx,el)=>{
@@ -148,7 +149,8 @@ function getMatchCallback(d){
 			html.push('<td rowspan="2">'+num+'</td>');
 			html.push('<td rowspan="2" style="background-color:'+leagueColor+'"><a href="'+leagueHref+'" style="color:white">'+leagueName+'</a></td>');
 			html.push('<td rowspan="2" class="season">'+num+'</td>');
-			html.push('<td rowspan="2" class="teamInfo"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> <a href="javascript:showHistory('+id+',\'h\')" class="hName">'+homeName +'</a> VS <a href="javascript:showHistory('+id+',\'a\')" class="aName">'+awayName +'</a> <span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
+			html.push('<td rowspan="2" class="teamInfo"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> '+homeName 
+			+' VS '+awayName +'<span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
 			html.push('<td rowspan="2">'+playtime+'</td>');
 			html.push('<td rowspan="2">'+rq +'</td>');
 			html.push('<td>'+h+'</td>');
@@ -205,6 +207,26 @@ function setBolool(tr,boloolData){
 		tr.find("."+n+"Near3").text(bolool3[n+"result"]);
 		tr.find("."+n+"Strong").text(bolool3[n+"strong"]);
 	});
+}
+
+function finishLoad(){
+	layer.closeAll();
+	setTimeout(()=>{
+		ids = [];
+		for(var key in g_match){
+			var item = g_match[key];
+			ids.push(item.id);
+		}
+		$.post("/api/getBoloolByIds",{ids:ids.join(","),topN:"33"},function(arr){
+			for(var i=0;i<arr.length;i++){
+				var bolool = arr[i];
+				var match = g_match["_"+bolool.id];
+				var bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
+				bolool.top3=bolool3;
+				match.boloolData["top33"] = bolool;
+			}
+		});
+	},1000);
 }
 
 function changeTopN(id){
@@ -289,6 +311,97 @@ $(()=>{
 			$.ajaxSetup({async:true})
 		}
 		if(ids.length > 0){
+			$.post("/api/getMatchHistoryNew",{matchIds:ids.join(","),topN},function(arr){
+				var noBolool = [],noEuropeOdds=[],noAsiaOdds=[];
+				for(var i=0;i<arr.length;i++){
+					var item = arr[i];
+					var bolool = {"hresult":item.hresult,"aresult":item.aresult,"hscore":item.hscore,"ascore":item.ascore,"hsection":item.hsection,"asection":item.asection};
+					var bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
+					bolool.top3=bolool3;
+					
+					var match = g_match["_"+item.id];
+					match.tr = $("#m"+item.id);
+					match.europe=[item.s,item.p,item.f];
+					match.asia=[item.h,item.pan,item.a];
+					match.boloolData={};
+					match.boloolData["top"+topN]=bolool;
+				}
+				for(var key in g_match){
+					var item = g_match[key];
+					if(!item.europe){
+						noEuropeOdds.push(item.id);
+					}else{
+						item.tr.find(".europe").each((idx,el)=>{
+							$(el).text(item.europe[idx]);
+						})
+					}
+					if(!item.asia){
+						noAsiaOdds.push(item.id);
+					}else{
+						item.tr.find(".asia").each((idx,el)=>{
+							$(el).text(item.asia[idx]);
+						})
+					}
+					if(!item.boloolData){
+						noBolool.push(item.id);
+					}else{
+						setBolool(item.tr,item.boloolData);
+					}
+				}
+				if(noBolool.length > 0){
+					ids = noBolool;
+					for(var i=0;i<ids.length;i++){
+						var id = ids[i];
+						$.get("/api/getOkoooJc",{url:"/soccer/match/"+id+"/history/"},matchHistoryCallback(id));
+					}
+				}else{
+					finishLoad();
+				}
+				
+				
+				if(noEuropeOdds.length > 0){
+					$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=1&providerId=27&matchIds="+noEuropeOdds.join(","),method:"post"},function(d1){
+						var data = JSON.parse(d1);
+						for(var key in data){
+							var tr = g_match["_"+key].tr;
+							if(!tr){
+								tr = $("#m"+key);
+							}
+							if(tr && tr.length == 1){
+								tr.find(".europe").each((idx,el)=>{
+									$(el).text(data[key][idx]);
+								})
+							}
+							g_match["_"+key].europe=data[key];
+						}
+						$.post("/api/saveEuropeOdds",{"odds":d1},function(data){
+							console.log(data);
+						});
+					});
+				}
+				
+				if(noAsiaOdds.length > 0){
+					$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=2&providerId=27&matchIds="+noAsiaOdds.join(","),method:"post"},function(d1){
+						var data = JSON.parse(d1);
+						for(var key in data){
+							var tr = g_match["_"+key].tr;
+							if(!tr){
+								tr = $("#m"+key);
+							}
+							if(tr && tr.length == 1){
+								tr.find(".asia").each((idx,el)=>{
+									$(el).text(data[key][idx]);
+								})
+							}
+							g_match["_"+key].asia=data[key];
+						}
+						$.post("/api/saveAsiaOdds",{"odds":d1},function(data){
+							console.log(data);
+						});
+					});
+				}
+			});
+			/*
 			$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=1&providerId=27&matchIds="+ids.join(","),method:"post"},function(d1){
 				var data = JSON.parse(d1);
 				for(var key in data){
@@ -300,7 +413,6 @@ $(()=>{
 					}
 					g_match["_"+key].europe=data[key];
 				}
-				/* sessionStorage.setItem("g_match",JSON.stringify(g_match)); */
 			});
 			$.post("/api/getOkoooJc",{url:"/ajax/?method=data.match.odds","args":"bettingTypeId=2&providerId=27&matchIds="+ids.join(","),method:"post"},function(d1){
 				var data = JSON.parse(d1);
@@ -313,7 +425,6 @@ $(()=>{
 					}
 					g_match["_"+key].asia=data[key];
 				}
-				/* sessionStorage.setItem("g_match",JSON.stringify(g_match)); */
 			});
 // 			$.ajaxSetup({async:false})
 			$.post("/api/getMatchHistory",{matchIds:ids.join(",")},function(arr){
@@ -327,14 +438,13 @@ $(()=>{
 					var matchlist = g_match[key].matchlist;
 					if(!matchlist){
 						var id = key.substring(1);
-						$.get("/api/getOkoooJc",{url:"/soccer/match/"+id+"/history/"},matchHistoryCallback(id));/*  */
-						
-// 						$.get("http://127.0.0.1:9090/soccer/match/"+id+"/history/",matchHistoryCallback(id));/*  */
+						$.get("/api/getOkoooJc",{url:"/soccer/match/"+id+"/history/"},matchHistoryCallback(id));
 					}
 				}
 				
 			});
 // 			$.ajaxSetup({async:true})
+			*/
 		}else{
 			layer.alert("没有比赛数据");
 			layer.closeAll();

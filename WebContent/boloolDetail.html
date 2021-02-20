@@ -5,7 +5,10 @@
 <meta charset="UTF-8" />
 <title>菠萝足球-2代指数</title>
 <!-- 新 Bootstrap 核心 CSS 文件 -->
-<link rel="stylesheet" href="res/bootstrap.min.css" />
+<!-- <link rel="stylesheet" href="res/bootstrap.min.css" /> -->
+
+<link rel="stylesheet"
+	href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 
 <!-- 可选的Bootstrap主题文件（一般不用引入） -->
 <link rel="stylesheet" href="res/bootstrap-theme.min.css" />
@@ -22,6 +25,13 @@
 <script src="res/jquery.headshrinker.min.js"></script>
 <script src="res/layer-v2.3/layer/layer.js"></script>
 <script src="res/bolool.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
 <style type="text/css">
 .aRight {
 	text-align: right;
@@ -34,8 +44,17 @@
 input {
 	color: #000;
 }
+
 .red {
-color:red;
+	color: red;
+}
+
+.fullscore {
+	color: red;
+	font-weight: bold;
+}
+.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+    width: 90px;
 }
 </style>
 </head>
@@ -47,43 +66,11 @@ color:red;
 					<tr>
 						<td class="aRight">欧盘</td>
 						<td class="aLeft"><input type="text" value=""
-							id="matchEurope" maxlength="12" onchange="changeOdds()" /></td>
+							id="matchEurope" maxlength="15" onkeyup="changeOdds()" /></td>
 						<td class="aRight">亚盘</td>
 						<td class="aLeft"><input type="text" value="" id="matchAsia"
-							maxlength="12" onchange="changeOdds()" /></td>
-						<td class="aRight">主队分区</td>
-						<td class="aLeft"><select id="hsection"
-							onchange="filterSection()">
-								<option value="-1">全部</option>
-								<option value="0">0</option>
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-								<option value="6">6</option>
-								<option value="7">7</option>
-								<option value="8">8</option>
-								<option value="9">9</option>
-								<option value="10">10</option>
-						</select></td>
-						<td class="aRight">客队分区</td>
-						<td class="aLeft"><select id="asection"
-							onchange="filterSection()">
-								<option value="-1">全部</option>
-								<option value="0">0</option>
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-								<option value="6">6</option>
-								<option value="7">7</option>
-								<option value="8">8</option>
-								<option value="9">9</option>
-								<option value="10">10</option>
-						</select></td>
-						<td width="40%"><a id="searchBtn"
+							maxlength="15" onkeyup="changeOdds()" /></td>
+						<td width="50%"><a id="searchBtn"
 							href="javascript:getBoloolList();">查询</a></td>
 					</tr>
 				</table>
@@ -129,7 +116,9 @@ color:red;
 				</table>
 			</div>
 		</div>
-		<div class="view">同赔列表  <span id="msg"></span></div>
+		<div class="view">
+			同赔列表 <span id="msg"></span>
+		</div>
 		<div class="view">
 			<table class="table table-bordered">
 				<thead>
@@ -141,35 +130,69 @@ color:red;
 						<th rowspan="2">主队</th>
 						<th rowspan="2">客队</th>
 						<th rowspan="2">比分</th>
-						<th colspan="3">欧盘<div style="display: none"><select id="europeSec" onchange="filterOdds()"></select>
-						&nbsp;&nbsp;<a href="javascript:sameOdds('europe')">同赔</a>
-							&nbsp;&nbsp;<a href="javascript:allOdds('europe')">全部</a></div></th>
-						<th colspan="3">亚盘<div style="display: none"><select id="asiaSec" onchange="filterOdds()"></select>
-						&nbsp;&nbsp;<a href="javascript:sameOdds('asia')">同赔</a>
-							&nbsp;&nbsp;<a href="javascript:allOdds('asia')">全部</a></div></th>
-						<th colspan="2">积分</th>
+						<th colspan="3">欧盘
+							<div style="display: none">
+								<select id="europeSec" onchange="filterData()"></select>
+								&nbsp;&nbsp;<a href="javascript:sameOdds('europe')">同赔</a>
+								&nbsp;&nbsp;<a href="javascript:allOdds('europe')">全部</a>
+							</div>
+						</th>
+						<th colspan="3">亚盘
+							<div style="display: none">
+								<select id="asiaSec" onchange="filterData()"></select>
+								&nbsp;&nbsp;<a href="javascript:sameOdds('asia')">同赔</a>
+								&nbsp;&nbsp;<a href="javascript:allOdds('asia')">全部</a>
+							</div>
+						</th>
+						<th colspan="2">积分<label for="sameScore"
+							style="cursor: pointer; font-size: 22px; color: red;"><input
+								id="sameScore" type="checkbox" onchange="sameScore()" />同</label></th>
 						<th colspan="2">分区 <label for="sameSection"
 							style="cursor: pointer; font-size: 22px; color: red;"><input
-								id="sameSection" type="checkbox" onchange="filterSection()" />同</label></th>
+								id="sameSection" type="checkbox" onchange="sameSection()" />同</label></th>
 						<th colspan="2">近3场</th>
-						<th colspan="2">强弱</th>
+						<th colspan="2">强弱<label for="sameStrong"
+							style="cursor: pointer; font-size: 22px; color: red;"><input
+								id="sameStrong" type="checkbox" onchange="sameStrong()" />同</label></th>
 						<th rowspan="2">析</th>
 					</tr>
 					<tr>
+						<!-- europe -->
 						<th>胜</th>
 						<th>平</th>
 						<th>负</th>
+						<!-- asia -->
 						<th>主</th>
 						<th>盘</th>
 						<th>客</th>
+						<!-- score -->
+						<th>主<select id="hscore" multiple="multiple" style="display:none"
+							onchange="filterData()">
+						</select></th>
+						<th>客<select id="ascore" multiple="multiple"style="display:none"
+							onchange="filterData()">
+						</select></th>
+						<!-- section -->
+						<th>主<select id="hsection" multiple="multiple"style="display:none"
+							onchange="filterData()">
+						</select></th>
+						<th>客<select id="asection" multiple="multiple"style="display:none"
+							onchange="filterData()">
+						</select></th>
+						<!-- top3 -->
 						<th>主</th>
 						<th>客</th>
-						<th>主</th>
-						<th>客</th>
-						<th>主</th>
-						<th>客</th>
-						<th>主</th>
-						<th>客</th>
+						<!-- strong -->
+						<th>主<select id="hstrong" onchange="filterData()"><option
+									value=-1 selected="selected">全部</option>
+								<option value="强">强</option>
+								<option value="平">平</option>
+								<option value="弱">弱</option></select></th>
+						<th>客<select id="astrong" onchange="filterData()"><option
+									value=-1 selected="selected">全部</option>
+								<option value="强">强</option>
+								<option value="平">平</option>
+								<option value="弱">弱</option></select></th>
 					</tr>
 				</thead>
 				<tbody id="boloolList">
@@ -191,16 +214,33 @@ function changeOdds(){
 	console.log("odds has changed");
 	$("#searchBtn").show();
 }
-function filterSection(){
-	filterOdds();
+function sameSection(){
+	$('#hsection').selectpicker("val",thisMatch.hsection);
+	$('#asection').selectpicker("val",thisMatch.asection);
+	filterData();
 }
-function filterOdds(){
+function sameScore(){
+	$('#hscore').selectpicker("val",thisMatch.hscore);
+	$('#ascore').selectpicker("val",thisMatch.ascore);
+	filterData();
+}
+function sameStrong(){
+	$('#hstrong').val(thisMatch.hstrong);
+	$('#astrong').val(thisMatch.astrong);
+	filterData();
+}
+function filterData(){
 	var europe = $("#europeSec").val();
 	var asia = $("#asiaSec").val();
-	var hsection = $("#hsection").val();
-	var asection = $("#asection").val();
+	var hsection = $("#hsection").val()||["-1"];
+	var asection = $("#asection").val()||["-1"];
+	var hscore = $("#hscore").val()||["-1"];
+	var ascore = $("#ascore").val()||["-1"];
+	var hstrong = $("#hstrong").val();
+	var astrong = $("#astrong").val();
 	var sameSection = $("#sameSection")[0].checked;
-	
+	var sameScore = $("#sameScore")[0].checked;
+	var sameStrong = $("#sameStrong")[0].checked;
 	var totalCount=0,showCount=0;
 	$("#boloolList").find("tr").each((idx,el)=>{
 		totalCount++;
@@ -214,16 +254,60 @@ function filterOdds(){
 		if(asia==-1 || trAsia == asia){
 			ashow=true;
 		}
-		if(hshow && ashow && sameSection){
+		if(hshow && ashow ){
 			var trHsection=tr.attr("data-hsection");
 			var trAsection=tr.attr("data-asection");
-			if(hsection !=-1 && trHsection != hsection){
-				hshow=false;
-			}
-			if(asection !=-1 && trAsection != asection){
-				ashow=false;
+			if(sameSection){
+				if( hsection.indexOf("-1") ==-1 && trHsection != thisMatch.hsection){
+					hshow=false;
+				}
+				if( asection.indexOf("-1") ==-1 && trAsection != thisMatch.asection){
+					ashow=false;
+				}
+			}else{
+				var hasAllOption = hsection.indexOf("-1") != -1;
+				if(!hasAllOption){
+					hshow = hsection.indexOf(trHsection) != -1;
+				}
+				var hasAllOption = asection.indexOf("-1") != -1;
+				if(!hasAllOption){
+					ashow = asection.indexOf(trAsection) != -1;
+				}
 			}
 		}
+		if(hshow && ashow ){
+			var trHscore=tr.attr("data-hscore");
+			var trAscore=tr.attr("data-ascore");
+			if(sameScore){
+				if(hscore.indexOf("-1") ==-1 && trHscore != thisMatch.hscore){
+					hshow=false;
+				}
+				if(ascore.indexOf("-1") ==-1 !=-1 && trAscore != thisMatch.ascore){
+					ashow=false;
+				}
+			}else{
+				var hasAllOption = hscore.indexOf("-1") != -1;
+				if(!hasAllOption){
+					hshow = hscore.indexOf(trHscore) != -1;
+				}
+				var hasAllOption = ascore.indexOf("-1") != -1;
+				if(!hasAllOption){
+					ashow = ascore.indexOf(trAscore) != -1;
+				}
+			}
+		}
+		
+		if(hshow && ashow ){
+			var trHstrong=tr.attr("data-hstrong");
+			var trAstrong=tr.attr("data-astrong");
+			if(hstrong!="-1" && trHstrong != hstrong){
+				hshow = false;
+			}
+			if(astrong!="-1" && trAstrong != astrong){
+				ashow = false;
+			}
+		}
+		
 		if(hshow && ashow){
 			showCount++;
 			tr.show();
@@ -253,11 +337,70 @@ function setTotalInfo(totalCount,showCount){
 	}
 	$("#msg").html(msg);
 }
+var allOption = '<option value="-1">全部</option>';
+function finishLoad(){
+	setTimeout(()=>{
+		var hscoreMap={};
+		var ascoreMap={};
+		var hsectionMap={};
+		var asectionMap={};
+		$("#boloolList").find("tr").each((idx,el)=>{
+			var tr = $(el);
+			var hscore = tr.attr("data-hscore");
+			var ascore = tr.attr("data-ascore");
+			var hsection = tr.attr("data-hsection");
+			var asection = tr.attr("data-asection");
+			hscoreMap[hscore]=1;
+			ascoreMap[ascore]=1;
+			hsectionMap[hsection]=1;
+			asectionMap[asection]=1;
+		});
+		var html, keys ;
+		html = [];
+		html.push(allOption);
+		keys = Object.keys(hsectionMap);
+		keys.sort();
+		keys.forEach((key)=>{
+			html.push('<option value="'+key+'">'+key+'</option>');
+		});
+		$('#hsection').html(html.join('')).selectpicker().selectpicker("val","-1").show(); 
+		
+		html = [];
+		html.push(allOption);
+		keys = Object.keys(asectionMap);
+		keys.sort();
+		keys.forEach((key)=>{
+			html.push('<option value="'+key+'">'+key+'</option>');
+		});
+		$('#asection').html(html.join('')).selectpicker().selectpicker("val","-1").show();
+		
+		html = [];
+		html.push(allOption);
+		keys = Object.keys(hscoreMap);
+		keys.sort();
+		keys.forEach((key)=>{
+			html.push('<option value="'+key+'">'+key+'</option>');
+		});
+		$('#hscore').html(html.join('')).selectpicker().selectpicker("val","-1").show();
+		
+		html = [];
+		html.push(allOption);
+		keys = Object.keys(ascoreMap);
+		keys.sort();
+		keys.forEach((key)=>{
+			html.push('<option value="'+key+'">'+key+'</option>');
+		});
+		$('#ascore').html(html.join('')).selectpicker().selectpicker("val","-1").show();
+		
+	},1000);
+	
+	layer.closeAll();
+}
 function getBoloolList(){
 	var europe=$("#matchEurope").val();
 	var asia=$("#matchAsia").val();
 	layer.load(2);
-	$.post("/api/getBoloolList",{europe,asia,hsection,asection,topN},function(d){
+	$.post("/api/getBoloolList",{europe,asia,topN},function(d){
 		if(typeof d == "string"){
 			layer.alert(d);
 		}else{
@@ -270,6 +413,7 @@ function getBoloolList(){
 			var noBoloolIds=[];
 			var europeMap={};
 			var asiaMap={};
+			
 			var totalCount=0,showCount=0;
 			d.forEach(item=>{
 				totalCount++;
@@ -281,21 +425,27 @@ function getBoloolList(){
 					noBolool = true;
 				}
 				var className="";
+				var bolool3 = {hstrong:"-1",astrong:"-1",hresult:"--",aresult:"--"};
 				if(noBolool){
 					className="noBolool";
 					noBoloolIds.push(item.id);
+				}else{
+					bolool3=getBoloolFromResult(item.hresult,item.aresult,3);
+					item.bolool3 = bolool3;
 				}
 				if(show){
 					showCount++;
 				}
-				html.push('<tr id="bolool_'+item.id+'" class="'+className+'" style="'+(show?"":"display:none")+'" data-europe="'+eKey+'" data-asia="'+aKey+'" data-hsection="'+item.hsection+'" data-asection="'+item.asection+'">' );
+				html.push('<tr id="bolool_'+item.id+'" class="'+className+'" style="'+(show?"":"display:none")+'" data-europe="'+eKey+'" data-asia="'+aKey+
+						'" data-hsection="'+item.hsection+'" data-asection="'+item.asection+'" data-hstrong="'+bolool3.hstrong+'" data-astrong="'+bolool3.astrong+
+						'" data-hscore="'+item.hscore+'" data-ascore="'+item.ascore+'">' );
 				html.push('<td>'+item.leagueName+'</td>');
 				html.push('<td>'+item.seasonName+'</td>');
 				html.push('<td>'+item.round+'</td>');
 				html.push('<td>'+item.playtime+'</td>');
 				html.push('<td>'+item.homeName+'</td>');
 				html.push('<td>'+item.awayName+'</td>');
-				html.push('<td>'+item.fullscore+"<br/>"+item.halfscore+'</td>');
+				html.push('<td><span class="fullscore">'+item.fullscore+"</span><br/>"+item.halfscore+'</td>');
 				
 				html.push('<td class="'+(europe==eKey?'red':'')+'">'+item.s+'</td>');
 				html.push('<td class="'+(europe==eKey?'red':'')+'">'+item.p+'</td>');
@@ -326,30 +476,28 @@ function getBoloolList(){
 					html.push('<td>'+item.ascore+'</td>');
 					html.push('<td>'+item.hsection+'</td>');
 					html.push('<td>'+item.asection+'</td>');
-					var bolool3=getBoloolFromResult(item.hresult,item.aresult,3);
-					item.bolool3 = bolool3;
 					html.push('<td>'+bolool3.hresult+'</td>');
 					html.push('<td>'+bolool3.aresult+'</td>');
 					html.push('<td>'+bolool3.hstrong+'</td>');
 					html.push('<td>'+bolool3.astrong+'</td>');
 				}
-				html.push('<td><a class="ao jc-link" href="//www.okooo.com/soccer/match/'+item.id+'/odds/" target="_blank">欧</a>');
-				html.push('<a class="ao jc-link" href="//www.okooo.com/soccer/match/'+item.id+'/history/" target="_blank">析</a>');
-				html.push('<a class="ao jc-link" href="//www.okooo.com/soccer/match/'+item.id+'/node/" target="_blank">态</a></td>');
+				html.push('<td>                            <a class="ao jc-link" href="//www.okooo.com/soccer/match/'+item.id+'/odds/" target="_blank">欧</a>');
+				html.push('                            <a class="ao jc-link" href="//www.okooo.com/soccer/match/'+item.id+'/history/" target="_blank">析</a>');
+				html.push('                            <a class="ao jc-link" href="//www.okooo.com/soccer/match/'+item.id+'/node/" target="_blank">态</a></td>');
 				g_boloolList["bolool_"+item.id] = item;
 				html.push('</tr>');
 			});
 			ids = noBoloolIds;
 			$("#boloolList").html(html.join(''));
 			setTotalInfo(totalCount,showCount);
-			html=['<option value="-1">全部</option>'];
+			html=[allOption];
 			var keys = Object.keys(europeMap);
 			keys.sort();
 			keys.forEach((key)=>{
 				html.push('<option value="'+key+'" '+ (europe==key?"selected":"") +'>'+key+'</option>');
 			});
 			$("#europeSec").html(html.join('')).parent().show();
-			html=['<option value="-1">全部</option>'];
+			html=[allOption];
 			var keys = Object.keys(asiaMap);
 			keys.sort();
 			keys.forEach((key)=>{
@@ -363,12 +511,20 @@ function getBoloolList(){
 					$.get("/api/getOkoooJc",{url:"/soccer/match/"+id+"/history/"},matchHistoryCallback(id));
 				}
 			}else{
-				layer.closeAll();
+				finishLoad();
 			}
 		}
 	});
 }
 function showBolool(match){
+	thisMatch=match;
+	var bolool = thisMatch.boloolData["top"+topN];
+	thisMatch.hsection=bolool.hsection;
+	thisMatch.asection=bolool.asection;
+	thisMatch.hscore=bolool.hscore;
+	thisMatch.ascore=bolool.ascore;
+	thisMatch.hstrong=bolool.top3.hstrong;
+	thisMatch.astrong=bolool.top3.astrong;
 	$("title").text(match.homeName + " VS "+match.awayName + "菠萝数据");
 	if(match.europe){
 		$("#matchEurope").val(match.europe.join(" "));
@@ -382,13 +538,9 @@ function showBolool(match){
 	}
 	var matchtr = $("#matchtr").html(match.trHtml);
 	matchtr.find("a:last").remove();
-	
-	$("#hsection").val(hsection);
-	$("#asection").val(asection);
-// 	$("#boloolList").html('');
 	getBoloolList();
 }
-var g_match={},topN=30,hsection=-1,asection=-1,ids=[],g_team={},g_boloolList={};
+var g_match={},topN=30,ids=[],g_team={},g_boloolList={},thisMatch={};
 var params=getRequest();
 $(()=>{
 	var cache_g_team = localStorage.getItem("g_team");
@@ -413,12 +565,7 @@ $(()=>{
 	if(params.topN){
 		topN=params.topN;
 	}
-	if(params.hsection){
-		hsection=params.hsection;
-	}
-	if(params.asection){
-		asection=params.asection;
-	}
+	
 	var cache_g_match = sessionStorage.getItem("g_match");
 	if(!cache_g_match){
 		layer.alert("没有数据2");

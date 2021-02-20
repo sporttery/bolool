@@ -55,7 +55,7 @@ function setMatchBoloolData(id,data){
 		tr.find(".season").text(data.match.seasonName + " " + data.match.round);
 		if(data.match.fullscore.length>2){
 			var teamInfo = tr.find(".teamInfo");
-			teamInfo.html(teamInfo.html().replace("VS",data.match.fullscore+"("+data.match.halfscore+")"));
+			teamInfo.html(teamInfo.html().replace("VS",'<font color=red>'+data.match.fullscore+"</font>("+data.match.halfscore+")"));
 		}
 		changeTopN(id);
 	}
@@ -63,12 +63,12 @@ function setMatchBoloolData(id,data){
 	if(trBolool.length == 1){
 		var hscore = trBolool.find(".hscore");
 		var bolool = data.boloolData["top"+topN];
-		trBolool.attr({"data-hsection":bolool.hsection,"data-asection":bolool.asection});
+		var bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
+		trBolool.attr({"data-hsection":bolool.hsection,"data-asection":bolool.asection,"data-hstrong":bolool3.hstrong,"data-astrong":bolool3.astrong,"data-hscore":bolool.hscore,"data-ascore":bolool.ascore});
 		hscore.text(bolool.hscore);
 		(hscore=hscore.next()).text(bolool.ascore);
 		(hscore=hscore.next()).text(bolool.hsection);
 		(hscore=hscore.next()).text(bolool.asection);
-		var bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
 		(hscore=hscore.next()).text(bolool3.hresult);
 		(hscore=hscore.next()).text(bolool3.aresult);
 		(hscore=hscore.next()).text(bolool3.hstrong);
@@ -76,7 +76,11 @@ function setMatchBoloolData(id,data){
 	}
 	
 	if(ids && id==ids[ids.length-1]){
-		layer.closeAll();
+		if(typeof finishLoad == "function"){
+			finishLoad();
+		} else{
+			layer.closeAll();
+		}
 	}
 }
 

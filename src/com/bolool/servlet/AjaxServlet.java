@@ -3,6 +3,7 @@ package com.bolool.servlet;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import com.bolool.vo.Bolool;
 import com.bolool.vo.Match;
 import com.bolool.vo.User;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Servlet implementation class AjaxServlet
@@ -87,6 +89,14 @@ public class AjaxServlet extends HttpServlet {
 			getOkoooJc(request, response, cacheMap);
 		} else if (uri.equals("/api/getMatchHistory")) {
 			getMatchHistory(request, response);
+		}else if (uri.equals("/api/getMatchHistoryNew")) {
+			getMatchHistoryNew(request, response);
+		}else if (uri.equals("/api/saveEuropeOdds")) {
+			saveEuropeOdds(request, response);
+		}else if (uri.equals("/api/saveAsiaOdds")) {
+			saveAsiaOdds(request, response);
+		}else if (uri.equals("/api/getBoloolByIds")) {
+			getBoloolByIds(request, response);
 		}else if (uri.equals("/api/getBoloolList")) {
 			getBoloolList(request, response);
 		}else if (uri.equals("/api/saveBolool")) {
@@ -96,6 +106,34 @@ public class AjaxServlet extends HttpServlet {
 		}
 	}
 
+
+	private void saveAsiaOdds(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// TODO Auto-generated method stub
+		String odds = request.getParameter("odds");
+		java.lang.reflect.Type type =new TypeToken<Map<String,String[]> >() {}.getType(); 
+		Map<String,String[]> map  = new Gson().fromJson(odds, type);
+		HashMap<String,Integer> resultMap = new HashMap<String,Integer>();
+		map.forEach((key,value)->{
+			int result = DBHelper.insertOrUpdatePre(Const.MATCH_ODDS_ASIA, Integer.valueOf(key),value[0],value[1],value[2]);
+			resultMap.put(key,result);
+		});
+		response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+		response.getWriter().write(Const.GSON_DEFAULT.toJson(resultMap));
+	}
+
+	private void saveEuropeOdds(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		// TODO Auto-generated method stub
+		String odds = request.getParameter("odds");
+		java.lang.reflect.Type type =new TypeToken<Map<String,String[]> >() {}.getType(); 
+		Map<String,String[]> map  = new Gson().fromJson(odds, type);
+		HashMap<String,Integer> resultMap = new HashMap<String,Integer>();
+		map.forEach((key,value)->{
+			int result = DBHelper.insertOrUpdatePre(Const.MATCH_ODDS_EUROPE, Integer.valueOf(key),value[0],value[1],value[2]);
+			resultMap.put(key,result);
+		});
+		response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+		response.getWriter().write(Const.GSON_DEFAULT.toJson(resultMap));
+	}
 
 	private void saveBolool(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		//{"id":1114283,"leagueId":238,"leagueName":"葡超","leagueType":"league","homeId":11271,"homeName":"法马利康","awayId":217,"awayName":"摩雷伦斯","fullscore":"0-2","halfscore":"0-2",
@@ -187,6 +225,54 @@ public class AjaxServlet extends HttpServlet {
 			List<HashMap<String,String>> historyMatchList = DBHelper.selectListSql(sql, column.split(","));
 			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
 			response.getWriter().write(new Gson().toJson(historyMatchList));
+		}
+		
+	}
+	
+	/**
+	 * 根据ids从数据库里查菠萝指数数据
+	 * @param request
+	 * @param response
+	 */
+	private void getMatchHistoryNew(HttpServletRequest request, HttpServletResponse response)throws IOException  {
+		String ids = request.getParameter("matchIds");
+		String topN = request.getParameter("topN");
+		if(StringUtils.isBlank(topN)) {
+			topN="30";
+		}
+		if(StringUtils.isEmpty(ids) ) {
+			response.getWriter().write("参数不符合要求");
+		}else {
+			ids = DBHelper.getSafeSqlParam(ids);
+			String column = "id,s,p,f,h,pan,a,hresult,aresult,hscore,ascore,hsection,asection";
+			String sql = "select o.matchId as "+column+" from  t_match_odds o left join t_bolool"+topN+" b on o.matchId = b.id where o.matchId in ("+ids+") and companyId=27";
+			List<HashMap<String,String>> historyMatchList = DBHelper.selectListSql(sql, column.split(","));
+			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+			response.getWriter().write(new Gson().toJson(historyMatchList));
+		}
+		
+	}
+	
+	/**
+	 * 根据ids从数据库里查菠萝指数数据
+	 * @param request
+	 * @param response
+	 */
+	private void getBoloolByIds(HttpServletRequest request, HttpServletResponse response)throws IOException  {
+		String ids = request.getParameter("ids");
+		String topN = request.getParameter("topN");
+		if(StringUtils.isBlank(topN)) {
+			topN="30";
+		}
+		if(StringUtils.isEmpty(ids) ) {
+			response.getWriter().write("参数不符合要求");
+		}else {
+			ids = DBHelper.getSafeSqlParam(ids);
+			String column = "id,hresult,aresult,hscore,ascore,hsection,asection";
+			String sql = "select "+column+" from t_bolool"+topN+" b  where b.id in ("+ids+") ";
+			List<HashMap<String,String>> boloolList = DBHelper.selectListSql(sql, column.split(","));
+			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+			response.getWriter().write(new Gson().toJson(boloolList));
 		}
 		
 	}

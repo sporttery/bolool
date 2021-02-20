@@ -37,6 +37,12 @@ public class Const {
 	public static Gson YMDHMS_GSON = new GsonBuilder().setDateFormat(YMDHMS).create(); 
 	
 	/**
+	 * new Gson
+	 */
+	public static Gson GSON_DEFAULT = new Gson(); 
+	
+	
+	/**
 	 * insert into t_match(id,leagueId,leagueName,leagueType,seasonId,seasonName,round,homeId,homeName,awayId,awayName,playtime,fullscore,halfscore,result,goalscore)  values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1 , `fullscore`=values(`fullscore`),`goalscore`=values(`goalscore`),`result`=values(`result`),`halfscore`=values(`halfscore`) ";
 	 */
 	public static String MATCH_SQL = "insert into t_match(id,leagueId,leagueName,leagueType,seasonId,seasonName,round,homeId,homeName,awayId,awayName,playtime,fullscore,halfscore,result,goalscore)  values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1 , `fullscore`=values(`fullscore`),`goalscore`=values(`goalscore`),`result`=values(`result`),`halfscore`=values(`halfscore`) ";
@@ -52,6 +58,19 @@ public class Const {
 	 */
 	public static String BOLOOL_SQL33 =
 			  "insert into t_bolool33(id,hscore,ascore,hresult,aresult,hsection,asection) values (?,?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)" ;
+	
+	/**
+	 * "insert into t_match_odds(matchId,s,p,f,companyId) values (?,?,?,?,27)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,s = values(s),p = values(p),f = values(f)" ;
+	 */
+	public static String MATCH_ODDS_EUROPE =
+			  "insert into t_match_odds(matchId,s,p,f,companyId) values (?,?,?,?,27)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,s = values(s),p = values(p),f = values(f)" ;
+	
+	/**
+	 * "insert into t_match_odds(matchId,s,p,f,companyId) values (?,?,?,?,27)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,s = values(s),p = values(p),f = values(f)" ;
+	 */
+	public static String MATCH_ODDS_ASIA =
+			  "insert into t_match_odds(matchId,h,pan,a,companyId) values (?,?,?,?,27)  ON DUPLICATE KEY UPDATE `version` = `version` + 1,h = values(h),pan = values(pan),a = values(a)" ;
+	
 	
 	/**
 	 * insert into t_match_history(id,matchlist) values (?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1 
