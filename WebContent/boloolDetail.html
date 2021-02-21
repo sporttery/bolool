@@ -215,18 +215,36 @@ function changeOdds(){
 	$("#searchBtn").show();
 }
 function sameSection(){
-	$('#hsection').selectpicker("val",thisMatch.hsection);
-	$('#asection').selectpicker("val",thisMatch.asection);
+	var sameSection = $("#sameSection")[0].checked;
+	if(sameSection){
+		$('#hsection').selectpicker("val",thisMatch.hsection);
+		$('#asection').selectpicker("val",thisMatch.asection);
+	}else{
+		$('#hsection').selectpicker("val","-1");
+		$('#asection').selectpicker("val","-1");
+	}
 	filterData();
 }
 function sameScore(){
-	$('#hscore').selectpicker("val",thisMatch.hscore);
-	$('#ascore').selectpicker("val",thisMatch.ascore);
+	var sameScore = $("#sameScore")[0].checked;
+	if(sameScore){
+		$('#hscore').selectpicker("val",thisMatch.hscore);
+		$('#ascore').selectpicker("val",thisMatch.ascore);
+	}else{
+		$('#hscore').selectpicker("val","-1");
+		$('#ascore').selectpicker("val","-1");
+	}
 	filterData();
 }
 function sameStrong(){
-	$('#hstrong').val(thisMatch.hstrong);
-	$('#astrong').val(thisMatch.astrong);
+	var sameStrong = $("#sameStrong")[0].checked;
+	if(sameStrong){
+		$('#hstrong').val(thisMatch.hstrong);
+		$('#astrong').val(thisMatch.astrong);
+	}else{
+		$('#hstrong').val("-1");
+		$('#astrong').val("-1");
+	}
 	filterData();
 }
 function filterData(){
@@ -416,6 +434,9 @@ function getBoloolList(){
 			
 			var totalCount=0,showCount=0;
 			d.forEach(item=>{
+				if(g_boloolList["bolool_"+item.id]){
+					return false;
+				}
 				totalCount++;
 				var eKey = item.s+" "+item.p+" "+item.f;
 				var aKey = item.h+" "+item.pan+" "+item.a;

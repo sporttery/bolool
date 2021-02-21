@@ -23,6 +23,10 @@
 <script src="res/layer-v2.3/layer/layer.js"></script>
 <script src="res/bolool.js"></script>
 <style type="text/css">
+.odds.selected{
+	color: red;
+    background-color: yellow;
+}
 .aRight {
 	text-align: right;
 }
@@ -115,7 +119,9 @@ function showHistory(id,hOra){
 function getMatchCallback(d){
 	d=safeHtml(d);
 	body = $(d);
-	body.remove(".endday");
+	if(location.href.indexOf("endday")==-1){
+		body.remove(".endday");
+	}
 	var html=[],ids=[];
 	
 	body.find(".touzhu").children().each((idx,el)=>{
@@ -153,9 +159,9 @@ function getMatchCallback(d){
 			+' VS '+awayName +'<span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
 			html.push('<td rowspan="2">'+playtime+'</td>');
 			html.push('<td rowspan="2">'+rq +'</td>');
-			html.push('<td>'+h+'</td>');
-			html.push('<td>'+d+'</td>');
-			html.push('<td>'+a+'</td>');
+			html.push('<td class="odds">'+h+'</td>');
+			html.push('<td class="odds">'+d+'</td>');
+			html.push('<td class="odds">'+a+'</td>');
 			html.push('<td rowspan="2" class="europe">-</td>');
 			html.push('<td rowspan="2" class="europe">-</td>');
 			html.push('<td rowspan="2" class="europe">-</td>');
@@ -173,17 +179,15 @@ function getMatchCallback(d){
 			html.push('<td rowspan="2">'+fengxin1+' <a href="javascript:gotoBoloolDetail('+id+')">菠萝</a></td>');
 			html.push('</tr>');
 			html.push('<tr>');
-			html.push('<td>'+h1+'</td>');
-			html.push('<td>'+d1+'</td>');
-			html.push('<td>'+a1+'</td>');
+			html.push('<td class="odds">'+h1+'</td>');
+			html.push('<td class="odds">'+d1+'</td>');
+			html.push('<td class="odds">'+a1+'</td>');
 			html.push('</tr>');
 			g_match["_"+id] = {id,leagueId,leagueName,leagueColor,homeName,homeOrder,num,playtime,awayName,awayOrder,h,d,a,h1,d1,a1,rq,fengxin1};
 			ids.push(id);
 		}
 	});
 	$("#matchlist").html(html.join(""));
-	jQuery('header').headshrinker();
-	jQuery('.headshrunk').css("background-color","greenyellow");
 	return ids;
 }
 function gotoBoloolDetail(id){
@@ -300,9 +304,76 @@ $(()=>{
     var url = "/api/getOkoooJc?url=/jingcai/";
     if(params.date){
     	url = "/api/getOkoooJc?url=/jingcai/"+ params.date + "/";
+    	$.get("/api/getOkoooJc?url=/livecenter/jingcai/?date="+params.date,function(d){
+    		body = $(safeHtml(d));
+    		var updateData={};
+    		body.find(".each_match").each((idx,el)=>{
+    			var match = $(el);
+    			var id = match.attr("matchid");
+    			var state = match.attr("state");
+    			if ("End"==state) {
+					var halfscore = match.attr("data-hs");
+					var fullscore = match.find(".show_score").text().replace(/[\r\n\s]/g, "");
+					var scores = fullscore.split("-");
+					if (scores.length == 2) {
+						var h = parseInt(scores[0]);
+						var a = parseInt(scores[1]);
+						var goalscore = "0";
+						var result = "负";
+						if (h > a) {
+							goalscore = "3";
+							result = "胜";
+						} else if (h == a) {
+							goalscore = "1";
+							result = "平";
+						}
+						updateData[id] = [fullscore,halfscore,result,goalscore];
+					}
+				}else{
+					console.log(" 更新赛程比分：" + id + " 没有比分 ");
+				}
+    		});
+    		$.post("/api/saveMatchScore",{data:JSON.stringify(updateData)},function(r){
+    			console.log(r);
+    		});
+    	})
     }
 	$.get(url,function(d){
 		ids = getMatchCallback(d);
+		$(".odds").css("cursor","pointer").on("click",function(e){
+			var odds = e.target || e.currentTarget;
+			$(odds).toggleClass("selected");
+			if($(".odds.selected").length>=2){
+				var x = (e.pageX || e.screenX || 20) + 20;
+				var y = (e.pageY || e.screenY || 80) ;
+				saveButton=$("#saveButton");
+				if(saveButton.length==0){
+					let button = document.createElement('button');
+			        button.setAttribute('id', 'saveButton');
+			        button.addEventListener('click', () => {
+			            window.saveOrder();
+			        });
+			        button.style.position = 'fixed';
+			        button.style.left = x+'px';
+			        button.style.top = y+'px';
+			        button.style.zIndex = '100000000';
+			        button.style.borderRadius = '50%';
+			        button.style.border = 'none';
+			        button.style.height = '80px';
+			        button.style.width = '80px';
+			        button.style.lineHeight = '80px';
+			        button.style.color = 'white';
+			        button.style.background = 'brown';
+			        button.style.outline = 'none';
+			        button.innerText = '保存';
+			        document.body.appendChild(button);
+			        saveButton=$("#saveButton");
+				}else{
+					saveButton.css({left:x+"px",top:y+"px"}).show();
+				}
+				setTimeout(function(){saveButton.hide("slow")},5000,saveButton);
+			}
+		});
 		if(ids.length==0){
 			$.ajaxSetup({async:false})
 			$.get("/okooo_demo.html",function(demo_html){
@@ -450,6 +521,7 @@ $(()=>{
 			layer.closeAll();
 		}
 	});
+	
 });
 </script>
 </html>

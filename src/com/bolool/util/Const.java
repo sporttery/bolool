@@ -78,6 +78,11 @@ public class Const {
 	public static String MATCH_HISTORY_SQL = "insert into t_match_history(id,matchlist) values (?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1  ";
 	
 	/**
+	 * "update t_match set fullscore=?,halfscore=?,result=?,goalscore=? where id = ?"
+	 */
+	public static String UPDATE_MATCH_SCORE = "update t_match set fullscore=?,halfscore=?,result=?,goalscore=? where id = ?";
+	
+	/**
 	 * "true".equalsIgnoreCase(PropKit.get("showSql"))
 	 */
 	public static boolean showSql = "true".equalsIgnoreCase(PropKit.get("showSql"));
