@@ -287,13 +287,13 @@ public class AjaxServlet extends HttpServlet {
 					+ europeArr[2];
 			String sql2 = sql + " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a="
 					+ asiaArr[2];
-			sql = "select * from ( " + sql1 + " union all " + sql2 + ") t  ";
+			sql = "select * from ( " + sql1 + " union all " + sql2 + ") t where leagueName is not null and  fullscore<>'-' ";
 		} else if (asiaArr.length == 3) {
-			sql += " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a=" + asiaArr[2];
+			sql += " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a=" + asiaArr[2] + " and leagueName is not null and  fullscore<>'-' ";
 		} else {
-			sql += " where o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = " + europeArr[2];
+			sql += " where o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = " + europeArr[2]+ " and leagueName is not null and  fullscore<>'-' ";
 		}
-		List<HashMap<String, String>> list = DBHelper.selectListSql(sql + " order by concat(h,pan,f,s,p,f) ", column.split(","));
+		List<HashMap<String, String>> list = DBHelper.selectListSql(sql + "  order by concat(h,pan,f,s,p,f) ", column.split(","));
 		response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
 		response.getWriter().write(new Gson().toJson(list));
 	}
