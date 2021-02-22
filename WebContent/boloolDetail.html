@@ -126,18 +126,22 @@ input {
 						<th rowspan="2">联赛</th>
 						<th rowspan="2">赛季</th>
 						<th rowspan="2" width="100px">轮次</th>
-						<th rowspan="2">时间</th>
+						<th rowspan="2">时间
+						<button type="button" class="btn btn-default" onclick="sortBy('playtime')" aria-label="Center Align"><span class="glyphicon glyphicon-sort" aria-hidden="true"></span></button>
+						</th>
 						<th rowspan="2">主队</th>
 						<th rowspan="2">客队</th>
 						<th rowspan="2">比分</th>
-						<th colspan="3">欧盘
+						<th colspan="3">欧盘<button type="button" class="btn btn-default" onclick="sortBy('europe')" aria-label="Center Align">
+						<span class="glyphicon glyphicon-sort" aria-hidden="true"></span></button>
 							<div style="display: none">
 								<select id="europeSec" onchange="filterData()"></select>
 								&nbsp;&nbsp;<a href="javascript:sameOdds('europe')">同赔</a>
 								&nbsp;&nbsp;<a href="javascript:allOdds('europe')">全部</a>
 							</div>
 						</th>
-						<th colspan="3">亚盘
+						<th colspan="3">亚盘<button type="button" class="btn btn-default" onclick="sortBy('asia')" aria-label="Center Align">
+						<span class="glyphicon glyphicon-sort" aria-hidden="true"></span></button>
 							<div style="display: none">
 								<select id="asiaSec" onchange="filterData()"></select>
 								&nbsp;&nbsp;<a href="javascript:sameOdds('asia')">同赔</a>
@@ -203,6 +207,57 @@ input {
 	</div>
 </body>
 <script type="text/javascript">
+var descOrAsc={},sortData={},boloolListEl;
+function sortBy(by){
+	var list = sortData[by];
+	if(!descOrAsc[by]){
+		descOrAsc[by]="asc";
+	}else{
+		if(descOrAsc[by]=="asc"){
+			descOrAsc[by]="desc";
+		}else{
+			descOrAsc[by]="asc";
+		}
+	}
+	if(!list){
+		sortData["europe"]={};
+		sortData["asia"]={};
+		sortData["playtime"]={};
+		boloolListEl.find("tr").each((idx,el)=>{
+			var tr = $(el);
+			var europe = tr.attr("data-europe");
+			var asia = tr.attr("data-asia");
+			var playtime = tr.attr("data-playtime");
+			var html = tr.prop("outerHTML");
+			if(!sortData["europe"][europe]){
+				sortData["europe"][europe]=[];
+			}
+			if(!sortData["asia"][asia]){
+				sortData["asia"][asia]=[];
+			}
+			if(!sortData["playtime"][playtime]){
+				sortData["playtime"][playtime]=[];
+			}
+			sortData["europe"][europe].push(html);
+			sortData["asia"][asia].push(html);
+			sortData["playtime"][playtime].push(html);
+		});
+		list=sortData[by];
+	}
+	var keys = Object.keys(list);
+	var html = [];
+	keys.sort();
+	if(descOrAsc[by]=="desc"){
+		keys.reverse();
+	}
+	keys.forEach(key=>{
+		var arr = list[key];
+		arr.forEach(trHtml=>{
+			html.push(trHtml);
+		});
+	});
+	boloolListEl.html(html.join(''));
+}
 function sameOdds(oddsType){
 	var value = oddsType=="europe"?$("#matchEurope").val():$("#matchAsia").val();
 	$("#"+oddsType+"Sec").val(value).change();
@@ -260,7 +315,7 @@ function filterData(){
 	var sameScore = $("#sameScore")[0].checked;
 	var sameStrong = $("#sameStrong")[0].checked;
 	var totalCount=0,showCount=0;
-	$("#boloolList").find("tr").each((idx,el)=>{
+	boloolListEl.find("tr").each((idx,el)=>{
 		totalCount++;
 		var tr=$(el);
 		var trEurope=tr.attr("data-europe");
@@ -440,7 +495,8 @@ function getBoloolList(){
 				totalCount++;
 				var eKey = item.s+" "+item.p+" "+item.f;
 				var aKey = item.h+" "+item.pan+" "+item.a;
-				var show = europe==eKey && asia == aKey;
+				var show = true;
+				//show = europe==eKey && asia == aKey;
 				var noBolool = false;
 				if(!item.hresult && !item.aresult){
 					noBolool = true;
@@ -459,7 +515,7 @@ function getBoloolList(){
 				}
 				html.push('<tr id="bolool_'+item.id+'" class="'+className+'" style="'+(show?"":"display:none")+'" data-europe="'+eKey+'" data-asia="'+aKey+
 						'" data-hsection="'+item.hsection+'" data-asection="'+item.asection+'" data-hstrong="'+bolool3.hstrong+'" data-astrong="'+bolool3.astrong+
-						'" data-hscore="'+item.hscore+'" data-ascore="'+item.ascore+'">' );
+						'" data-hscore="'+item.hscore+'" data-ascore="'+item.ascore+'" data-playtime="'+item.playtime+'">' );
 				html.push('<td>'+item.leagueName+'</td>');
 				html.push('<td>'+item.seasonName+'</td>');
 				html.push('<td>'+item.round+'</td>');
@@ -509,20 +565,21 @@ function getBoloolList(){
 				html.push('</tr>');
 			});
 			ids = noBoloolIds;
-			$("#boloolList").html(html.join(''));
+			boloolListEl=$("#boloolList");
+			boloolListEl.html(html.join(''));
 			setTotalInfo(totalCount,showCount);
 			html=[allOption];
 			var keys = Object.keys(europeMap);
 			keys.sort();
 			keys.forEach((key)=>{
-				html.push('<option value="'+key+'" '+ (europe==key?"selected":"") +'>'+key+'</option>');
+				html.push('<option value="'+key+'">'+key+'</option>');
 			});
 			$("#europeSec").html(html.join('')).parent().show();
 			html=[allOption];
 			var keys = Object.keys(asiaMap);
 			keys.sort();
 			keys.forEach((key)=>{
-				html.push('<option value="'+key+'" '+ (asia==key?"selected":"")+'>'+key+'</option>');
+				html.push('<option value="'+key+'">'+key+'</option>');
 			});
 			$("#asiaSec").html(html.join('')).parent().show();
 			$("#searchBtn").hide();

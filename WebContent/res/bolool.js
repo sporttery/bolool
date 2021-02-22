@@ -101,7 +101,7 @@ function getBoloolFromResult(hResult,aResult,topN){
 	if(!topN){
 		topN=3;
 	}
-	if(hResult.length<topN || aResult.length<topN){
+	if(!hResult || !aResult || hResult.length<topN || aResult.length<topN){
 		return {hresult:"--",aresult:"--",hscore:"--",ascore:"--",hstrong:"--",astrong:"--"};
 	}
 	var hresult=hResult.substring(0,topN).replace(/胜/g,"3").replace(/平/g,"1").replace(/负/g,"0");

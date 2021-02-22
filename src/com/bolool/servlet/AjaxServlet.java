@@ -1,5 +1,6 @@
 package com.bolool.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,12 +44,17 @@ public class AjaxServlet extends HttpServlet {
 	private static final Log log = LogFactory.getLog(AjaxServlet.class);
 	private static final long serialVersionUID = 1L;
 	private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-	private String file = getServletContext().getRealPath("/curlMatchHistory.sh");
+	private String file = null;
+	boolean noCurl = false;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		// TODO Auto-generated method stub
 		super.init(config);
+		file = getServletContext().getRealPath("/curlMatchHistory.sh");
+		if(!new File(file).exists()) {
+			noCurl=true;
+		}
 		try {
 			DataSourceFactory.init();
 			Runnable runnable = new Runnable() {
@@ -281,13 +287,13 @@ public class AjaxServlet extends HttpServlet {
 					+ europeArr[2];
 			String sql2 = sql + " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a="
 					+ asiaArr[2];
-			sql = "select * from ( " + sql1 + " union all " + sql2 + ") t order by playtime desc";
+			sql = "select * from ( " + sql1 + " union all " + sql2 + ") t  ";
 		} else if (asiaArr.length == 3) {
 			sql += " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a=" + asiaArr[2];
 		} else {
 			sql += " where o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = " + europeArr[2];
 		}
-		List<HashMap<String, String>> list = DBHelper.selectListSql(sql, column.split(","));
+		List<HashMap<String, String>> list = DBHelper.selectListSql(sql + " order by concat(h,pan,f,s,p,f) ", column.split(","));
 		response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
 		response.getWriter().write(new Gson().toJson(list));
 	}
@@ -598,7 +604,9 @@ public class AjaxServlet extends HttpServlet {
 		HashMap<String, String> header = new HashMap<String, String>();
 
 		if ("get".equals(method)) {
-//			return HttpUtil.doGet(url, "gbk");
+			if(noCurl) {
+				return HttpUtil.doGet(url, "gbk");
+			}
 			return HttpUtil.execCurl(new String[] { "/bin/sh", file, url });
 		} else {
 			header.put("Content-Type", "application/x-www-form-urlencoded");
