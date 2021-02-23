@@ -42,6 +42,9 @@ input {
 </head>
 <body>
 	<div class="container-fluid theme-showcase" role="main">
+		<div class="page-header">
+				<label for="date">日期</label><input type="text" id="date" class="datetimepicker" data-date-format="yyyy-mm-dd" onchange="showdate(this.value)" />
+		</div>
 		<div class="view">
 			<table class="table table-bordered">
 				<thead id="thead"></thead>
@@ -116,6 +119,38 @@ function showHistory(id,hOra){
 		matchHistoryTip.modal("show");
 	}
 }
+var now = new Date();
+var month = now.getMonth() +1;
+var date = now.getDate();
+if(month < 10){
+	month = "0"+month;
+}
+if(date < 10){
+	date = "0" + date;
+}
+var datetime = now.getFullYear()+"-"+month+"-"+date;
+$(".datetimepicker").datetimepicker({
+	minView: "month", //选择日期后，不会再跳转去选择时分秒 
+	language:  'zh-CN',
+	autoclose: true ,
+	format : 'yyyy-mm-dd'
+});
+function showdate(date){
+	if(params.date==date){
+		return;
+	}
+	var url = location.href;
+	if(params.date){
+		url = url.replace(params.date,date);
+		location.href = url;
+	}else{
+		if(url.indexOf("?")==-1){
+			location.href = url + "?date="+date;
+		}else{
+			location.href = url + "&date="+date;
+		}
+	}
+}
 function getMatchCallback(d){
 	d=safeHtml(d);
 	body = $(d);
@@ -132,59 +167,63 @@ function getMatchCallback(d){
 			var leagueId = div.attr("filterdata").split(",")[1];
 			var leagueColor=div.find(".saiming").css("background-color");
 			var leagueHref=div.find(".saiming").attr("href");
-			var playtime = div.find(".shijian").attr("title").replace("比赛时间:","");
-			var num = div.find(".xulie").attr("title");
-			var hostName = div.find(".shenpf .zhu .zhum").text();
-			var hostOrder = div.find(".shenpf .zhu .paim").text();
-			var homeName = div.find(".shenpf .zhu .zhum").text();
-			var homeOrder = div.find(".shenpf .zhu .paim").text().trim();
-			var awayName = div.find(".shenpf .fu .zhum").text();
-			var awayOrder = div.find(".shenpf .fu .paim").text().trim();
-			var h = div.find(".shenpf .zhu .peilv").text().trim();
-			var d = div.find(".shenpf .ping .peilv").text().trim();
-			var a = div.find(".shenpf .fu .peilv").text().trim();
-			
-			var h1 = div.find(".rangqiuspf .zhu .peilv").text().trim();
-			var d1 = div.find(".rangqiuspf .ping .peilv").text().trim();
-			var a1 = div.find(".rangqiuspf .fu .peilv").text().trim();
-			
-			var rq = div.attr("filterdata").split(",")[0];
-			var fengxin1 = div.find(".fengxin1").html();
-			fengxin1 = fengxin1.replace(/onclick.+?href/g,"href");
-			html.push('<tr id="m'+id+'">');
-			html.push('<td rowspan="2">'+num+'</td>');
-			html.push('<td rowspan="2" style="background-color:'+leagueColor+'"><a href="'+leagueHref+'" style="color:white">'+leagueName+'</a></td>');
-			html.push('<td rowspan="2" class="season">'+num+'</td>');
-			html.push('<td rowspan="2" class="teamInfo"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> '+homeName 
-			+' VS '+awayName +'<span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
-			html.push('<td rowspan="2">'+playtime+'</td>');
-			html.push('<td rowspan="2">'+rq +'</td>');
-			html.push('<td class="odds">'+h+'</td>');
-			html.push('<td class="odds">'+d+'</td>');
-			html.push('<td class="odds">'+a+'</td>');
-			html.push('<td rowspan="2" class="europe">-</td>');
-			html.push('<td rowspan="2" class="europe">-</td>');
-			html.push('<td rowspan="2" class="europe">-</td>');
-			html.push('<td rowspan="2" class="asia">-</td>');
-			html.push('<td rowspan="2" class="asia">-</td>');
-			html.push('<td rowspan="2" class="asia">-</td>');
-			html.push('<td rowspan="2" class="hScore">-</td>');
-			html.push('<td rowspan="2" class="aScore">-</td>');
-			html.push('<td rowspan="2" class="hSection">-</td>');
-			html.push('<td rowspan="2" class="aSection">-</td>');
-			html.push('<td rowspan="2" class="hNear3">-</td>');
-			html.push('<td rowspan="2" class="aNear3">-</td>');
-			html.push('<td rowspan="2" class="hStrong">-</td>');
-			html.push('<td rowspan="2" class="aStrong">-</td>');
-			html.push('<td rowspan="2">'+fengxin1+' <a href="javascript:gotoBoloolDetail('+id+')">菠萝</a></td>');
-			html.push('</tr>');
-			html.push('<tr>');
-			html.push('<td class="odds">'+h1+'</td>');
-			html.push('<td class="odds">'+d1+'</td>');
-			html.push('<td class="odds">'+a1+'</td>');
-			html.push('</tr>');
-			g_match["_"+id] = {id,leagueId,leagueName,leagueColor,homeName,homeOrder,num,playtime,awayName,awayOrder,h,d,a,h1,d1,a1,rq,fengxin1};
-			ids.push(id);
+			var playtime = div.find(".shijian").attr("title").replace("比赛时间:","").trim();
+			var playtimepart = playtime.split(/\D/);
+			var playtime_datetiime = new Date(playtimepart[0],parseInt(playtimepart[1])-1,playtimepart[2],playtimepart[3],playtimepart[4],playtimepart[5]);
+			if(params.date || playtime_datetiime.getTime() > now.getTime()){
+				var num = div.find(".xulie").attr("title");
+				var hostName = div.find(".shenpf .zhu .zhum").text();
+				var hostOrder = div.find(".shenpf .zhu .paim").text();
+				var homeName = div.find(".shenpf .zhu .zhum").text();
+				var homeOrder = div.find(".shenpf .zhu .paim").text().trim();
+				var awayName = div.find(".shenpf .fu .zhum").text();
+				var awayOrder = div.find(".shenpf .fu .paim").text().trim();
+				var h = div.find(".shenpf .zhu .peilv").text().trim();
+				var d = div.find(".shenpf .ping .peilv").text().trim();
+				var a = div.find(".shenpf .fu .peilv").text().trim();
+				
+				var h1 = div.find(".rangqiuspf .zhu .peilv").text().trim();
+				var d1 = div.find(".rangqiuspf .ping .peilv").text().trim();
+				var a1 = div.find(".rangqiuspf .fu .peilv").text().trim();
+				
+				var rq = div.attr("filterdata").split(",")[0];
+				var fengxin1 = div.find(".fengxin1").html();
+				fengxin1 = fengxin1.replace(/onclick.+?href/g,"href");
+				html.push('<tr id="m'+id+'">');
+				html.push('<td rowspan="2">'+num+'</td>');
+				html.push('<td rowspan="2" style="background-color:'+leagueColor+'"><a href="'+leagueHref+'" style="color:white">'+leagueName+'</a></td>');
+				html.push('<td rowspan="2" class="season">'+num+'</td>');
+				html.push('<td rowspan="2" class="teamInfo"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> '+homeName 
+				+' VS '+awayName +'<span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
+				html.push('<td rowspan="2">'+playtime+'</td>');
+				html.push('<td rowspan="2">'+rq +'</td>');
+				html.push('<td class="odds">'+h+'</td>');
+				html.push('<td class="odds">'+d+'</td>');
+				html.push('<td class="odds">'+a+'</td>');
+				html.push('<td rowspan="2" class="europe">-</td>');
+				html.push('<td rowspan="2" class="europe">-</td>');
+				html.push('<td rowspan="2" class="europe">-</td>');
+				html.push('<td rowspan="2" class="asia">-</td>');
+				html.push('<td rowspan="2" class="asia">-</td>');
+				html.push('<td rowspan="2" class="asia">-</td>');
+				html.push('<td rowspan="2" class="hScore">-</td>');
+				html.push('<td rowspan="2" class="aScore">-</td>');
+				html.push('<td rowspan="2" class="hSection">-</td>');
+				html.push('<td rowspan="2" class="aSection">-</td>');
+				html.push('<td rowspan="2" class="hNear3">-</td>');
+				html.push('<td rowspan="2" class="aNear3">-</td>');
+				html.push('<td rowspan="2" class="hStrong">-</td>');
+				html.push('<td rowspan="2" class="aStrong">-</td>');
+				html.push('<td rowspan="2">'+fengxin1+' <a href="javascript:gotoBoloolDetail('+id+')">菠萝</a></td>');
+				html.push('</tr>');
+				html.push('<tr>');
+				html.push('<td class="odds">'+h1+'</td>');
+				html.push('<td class="odds">'+d1+'</td>');
+				html.push('<td class="odds">'+a1+'</td>');
+				html.push('</tr>');
+				g_match["_"+id] = {id,leagueId,leagueName,leagueColor,homeName,homeOrder,num,playtime,awayName,awayOrder,h,d,a,h1,d1,a1,rq,fengxin1};
+				ids.push(id);
+			}
 		}
 	});
 	$("#matchlist").html(html.join(""));
@@ -303,6 +342,7 @@ $(()=>{
     }
     var url = "/api/getOkoooJc?url=/jingcai/";
     if(params.date){
+    	$("#date").val(params.date);
     	url = "/api/getOkoooJc?url=/jingcai/"+ params.date + "/";
     	$.get("/api/getOkoooJc?url=/livecenter/jingcai/?date="+params.date,function(d){
     		body = $(safeHtml(d));

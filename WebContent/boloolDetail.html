@@ -53,6 +53,11 @@ input {
 	color: red;
 	font-weight: bold;
 }
+option.sameOdds{
+	color: red;
+	font-weight: bold;
+	background-color: yellow;
+}
 .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
     width: 90px;
 }
@@ -572,14 +577,14 @@ function getBoloolList(){
 			var keys = Object.keys(europeMap);
 			keys.sort();
 			keys.forEach((key)=>{
-				html.push('<option value="'+key+'">'+key+'</option>');
+				html.push('<option value="'+key+'" class="'+(key==europe?"sameOdds":"")+'">'+key+'</option>');
 			});
 			$("#europeSec").html(html.join('')).parent().show();
 			html=[allOption];
 			var keys = Object.keys(asiaMap);
 			keys.sort();
 			keys.forEach((key)=>{
-				html.push('<option value="'+key+'">'+key+'</option>');
+				html.push('<option value="'+key+'" class="'+(key==asia?"sameOdds":"")+'">'+key+'</option>');
 			});
 			$("#asiaSec").html(html.join('')).parent().show();
 			$("#searchBtn").hide();

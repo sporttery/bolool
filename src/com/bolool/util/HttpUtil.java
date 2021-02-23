@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,8 @@ import org.apache.log4j.Logger;
 public class HttpUtil {
 	private static Logger log = Logger.getLogger(HttpUtil.class);
 	private static String contentType = "application/json";
+	public static boolean noCurl = false;
+	public static String curlMatchHistoryFile = null;
 
 	public static void setContentType(String type) {
 		contentType = type;
@@ -54,14 +57,13 @@ public class HttpUtil {
 //	    headers.add(new BasicHeader(WEBMATE_USER_HEADERKEY, authInfo.emailAddress));
 //	    headers.add(new BasicHeader(WEBMATE_APITOKEN_HEADERKEY, authInfo.apiKey));
 
-
 		if (header != null) {
 			for (Iterator iter = header.keySet().iterator(); iter.hasNext();) {
 				String name = (String) iter.next();
 				String value = String.valueOf(header.get(name));
 				headers.add(new BasicHeader(name, value));
 			}
-		}else {
+		} else {
 			headers.add(new BasicHeader("Content-Type", contentType));
 			headers.add(new BasicHeader("User-Agent",
 					"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15"));
@@ -69,8 +71,7 @@ public class HttpUtil {
 			headers.add(new BasicHeader("Accept-Encoding", "br, gzip, deflate"));
 			headers.add(new BasicHeader("Connection", "keep-alive"));
 			headers.add(new BasicHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
-			
-			
+
 		}
 
 		builder.setDefaultHeaders(headers);
@@ -120,7 +121,7 @@ public class HttpUtil {
 	public static String doGet(String url) {
 		return doGet(url, "utf-8", null);
 	}
-	
+
 	/**
 	 * get请求
 	 * 
@@ -128,7 +129,7 @@ public class HttpUtil {
 	 * @param charset
 	 * @return
 	 */
-	public static String doGet(String url,String charset) {
+	public static String doGet(String url, String charset) {
 		return doGet(url, charset, null);
 	}
 
@@ -302,25 +303,95 @@ public class HttpUtil {
 	public static String doPost(String url, String params, Map header) throws Exception {
 		return doPost(url, params, "utf-8", header);
 	}
-	
-	 public static String execCurl(String[] cmds) {
-	        ProcessBuilder process = new ProcessBuilder(cmds);
-	        Process p;
-	        try {
-	            p = process.start();
-	            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-	            StringBuilder builder = new StringBuilder();
-	            String line = null;
-	            while ((line = reader.readLine()) != null) {
-	                builder.append(line);
-	                builder.append(System.getProperty("line.separator"));
-	            }
-	            return builder.toString();
-	 
-	        } catch (IOException e) {
-	        	log.error(e);
-	            e.printStackTrace();
-	        }
-	        return null;
-	    }
+
+	public static String execCurl(String[] cmds) {
+		ProcessBuilder process = new ProcessBuilder(cmds);
+		Process p;
+		try {
+			p = process.start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			StringBuilder builder = new StringBuilder();
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				builder.append(line);
+				builder.append(System.getProperty("line.separator"));
+			}
+			return builder.toString();
+
+		} catch (IOException e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static String getFromOkooo(String url, String method, String args) {
+		if (!url.startsWith("http")) {
+			url = "http://www.okooo.com" + url;
+		}
+		if (method == null) {
+			method = "get";
+		}
+		if (args != null && method.equals("get")) {
+			if (url.indexOf("?") != -1) {
+				url = url + "&" + args;
+			} else {
+				url = url + "?" + args;
+			}
+		}
+		String msg = "";
+		HashMap<String, String> header = new HashMap<String, String>();
+
+		if ("get".equals(method)) {
+			if (noCurl) {
+				return HttpUtil.doGet(url, "gbk");
+			}
+			return HttpUtil.execCurl(new String[] { "/bin/sh", curlMatchHistoryFile, url });
+		} else {
+			header.put("Content-Type", "application/x-www-form-urlencoded");
+			header.put("Accept", "application/json, text/javascript, */*c");
+			header.put("Host", "www.okooo.com");
+			header.put("Accept-Language", "zh-cn");
+			header.put("Accept-Encoding", "gzip, deflate");
+			header.put("Origin", "http://www.okooo.com");
+			header.put("Referer", "http://www.okooo.com/soccer/match/1123132/history/");
+			header.put("Connection", "keep-alive");
+			header.put("User-Agent",
+					"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15");
+			header.put("Cookie",
+					"acw_tc=2f624a0716126650180178482e294335542ac159914275bb2237650f0fb9ba; Hm_lpvt_5ffc07c2ca2eda4cc1c4d8e50804c94b=1612664445; LStatus=N; LoginStr=%7B%22welcome%22%3A%22%u60A8%u597D%uFF0C%u6B22%u8FCE%u60A8%22%2C%22login%22%3A%22%u767B%u5F55%22%2C%22register%22%3A%22%u6CE8%u518C%22%2C%22TrustLoginArr%22%3A%7B%22alipay%22%3A%7B%22LoginCn%22%3A%22%u652F%u4ED8%u5B9D%22%7D%2C%22tenpay%22%3A%7B%22LoginCn%22%3A%22%u8D22%u4ED8%u901A%22%7D%2C%22weibo%22%3A%7B%22LoginCn%22%3A%22%u65B0%u6D6A%u5FAE%u535A%22%7D%2C%22renren%22%3A%7B%22LoginCn%22%3A%22%u4EBA%u4EBA%u7F51%22%7D%2C%22baidu%22%3A%7B%22LoginCn%22%3A%22%u767E%u5EA6%22%7D%2C%22snda%22%3A%7B%22LoginCn%22%3A%22%u76DB%u5927%u767B%u5F55%22%7D%7D%2C%22userlevel%22%3A%22%22%2C%22flog%22%3A%22hidden%22%2C%22UserInfo%22%3A%22%22%2C%22loginSession%22%3A%22___GlobalSession%22%7D; __utmb=56961525.9.7.1612664445276; __utmc=56961525; pm=; PHPSESSID=9843d8b6cdfe91d98e8f15c3bbc29f0cef962f72; FirstOKURL=http%3A//www.okooo.com/jingcai/; First_Source=www.okooo.com; Hm_lvt_5ffc07c2ca2eda4cc1c4d8e50804c94b=1612537278,1612623203,1612659491; LastUrl=; __utma=56961525.867081676.1612537278.1612659491.1612659494.4; __utmz=56961525.1612537278.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)");
+			header.put("Proxy-Connection", "keep-alive");
+			header.put("X-Requested-With", "XMLHttpRequest");
+			try {
+				if (args != null) {
+					HashMap<String, String> map = new HashMap<String, String>();
+					String arr[] = args.split("&");
+					for (int i = 0; i < arr.length; i++) {
+						String ps[] = arr[i].split("=");
+						map.put(ps[0], ps[1]);
+					}
+					return HttpUtil.doPost(url, map, header);
+				} else {
+					return HttpUtil.doPost(url, "", header);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				msg = e.getMessage();
+			}
+		}
+		return msg;
+	}
+
+	public static String getFromWin007(String url) {
+		return HttpUtil.doGet("http://jc.win007.com" + url);
+	}
+
+	public static String getFromOkooo(String url) {
+		return getFromOkooo(url, "get");
+	}
+
+	private static String getFromOkooo(String url, String method) {
+		return getFromOkooo(url, method, null);
+	}
 }
