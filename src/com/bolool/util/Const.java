@@ -73,6 +73,24 @@ public class Const {
 	
 	
 	/**
+	 * update t_match_odds set s=?,p=?,f=?,version=version +1 where matchId = ?
+	 */
+	public static String MATCH_ODDS_EUROPE_UPDATE =
+			  "update t_match_odds set s=?,p=?,f=?,version=version +1 where matchId = ?" ;
+	
+	/**
+	 * update t_match_odds set h=?,pan=?,a=?,version=version +1 where matchId = ?
+	 */
+	public static String MATCH_ODDS_ASIA_UPDATE =
+			  "update t_match_odds set h=?,pan=?,a=?,version=version +1 where matchId = ?" ;
+	
+	/**
+	 * update t_match_odds set s=?,p=?,f=?,h=?,pan=?,a=?,version=version +1 where matchId = ?
+	 */
+	public static String MATCH_ODDS_UPDATE =
+			  "update t_match_odds set s=?,p=?,f=?,h=?,pan=?,a=?,version=version +1 where matchId = ?" ;
+	
+	/**
 	 * insert into t_match_history(id,matchlist) values (?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1 
 	 */
 	public static String MATCH_HISTORY_SQL = "insert into t_match_history(id,matchlist) values (?,?)  ON DUPLICATE KEY UPDATE `version`=`version` + 1  ";

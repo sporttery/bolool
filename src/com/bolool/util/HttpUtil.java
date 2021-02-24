@@ -342,7 +342,7 @@ public class HttpUtil {
 		String msg = "";
 		HashMap<String, String> header = new HashMap<String, String>();
 
-		if ("get".equals(method)) {
+		if ("get".equalsIgnoreCase(method)) {
 			if (noCurl) {
 				return HttpUtil.doGet(url, "gbk");
 			}
