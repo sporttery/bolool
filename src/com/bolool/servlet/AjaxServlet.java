@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import com.bolool.util.Const;
 import com.bolool.util.DBHelper;
@@ -36,7 +32,9 @@ import com.bolool.vo.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import timer.NewMatchHistoryRunnable;
 import timer.NewMatchRunnable;
+import timer.NewOddsRunnable;
 
 /**
  * Servlet implementation class AjaxServlet
@@ -54,18 +52,28 @@ public class AjaxServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		super.init(config);
 		if(HttpUtil.curlMatchHistoryFile == null) {
-			HttpUtil.curlMatchHistoryFile = getServletContext().getRealPath("/curlMatchHistory.sh");
+			HttpUtil.curlMatchHistoryFile = getServletContext().getRealPath("/"+Const.curlMatchHistoryFileName);
 			if(!new File(HttpUtil.curlMatchHistoryFile).exists()) {
 				HttpUtil.noCurl=true;
 			}
 		}
 		try {
 			DataSourceFactory.init();
-			Runnable runnable = new NewMatchRunnable();
-			log.info("开启定时任务更新赛程比分,5小时执行一次");
-			runnable.run();
-			// 第二个参数为首次执行的延时时间，第三个参数为定时执行的间隔时间
-			service.scheduleAtFixedRate(runnable, 5, 5, TimeUnit.HOURS);
+			Runnable newMatchRunnable = new NewMatchRunnable();
+			Runnable newOddsRunnable = new NewOddsRunnable();
+			Runnable newMatchHistoryRunnable = new NewMatchHistoryRunnable();
+			if(Const.ENABLE_RUNNABLE) {
+				log.info("开启定时任务更新赛程比分,5小时执行一次");
+				newMatchRunnable.run();
+				newOddsRunnable.run();
+				newMatchHistoryRunnable.run();
+				// 第二个参数为首次执行的延时时间，第三个参数为定时执行的间隔时间
+				service.scheduleAtFixedRate(newMatchRunnable, 5, 5, TimeUnit.HOURS);
+				service.scheduleAtFixedRate(newOddsRunnable, 30, 30, TimeUnit.MINUTES);
+				service.scheduleAtFixedRate(newMatchHistoryRunnable, 2, 2, TimeUnit.HOURS);
+			}else {
+				log.info("定时任务未开启");
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,7 +135,12 @@ public class AjaxServlet extends HttpServlet {
 			saveBolool(request, response);
 		}  else if (uri.equals("/api/saveMatchScore")) {
 			saveMatchScore(request, response);
-		} else {
+		} else if (uri.equals("/api/getHistoryById")) {
+			String mId = request.getParameter("id");
+			String content = NewMatchHistoryRunnable.getHistoryById(mId);
+			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
+			response.getWriter().append(content);
+		}else {
 			response.getWriter().append("Served at: ").append(request.getContextPath());
 		}
 	}

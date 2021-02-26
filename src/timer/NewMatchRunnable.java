@@ -14,7 +14,7 @@ import com.bolool.util.DBHelper;
 import com.bolool.util.HttpUtil;
 
 public class NewMatchRunnable implements Runnable {
-	private static final Log log = LogFactory.getLog(NewMatchRunnable.class);
+	private final Log log = LogFactory.getLog(NewMatchRunnable.class);
 	@Override
 	public void run() {
 

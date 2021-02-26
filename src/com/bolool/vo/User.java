@@ -3,7 +3,6 @@ package com.bolool.vo;
 import java.util.Date;
 
 import com.bolool.util.Const;
-import com.google.gson.GsonBuilder;
 
 public class User {
 	private Integer id;
@@ -79,6 +78,6 @@ public class User {
 	}
 	@Override
 	public String toString() {
-		return new GsonBuilder().setDateFormat(Const.YMD_HMS).create().toJson(this);
+		return Const.YMD_HMS_GSON.toJson(this);
 	}
 }
