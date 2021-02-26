@@ -93,10 +93,10 @@ public class Const {
 			  "update t_match_odds set s=?,p=?,f=?,h=?,pan=?,a=?,version=version +1 where matchId = ?" ;
 	
 	/**
-	 * insert into t_match_odds (matchId,s,p,f,h,pan,a,companId) values(?,?,?,?,?,?,?,27)
+	 * insert into t_match_odds (matchId,s,p,f,h,pan,a,companyId) values(?,?,?,?,?,?,?,27)
 	 */
 	public final static String MATCH_ODDS_INSERT =
-			  "insert into t_match_odds (matchId,s,p,f,h,pan,a,companId) values(?,?,?,?,?,?,?,27) " ;
+			  "insert into t_match_odds (matchId,s,p,f,h,pan,a,companyId) values(?,?,?,?,?,?,?,27) " ;
 	
 	
 	/**

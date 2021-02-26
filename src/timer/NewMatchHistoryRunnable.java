@@ -114,7 +114,7 @@ public class NewMatchHistoryRunnable implements Runnable {
 	static Bolool calcBolool(List<Match> arr, int topN, int friend) {
 		List<Match> calcArr = new ArrayList<>();
 		if (friend == 1) { // 全部比赛
-			calcArr = arr.subList(0, topN);
+			calcArr = arr.subList(0, topN > arr.size()?arr.size():topN);
 		} else if (friend == 0) { // 没有友谊赛
 			for (int i = 0; i < arr.size(); i++) {
 				Match match = arr.get(i);
@@ -183,7 +183,7 @@ public class NewMatchHistoryRunnable implements Runnable {
 		int goalscore = 0;
 		String hresult = "未开";
 		int hgoalscore = 0;
-		if (scores.length == 2) {
+		if (scores.length == 2 && StringUtils.isNotEmpty(scores[0]) && StringUtils.isNotEmpty(scores[1])) {
 			int scoresArr[] = new int[] { Integer.parseInt(scores[0]), Integer.parseInt(scores[1]) };
 			result = getResult(scoresArr);
 			goalscore = getGoalscore(scoresArr);
@@ -313,12 +313,6 @@ public class NewMatchHistoryRunnable implements Runnable {
 			return Const.GSON_DEFAULT.toJson(resMap);
 		}
 		return null;
-	}
-
-	public static void main(String[] args) {
-		String mId = "1126199";
-		String c = getHistoryById(mId);
-
 	}
 
 }
