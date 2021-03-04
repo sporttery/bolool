@@ -60,17 +60,17 @@ public class AjaxServlet extends HttpServlet {
 		try {
 			DataSourceFactory.init();
 			Runnable newMatchRunnable = new NewMatchRunnable();
-			Runnable newOddsRunnable = new NewOddsRunnable();
+//			Runnable newOddsRunnable = new NewOddsRunnable();
 			Runnable newMatchHistoryRunnable = new NewMatchHistoryRunnable();
 			if(Const.ENABLE_RUNNABLE) {
 				log.info("开启定时任务更新赛程比分,5小时执行一次");
 				newMatchRunnable.run();
-				newOddsRunnable.run();
+//				newOddsRunnable.run();
 				newMatchHistoryRunnable.run();
 				// 第二个参数为首次执行的延时时间，第三个参数为定时执行的间隔时间
 				service.scheduleAtFixedRate(newMatchRunnable, 5, 5, TimeUnit.HOURS);
-				log.info("开启定时任务更新比赛赔率 ,30分钟执行一次");
-				service.scheduleAtFixedRate(newOddsRunnable, 30, 30, TimeUnit.MINUTES);
+//				log.info("开启定时任务更新比赛赔率 ,30分钟执行一次");
+//				service.scheduleAtFixedRate(newOddsRunnable, 30, 30, TimeUnit.MINUTES);
 				log.info("开启定时任务更新比赛历史和菠萝指数 ,2小时执行一次");
 				service.scheduleAtFixedRate(newMatchHistoryRunnable, 2, 2, TimeUnit.HOURS);
 			}else {

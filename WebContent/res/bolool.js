@@ -42,6 +42,54 @@ function getRequest(urlStr) {
     return theRequest;
 }
 
+function showHistoryCallback(id,hOra){
+	return function(data){
+		console.log(data);
+		g_match["_"+id].matchlist = JSON.parse(data.matchlist);
+		showHistory(id,hOra);
+	}
+}
+function showHistory(id,hOra){
+	layer.load(2);
+	var match = g_match["_"+id];
+	var matchlist = match.matchlist;
+	if(matchlist){
+		layer.closeAll();
+		historyArray = matchlist[hOra];
+		var html=[];
+		for(var i=0;i<historyArray.length;i++){
+			var m = historyArray[i];
+			html.push('<tr>');
+			html.push('<td><a href="https://www.okooo.com/soccer/league/'+m.leagueId+'/" target="_blank">'+m.leagueName+'</a></td>');
+			m.playtime=m.playtime+"";
+			var playtime = m.playtime.substring(0,4)+"-"+m.playtime.substring(4,6)+"-" + m.playtime.substring(6,8) + " " + m.playtime.substring(8,10)+ ":"+m.playtime.substring(10,12)+":00";
+			html.push('<td><a href="https://www.okooo.com/soccer/match/'+m.id+'/history/" target="_blank">'+playtime+'</a></td>');
+			html.push('<td><a href="https://www.okooo.com/soccer/team/'+m.homeId+'/" target="_blank">'+m.homeName+'</a></td>');
+			html.push('<td><a href="https://www.okooo.com/soccer/team/'+m.awayId+'/" target="_blank">'+m.awayName+'</a></td>');
+			html.push('<td><a href="https://www.okooo.com/soccer/match/'+m.id+'/" target="_blank"><font color=red>'+m.fullscore+'</font>('+m.halfscore+')</a></td>');
+			html.push('<td>'+m.hgoalscore+'</td>');
+			html.push('<td>'+m.hresult+'</td>');
+			html.push('</tr>');
+		}
+		var matchHistoryTip = $("#matchHistoryTip");
+		if(matchHistoryTip.length==0){
+			matchHistoryTip = $('<div id="matchHistoryTip" style="background-color: purple; text-align: center; color: #fff" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><h3 style="color: #fff;" class="matchTitle">xxx比赛的菠萝数据</h3></div><div class="modal-body"><table class="table table-bordered"><thead><tr><th>赛事</th><th>时间</th><th>主队</th><th>客队</th><th>比分</th><th>积分</th><th>结果</th></tr></thead><tbody></tbody></table></div><div class="modal-footer"><button class="btn" data-dismiss="modal" aria-hidden="true" style="color: red;">关闭</button></div></div>');
+			matchHistoryTip.appendTo($("body"));
+		}
+		matchHistoryTip.find("tbody").html(html.join(""));
+		matchHistoryTip.find(".matchTitle").text(match.homeName + " VS " + match.awayName + "  "+ match.playtime);
+		/* layer.open({
+			  title: match.homeName + " VS " + match.awayName + "  "+ match.playtime
+			  ,content: $("#matchHistoryTip").html()
+		}); */     
+		matchHistoryTip.removeClass("hide");
+		matchHistoryTip.modal("show");
+	}else{
+		console.log("异步加载数据.."+id);
+		$.get("/api/getHistoryById?id="+id,showHistoryCallback(id,hOra));
+	}
+}
+
 function setMatchBoloolData(id,data){
 	if(g_match["_"+id]){
 		g_match["_"+id].matchlist=JSON.parse(data.matchListHistory.matchlist);

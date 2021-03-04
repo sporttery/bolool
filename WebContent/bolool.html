@@ -52,73 +52,10 @@ input {
 			</table>
 		</div>
 	</div>
-	<div id="matchHistoryTip"
-		style="background-color: purple; text-align: center; color: #fff"
-		class="modal hide fade" tabindex="-1" role="dialog"
-		aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal"
-				aria-hidden="true">×</button>
-			<h3 style="color: #fff;" class="matchTitle">xxx比赛的菠萝数据</h3>
-		</div>
-		<div class="modal-body">
-
-			<table class="table table-bordered">
-				<thead>
-					<tr>
-						<th>赛事</th>
-						<th>时间</th>
-						<th>主队</th>
-						<th>客队</th>
-						<th>比分</th>
-						<th>积分</th>
-						<th>结果</th>
-					</tr>
-				<tbody>
-				</tbody>
-			</table>
-		</div>
-		<div class="modal-footer">
-			<button class="btn" data-dismiss="modal" aria-hidden="true"
-				style="color: red;">关闭</button>
-		</div>
-	</div>
 </body>
 <script type="text/javascript">
 var topN = 30;
-function showHistory(id,hOra){
-	var match = g_match["_"+id];
-	var matchlist = match.matchlist;
-	var tr = match.tr;
-	var el = tr.find("."+hOra+"Name");
-	if(matchlist){
-		historyArray = matchlist[hOra];
-		var html=[];
-		for(var i=0;i<historyArray.length;i++){
-			var m = historyArray[i];
-			html.push('<tr>');
-			html.push('<td><a href="https://www.okooo.com/soccer/league/'+m.leagueId+'/" target="_blank">'+m.leagueName+'</a></td>');
-			m.playtime=m.playtime+"";
-			var playtime = m.playtime.substring(0,4)+"-"+m.playtime.substring(4,6)+"-" + m.playtime.substring(6,8) + " " + m.playtime.substring(8,10)+ ":"+m.playtime.substring(10,12)+":00";
-			html.push('<td><a href="https://www.okooo.com/soccer/match/'+m.id+'/history/" target="_blank">'+playtime+'</a></td>');
-			html.push('<td><a href="https://www.okooo.com/soccer/team/'+m.homeId+'/" target="_blank">'+m.homeName+'</a></td>');
-			html.push('<td><a href="https://www.okooo.com/soccer/team/'+m.awayId+'/" target="_blank">'+m.awayName+'</a></td>');
-			html.push('<td><a href="https://www.okooo.com/soccer/match/'+m.id+'/" target="_blank">'+m.fullscore+'('+m.halfscore+')</a></td>');
-			html.push('<td>'+m.hgoalscore+'</td>');
-			html.push('<td>'+m.hresult+'</td>');
-			html.push('</tr>');
-		}
-		var matchHistoryTip = $("#matchHistoryTip");
-		matchHistoryTip.find("tbody").html(html.join(""));
-		matchHistoryTip.find(".matchTitle").text(match.homeName + " VS " + match.awayName + "  "+ match.playtime);
-		/* layer.open({
-			  title: match.homeName + " VS " + match.awayName + "  "+ match.playtime
-			  ,content: $("#matchHistoryTip").html()
-		}); */     
-		matchHistoryTip.removeClass("hide");
-		matchHistoryTip.modal("show");
-	}
-}
+
 var now = new Date();
 var month = now.getMonth() +1;
 var date = now.getDate();
@@ -193,8 +130,8 @@ function getMatchCallback(d){
 				html.push('<td rowspan="2">'+num+'</td>');
 				html.push('<td rowspan="2" style="background-color:'+leagueColor+'"><a href="'+leagueHref+'" style="color:white">'+leagueName+'</a></td>');
 				html.push('<td rowspan="2" class="season">'+num+'</td>');
-				html.push('<td rowspan="2" class="teamInfo"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> '+homeName 
-				+' VS '+awayName +'<span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
+				html.push('<td rowspan="2" class="teamInfo"><span style="font-size:12px;color:#ccc">'+homeOrder+'</span> <a class="hName" href="javascript:showHistory('+id+',\'h\')">'+homeName 
+				+'</a> VS <a class="aName" href="javascript:showHistory('+id+',\'a\')">'+awayName +'</a><span style="font-size:12px;color:#ccc">'+awayOrder+'</span></td>');
 				html.push('<td rowspan="2">'+playtime+'</td>');
 				html.push('<td rowspan="2">'+rq +'</td>');
 				html.push('<td class="odds">'+h+'</td>');
@@ -240,6 +177,10 @@ function gotoBoloolDetail(id){
 function setBolool(tr,boloolData){
 	["h","a"].forEach((n)=>{
 		var bolool = boloolData["top"+topN];
+		if(!bolool){
+			bolool = {hscore:'-',ascore:'-',hresult:'-',aresult:'-',hsection:'-',asection:'-'};
+			bolool.top3={hstrong:'-',astrong:'-',hresult:'-',aresult:'-'};
+		}
 		tr.find("."+n+"Score").text(bolool[n+"score"]).attr("title",bolool[n+"result"]);
 		tr.find("."+n+"Section").text(bolool[n+"section"]);
 		var bolool3 = bolool.top3;
@@ -270,6 +211,15 @@ function finishLoad(){
 			}
 		});
 	},1000);
+	for(var key in g_match){
+		var tr = g_match[key].tr;
+		//updateData[id] = [fullscore,halfscore,result,goalscore];
+		var scoreData = updateData[key.substring(1)];
+		if(scoreData && tr) {
+			var teamInfo = tr.find(".teamInfo");
+			teamInfo.html(teamInfo.html().replace("VS",'<font color=red>'+scoreData[0]+"</font>("+scoreData[1]+")"));
+		}
+	}
 }
 
 function changeTopN(id){
@@ -287,7 +237,7 @@ function changeTopN(id){
 		}
 	}
 }
-var g_match={},g_team,g_data;
+var g_match={},g_team,g_data,updateData={};
 var params = getRequest();
 $(()=>{
 	var headhtml = [];
@@ -346,7 +296,7 @@ $(()=>{
     	url = "/api/getOkoooJc?url=/jingcai/"+ params.date + "/";
     	$.get("/api/getOkoooJc?url=/livecenter/jingcai/?date="+params.date,function(d){
     		body = $(safeHtml(d));
-    		var updateData={};
+    		
     		body.find(".each_match").each((idx,el)=>{
     			var match = $(el);
     			var id = match.attr("matchid");
@@ -426,7 +376,7 @@ $(()=>{
 				var noBolool = [],noEuropeOdds=[],noAsiaOdds=[];
 				for(var i=0;i<arr.length;i++){
 					var item = arr[i];
-					var bolool;
+					var bolool = null;
 					if(item.hresult && item.aresult){
 						bolool = {"hresult":item.hresult,"aresult":item.aresult,"hscore":item.hscore,"ascore":item.ascore,"hsection":item.hsection,"asection":item.asection};
 						var bolool3 = getBoloolFromResult(bolool.hresult,bolool.aresult,3);
