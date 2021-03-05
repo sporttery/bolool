@@ -155,7 +155,7 @@ public class NewMatchHistoryRunnable implements Runnable {
 		return b;
 	}
 
-	public static Match getMatchFromTr(Element tr) {
+	public static Match getMatchFromTr(Element tr,int teamId) {
 		String id = tr.attr("data-matchid");
 		Elements tds = tr.children();
 
@@ -187,9 +187,9 @@ public class NewMatchHistoryRunnable implements Runnable {
 			int scoresArr[] = new int[] { Integer.parseInt(scores[0]), Integer.parseInt(scores[1]) };
 			result = getResult(scoresArr);
 			goalscore = getGoalscore(scoresArr);
-			if (thisMatch != null) {
+			if (teamId != 0) {
 				Integer ihomeId = Integer.valueOf(homeId);
-				if (ihomeId.intValue() != thisMatch.getHomeId().intValue()) { // 如果这场比赛的客队是查询比赛的主队，则将比分替换下获取比赛结果和积分
+				if (ihomeId.intValue() != teamId) { // 如果这场比赛的客队是查询比赛的主队，则将比分替换下获取比赛结果和积分
 					int tmp = scoresArr[0];
 					scoresArr[0] = scoresArr[1];
 					scoresArr[1] = tmp;
@@ -217,13 +217,13 @@ public class NewMatchHistoryRunnable implements Runnable {
 		List<Match> homeMatchArr = new ArrayList<Match>();
 		matchs.forEach(el -> {
 			if (idx[0] == 1) {
-				Match match = getMatchFromTr(el);
+				Match match = getMatchFromTr(el,thisMatch.getHomeId().intValue());
 				homeMatchArr.add(match);
 			}
 			if (idx[0] == 0) {
 				if (el.className() != null && el.className().indexOf("jsThisMatch") != -1) {
 					idx[0] = 1;
-					thisMatch = getMatchFromTr(el);
+					thisMatch = getMatchFromTr(el,0);
 				}
 			}
 
@@ -235,7 +235,7 @@ public class NewMatchHistoryRunnable implements Runnable {
 		List<Match> awayMatchArr = new ArrayList<Match>();
 		matchs.forEach(el -> {
 			if (idx[0] == 1) {
-				awayMatchArr.add(getMatchFromTr(el));
+				awayMatchArr.add(getMatchFromTr(el,thisMatch.getAwayId().intValue()));
 			}
 			if (idx[0] == 0) {
 				if (el.className() != null && el.className().indexOf("jsThisMatch") != -1) {

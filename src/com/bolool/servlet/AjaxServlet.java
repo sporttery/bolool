@@ -34,7 +34,6 @@ import com.google.gson.reflect.TypeToken;
 
 import timer.NewMatchHistoryRunnable;
 import timer.NewMatchRunnable;
-import timer.NewOddsRunnable;
 
 /**
  * Servlet implementation class AjaxServlet
