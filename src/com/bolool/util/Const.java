@@ -118,6 +118,7 @@ public class Const {
 	public static final String DB_URL = PropKit.get("jdbcUrl");
 	public static final String DB_UID = PropKit.get("user");
 	public static final String DB_PWD = PropKit.get("password");
+	public static final String DB_DRIVER = PropKit.get("driver");
 	public static final boolean ENABLE_RUNNABLE = "true".equalsIgnoreCase(PropKit.get("enableRunnable"));
 	
 }

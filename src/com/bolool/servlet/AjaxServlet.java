@@ -136,6 +136,8 @@ public class AjaxServlet extends HttpServlet {
 			saveBolool(request, response);
 		}  else if (uri.equals("/api/saveMatchScore")) {
 			saveMatchScore(request, response);
+		} else if (uri.equals("/api/saveZhuzhuo")) {
+			saveZhuzhuo(request, response);
 		} else if (uri.equals("/api/getHistoryById")) {
 			String mId = request.getParameter("id");
 			String content = NewMatchHistoryRunnable.getHistoryById(mId);
@@ -144,6 +146,32 @@ public class AjaxServlet extends HttpServlet {
 		}else {
 			response.getWriter().append("Served at: ").append(request.getContextPath());
 		}
+	}
+
+	/**
+	 * 从网上抓取 软件著作权信息
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	private void saveZhuzhuo(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		String arr = request.getParameter("arr");
+		java.lang.reflect.Type type = new TypeToken<List<Map<String, String>>>() {
+		}.getType();
+		List<Map<String, String>> list = new Gson().fromJson(arr, type);
+		StringBuilder sb = new StringBuilder();
+		list.forEach(map->{
+			String title = map.get("title");
+			String id = map.get("id");
+			String content = map.get("content");
+			sb.append(",("+id+",'"+title+"','"+content+"')");
+		});
+		boolean result = false;
+		if(list.size()>0) {
+			String sql = "insert into t_zhuzhuo(oid,title,content) values " + sb.substring(1);
+			result = DBHelper.insertOrUpdate(sql);
+		}
+		response.getWriter().write(""+result);
 	}
 
 	private void saveMatchScore(HttpServletRequest request, HttpServletResponse response)throws IOException {
