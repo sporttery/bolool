@@ -219,6 +219,38 @@ public class AjaxServlet extends HttpServlet {
 	 * @param request
 	 * @param response
 	 * @throws IOException
+	 * 
+	 * https://www.xaecong.com/zhuzuo.asp
+	 var start=2,end=300376;
+	 function getData(i){
+return function(d){
+var leftStart=d.indexOf("<DIV id=left>");
+var rightStart=d.indexOf("<div id=\"right\">");
+if(leftStart!=-1 && rightStart> leftStart){
+d = d.substring(leftStart,rightStart);
+var divs = $(d).find(".Listtitle");
+var arr=[];
+divs.each((idx,el)=>{
+var a=$(el).find("a");
+var c=$(el).next();
+var title = a.attr("title");
+var data={title:title.substring(0,title.length-5),id:a.attr("href").replace(/\D/g,""),content:c.text().split("。")[0]};
+arr.push(data);
+console.log(data)
+});
+$.post("http://127.0.0.1:8080/api/saveZhuzhuo",{arr:JSON.stringify(arr)},function(d1){
+console.log("i="+i+",result="+d1)
+});
+console.log("已经处理完第"+i+"页，还剩下"+(end - i)+"页");
+if(start < end){
+start=start+1;
+$.get("/zhuzuo.asp?page="+start,getData(start));
+}
+}
+}
+}
+ $.get("/zhuzuo.asp?page="+start,getData(start));
+	 * 
 	 */
 	private void saveZhuzhuo(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		String arr = request.getParameter("arr");
