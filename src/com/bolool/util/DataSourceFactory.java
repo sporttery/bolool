@@ -20,15 +20,13 @@ public class DataSourceFactory {
 	private static Logger log = Logger.getLogger(DataSourceFactory.class);
 	private static BasicDataSource bs = null;
 
-//	private static final String driver = "com.mysql.jdbc.Driver";
-	private static final String driver = "com.mysql.cj.jdbc.Driver";
 	
 	
 	public static void init() {
 		if(bs==null) {
-			log.info("数据库连接信息：[driver:" + driver + ",url:" + Const.DB_URL + ",userName:" + Const.DB_UID + ",password:" + Const.DB_PWD + "]");
+			log.info("数据库连接信息：[driver:" + Const.DB_DRIVER + ",url:" + Const.DB_URL + ",userName:" + Const.DB_UID + ",password:" + Const.DB_PWD + "]");
 			bs = new BasicDataSource();
-			bs.setDriverClassName(driver);
+			bs.setDriverClassName( Const.DB_DRIVER);
 			bs.setUrl( Const.DB_URL);
 			bs.setUsername( Const.DB_UID);
 			bs.setPassword( Const.DB_PWD);

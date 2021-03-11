@@ -136,6 +136,10 @@ public class AjaxServlet extends HttpServlet {
 			saveBolool(request, response);
 		}  else if (uri.equals("/api/saveMatchScore")) {
 			saveMatchScore(request, response);
+		} else if (uri.equals("/api/saveZhuzhuo")) {
+			saveZhuzhuo(request, response);
+		} else if (uri.equals("/api/saveCaiTong")) {
+			saveCaiTong(request, response);
 		} else if (uri.equals("/api/getHistoryById")) {
 			String mId = request.getParameter("id");
 			String content = NewMatchHistoryRunnable.getHistoryById(mId);
@@ -144,6 +148,96 @@ public class AjaxServlet extends HttpServlet {
 		}else {
 			response.getWriter().append("Served at: ").append(request.getContextPath());
 		}
+	}
+
+	/*
+	 http://caitong.sina.com.cn/
+	 var page=1,num=40,total=0;
+	 $.getScript("http://feed.mix.sina.com.cn/api/roll/get?pageid=189&lid=1758&num="+num+"&versionNumber=1.2.8&page="+page+"&encode=utf-8&callback=feedCardJsonpCallback1111");
+	 feedCardJsonpCallback1111=function(d){
+	 try{
+	 	var arr = [];
+	 	d.result.data.forEach(e=>{
+	 	var ctime = e.ctime;
+	 	var mtime = e.mtime;
+	 	var intime=e.intime;
+	 	var title = e.title;
+	 	var intro = e.intro;
+	 	var url = e.url;
+	 	arr.push({ctime,mtime,intime,title,intro,url});
+	 	});
+	 	if(page==1){
+	 	total=d.result.total;
+	 	}
+	 	total-=40;
+	 	if(total<40){
+	 		num=total;
+	 	}
+	 	
+	 	$.post("http://127.0.0.1:8080/api/saveCaiTong",{arr:JSON.stringify(arr)},function(r){
+	 		console.log(page,arr.length,r);
+	 		if(r=="true"){
+	 			page++;
+	 			$.getScript("http://feed.mix.sina.com.cn/api/roll/get?pageid=189&lid=1758&num="+num+"&versionNumber=1.2.8&page="+page+"&encode=utf-8&callback=feedCardJsonpCallback1111");
+	 		}
+	 	});
+	 	}catch(e){
+	 	console.log(e);
+	 	}
+	 }
+	 
+	 
+	 *
+	 */
+	private void saveCaiTong(HttpServletRequest request, HttpServletResponse response)throws IOException {
+		String arr = request.getParameter("arr");
+		java.lang.reflect.Type type = new TypeToken<List<Map<String, String>>>() {
+		}.getType();
+		List<Map<String, String>> list = new Gson().fromJson(arr, type);
+		StringBuilder sb = new StringBuilder();
+		list.forEach(map->{
+			//ctime,mtime,intime,title,intro,url
+			String title = map.get("title");
+			String ctime = map.get("ctime");
+			String intro = map.get("intro");
+			String url = map.get("url");
+			String mtime = map.get("mtime");
+			String intime = map.get("intime");
+			sb.append(",("+ctime+","+mtime+","+intime+",'"+DBHelper.getSafeSqlParam(title)+"','"+DBHelper.getSafeSqlParam(intro)+"','"+url+"')");
+		});
+		boolean result = false;
+		if(list.size()>0) {
+			String sql = "insert into t_caitong(ctime,mtime,intime,title,intro,url) values " + sb.substring(1);
+			result = DBHelper.insertOrUpdate(sql);
+		}
+		response.getWriter().write(""+result);
+		
+	}
+
+	/**
+	 * 从网上抓取 软件著作权信息
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	private void saveZhuzhuo(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		String arr = request.getParameter("arr");
+		java.lang.reflect.Type type = new TypeToken<List<Map<String, String>>>() {
+		}.getType();
+		List<Map<String, String>> list = new Gson().fromJson(arr, type);
+		StringBuilder sb = new StringBuilder();
+		list.forEach(map->{
+			String title = map.get("title");
+			String id = map.get("id");
+			String content = map.get("content");
+			sb.append(",("+id+",'"+DBHelper.getSafeSqlParam(title)+"','"+DBHelper.getSafeSqlParam(content)+"')");
+		});
+		boolean result = false;
+		if(list.size()>0) {
+			String sql = "insert into t_zhuzhuo(oid,title,content) values " + sb.substring(1);
+			result = DBHelper.insertOrUpdate(sql);
+		}
+		response.getWriter().write(""+result);
 	}
 
 	private void saveMatchScore(HttpServletRequest request, HttpServletResponse response)throws IOException {
