@@ -327,7 +327,11 @@ function getMatchDataFromHistoryHtml(d, id) {
     d = $(safeHtml(d));
     var tr = d.find(".jsThisMatch");
     var tds = tr.find("td");
-    var leagueUrl = $(tds[0]).find("a").attr("href").split("/");
+    var ahref = $(tds[0]).find("a").attr("href");
+    var leagueUrl = "";
+    if(ahref){
+    	leagueUrl=ahref.split("/");
+    }
     var seasonId = parseInt(leagueUrl[5]) || 0;
     var lunci = d.find("#lunci");
     if (tr.length == 0 || lunci.length == 0) {
