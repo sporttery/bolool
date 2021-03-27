@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,7 +80,68 @@ public class HttpUtil {
 		return builder.build();
 	}
 
-	// private static Logger logger = Logger.getLogger(HttpUtil.class);
+	public static String sendGet(String url) {
+		return sendGet(url,null,"utf-8");
+	}
+	
+	public static String sendGet(String url, String param,String encoding) {
+		String result = "";
+		BufferedReader in = null;
+		try {
+			String urlNameString = url;
+			if (param != null) {
+				if(url.indexOf("?")!=-1){
+					urlNameString = url + "&" + param;
+				}else{
+					urlNameString = url + "?" + param;
+				}
+			}
+			URL realUrl = new URL(urlNameString);
+			// 打开和URL之间的连接
+			URLConnection connection = realUrl.openConnection();
+			// 设置通用的请求属性
+			connection.setRequestProperty("Accept", "*/*");
+			connection.setRequestProperty("Connection", "Keep-Alive");
+			connection
+					.setRequestProperty(
+							"User-agent",
+							"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36");
+			connection.setRequestProperty("Referer",
+					"https://www.sporttery.cn/");
+			connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8");
+			connection.setRequestProperty("Accept-Encoding",
+					"deflate, sdch");
+			connection.setRequestProperty("Cache-Control", "max-age=0");
+			connection
+					.setRequestProperty(
+							"Cookie",
+							"BIGipServerPool_apache_web=1224802570.20480.0000; Hm_lvt_860f3361e3ed9c994816101d37900758=1446550156,1446694723,1447759021,1447903576; Hm_lpvt_860f3361e3ed9c994816101d37900758=1447912833");
+			connection.setRequestProperty("Host", "i.sporttery.cn");
+			connection.setRequestProperty("Upgrade-Insecure-Requests", "1");
+			// 建立实际的连接
+			connection.connect();
+			in = new BufferedReader(new InputStreamReader(
+					connection.getInputStream(),encoding));
+			String line;
+			while ((line = in.readLine()) != null) {
+				result += line;
+			}
+		} catch (Exception e) {
+			log.error("发送GET请求出现异常！" + e.getMessage());
+			e.printStackTrace();
+		}
+		// 使用finally块来关闭输入流
+		finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return result;
+	}
 
 	/**
 	 * get请求

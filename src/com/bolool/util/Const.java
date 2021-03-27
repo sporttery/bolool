@@ -1,11 +1,14 @@
 package com.bolool.util;
 
+import java.util.HashMap;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Const {
 	
-	
+	public static final HashMap<String, String> pool_rs_map = new HashMap<>();
+
 	/**
 	 * utf-8
 	 */
@@ -13,6 +16,11 @@ public class Const {
 	
 	static {
 		PropKit.use("config.properties");
+		pool_rs_map.put("crs", "crs");
+		pool_rs_map.put("had", "had");
+		pool_rs_map.put("hhad", "hhad");
+		pool_rs_map.put("hafu", "hafu");
+		pool_rs_map.put("ttg", "ttg");
 	}
 	
 	public final static String curlMatchHistoryFileName = "curlMatchHistory.sh";
@@ -21,6 +29,10 @@ public class Const {
 	 * yyyy-MM-dd HH:mm:ss
 	 */
 	public final static String YMD_HMS = "yyyy-MM-dd HH:mm:ss";
+	/**
+	 * yyyy-MM-dd
+	 */
+	public final static String YMD = "yyyy-MM-dd";
 	/**
 	 * yyyyMMddHHmmss
 	 */
@@ -119,6 +131,7 @@ public class Const {
 	public static final String DB_UID = PropKit.get("user");
 	public static final String DB_PWD = PropKit.get("password");
 	public static final String DB_DRIVER = PropKit.get("driver");
+	public static final String DB_DBTYPE = PropKit.get("dbType");
 	public static final boolean ENABLE_RUNNABLE = "true".equalsIgnoreCase(PropKit.get("enableRunnable"));
 	
 }

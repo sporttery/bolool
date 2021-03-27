@@ -145,9 +145,71 @@ public class AjaxServlet extends HttpServlet {
 			String content = NewMatchHistoryRunnable.getHistoryById(mId);
 			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
 			response.getWriter().append(content);
+		} else if(uri.equals("/api/saveJczqMatch")){
+			saveJczqMatch(request, response);
 		}else {
 			response.getWriter().append("Served at: ").append(request.getContextPath());
 		}
+	}
+	
+	/**
+	 * https://www.lottery.gov.cn/jc/zqsgkj/
+	 * @param request
+	 * @param response
+	 * 打开官网的赛果开奖页面，
+	 * var beginDate="2021-01-20",//开始日期
+	 * var endDate="2021-03-22";//结束日期
+	 * var isFix=0;//是否单关
+	 * var pageSize=30;//每页显示多少条
+	 * var pageNo = 1; //从第一页开始
+	 * var total=0;
+	 * function getData(){
+	 * jQuery.get("https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate="+startDate+"&matchEndDate="+endDate+"&leagueId=&pageSize="+pageSize+"&pageNo="+pageNo+"&isFix="+isFix+"&pcOrWap=0",function(data){
+			if(data.success){
+				var value =data.value;
+				var pages = value.pages;
+				var matchResult = value.matchResult;
+				if(total==0){
+					total=value.total;
+				}
+				jQuery.post("http://127.0.0.1:8080/api/saveJczqMatch",{matchResult:JSON.stringify(matchResult)},function(d){
+					console.log(d);
+				});
+				if(page < pages){
+					getData();
+				}else{
+					console.log({beginDate，endDate，isFix，pageSize},"已经处理完成,共"+total);
+				}
+			}
+			
+		})
+	 * }
+	 * 
+	 */
+
+	private void saveJczqMatch(HttpServletRequest request, HttpServletResponse response) {
+		// TODO Auto-generated method stub
+		String matchResult = request.getParameter("matchResult");
+		java.lang.reflect.Type type = new TypeToken<List<Map<String, String>>>() {
+		}.getType();
+		List<Map<String, String>> list = new Gson().fromJson(matchResult, type);
+		StringBuilder sb = new StringBuilder();
+		list.forEach(map->{
+			//ctime,mtime,intime,title,intro,url
+//			String title = map.get("title");
+//			String ctime = map.get("ctime");
+//			String intro = map.get("intro");
+//			String url = map.get("url");
+//			String mtime = map.get("mtime");
+//			String intime = map.get("intime");
+//			sb.append(",("+ctime+","+mtime+","+intime+",'"+DBHelper.getSafeSqlParam(title)+"','"+DBHelper.getSafeSqlParam(intro)+"','"+url+"')");
+		});
+//		boolean result = false;
+//		if(list.size()>0) {
+//			String sql = "insert into t_caitong(ctime,mtime,intime,title,intro,url) values " + sb.substring(1);
+//			result = DBHelper.insertOrUpdate(sql);
+//		}
+//		response.getWriter().write(""+result);
 	}
 
 	/*
