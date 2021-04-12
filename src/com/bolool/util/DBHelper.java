@@ -217,6 +217,15 @@ public class DBHelper {
 	public static List<HashMap<String, String>> selectListSql(String sql, String[] columns) {
 		return selectListSql(sql, columns, null);
 	}
+	
+	public static String selectOne(
+			String sql) {
+		List<String> list = selectListSql(sql);
+		if(list!=null && list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
 
 	public static List<String> selectListSql(String sql) {
 		if(Const.showSql) {

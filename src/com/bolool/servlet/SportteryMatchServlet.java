@@ -59,19 +59,21 @@ public class SportteryMatchServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		try {
 			DataSourceFactory.init();
-			log.info("开启定时任务更新数据,3小时执行一次");
-			service.scheduleAtFixedRate(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						get_fb_match_result(null, null, null);
-						get_fb_pool_rs(null, 0,0);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+			if (Const.ENABLE_RUNNABLE) {
+				log.info("开启定时任务更新数据,3小时执行一次");
+				service.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							get_fb_match_result(null, null, null);
+							get_fb_pool_rs(null, 0, 0);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
-				}
-			}, 0, 3, TimeUnit.HOURS);
+				}, 0, 3, TimeUnit.HOURS);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -146,9 +148,9 @@ public class SportteryMatchServlet extends HttpServlet {
 					e.printStackTrace();
 				}
 			});
-			log.info("获取"+ids.size()+"场比赛结果完成" );
+			log.info("获取" + ids.size() + "场比赛结果完成");
 		} while (ids.size() == 500);
-		log.info("获取比赛结果"+startId+" ~ "+endId+" 完成" );
+		log.info("获取比赛结果" + startId + " ~ " + endId + " 完成");
 		if (resp != null) {
 			resp.getWriter().append("finish");
 		}
@@ -188,7 +190,7 @@ public class SportteryMatchServlet extends HttpServlet {
 					e.printStackTrace();
 				}
 			} while (c1.before(c2));
-			log.info("获取比赛赛程"+startDate+" ~ "+endDate+" 完成" );
+			log.info("获取比赛赛程" + startDate + " ~ " + endDate + " 完成");
 			if (resp != null) {
 				resp.getWriter().append("finish");
 			}
@@ -410,11 +412,14 @@ public class SportteryMatchServlet extends HttpServlet {
 						String h_cn_abbr = jo.get("h_cn_abbr").getAsString().replaceAll("'", "");
 						String a_cn_abbr = jo.get("a_cn_abbr").getAsString().replaceAll("'", "");
 //					String status = jo.get("status").getAsString();
-						sb.append(",('" ).append( id ).append( "','" ).append( num ).append( "','" ).append( date ).append( "','" ).append( time ).append( "','" ).append( l_id ).append( "','" ).append( l_cn
-								).append( "','" ).append( h_id ).append( "','" ).append( h_cn ).append( "','" ).append( a_id ).append( "','" ).append( a_cn ).append( "','" ).append( match_status
-								).append( "','" ).append( fixedodds ).append( "','" ).append( result_status ).append( "','" ).append( half ).append( "','" ).append( final0 ).append( "','"
-								).append( l_cn_abbr ).append( "','" ).append( h_cn_abbr ).append( "','" ).append( a_cn_abbr ).append( "','" ).append( date ).append( " " ).append( time ).append( "','"
-								).append( final0 ).append( "')");
+						sb.append(",('").append(id).append("','").append(num).append("','").append(date).append("','")
+								.append(time).append("','").append(l_id).append("','").append(l_cn).append("','")
+								.append(h_id).append("','").append(h_cn).append("','").append(a_id).append("','")
+								.append(a_cn).append("','").append(match_status).append("','").append(fixedodds)
+								.append("','").append(result_status).append("','").append(half).append("','")
+								.append(final0).append("','").append(l_cn_abbr).append("','").append(h_cn_abbr)
+								.append("','").append(a_cn_abbr).append("','").append(date).append(" ").append(time)
+								.append("','").append(final0).append("')");
 						ids.append(",").append(id);
 					} catch (Exception ee) {
 						log.error(ee.getMessage());
@@ -423,7 +428,7 @@ public class SportteryMatchServlet extends HttpServlet {
 				});
 				boolean result = false;
 				if (ja.size() > 0) {
-					DBHelper.insertOrUpdate("delete from t_fb_match where id in ("+ ids.substring(1)+")");
+					DBHelper.insertOrUpdate("delete from t_fb_match where id in (" + ids.substring(1) + ")");
 					String sql = "insert into t_fb_match(id,num,playdatestr,playtimestr,l_id,l_cn,h_id,h_cn,a_id,a_cn,match_status,goalline,result_status,half,final,l_cn_abbr,h_cn_abbr,a_cn_abbr,playtime,scorefull) values "
 							+ sb.substring(1);
 					result = DBHelper.insertOrUpdate(sql);

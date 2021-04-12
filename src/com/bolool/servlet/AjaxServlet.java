@@ -58,10 +58,10 @@ public class AjaxServlet extends HttpServlet {
 		}
 		try {
 			DataSourceFactory.init();
-			Runnable newMatchRunnable = new NewMatchRunnable();
-//			Runnable newOddsRunnable = new NewOddsRunnable();
-			Runnable newMatchHistoryRunnable = new NewMatchHistoryRunnable();
 			if(Const.ENABLE_RUNNABLE) {
+				Runnable newMatchRunnable = new NewMatchRunnable();
+//			Runnable newOddsRunnable = new NewOddsRunnable();
+				Runnable newMatchHistoryRunnable = new NewMatchHistoryRunnable();
 				log.info("开启定时任务更新赛程比分,5小时执行一次");
 				newMatchRunnable.run();
 //				newOddsRunnable.run();
