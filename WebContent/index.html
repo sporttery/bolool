@@ -49,6 +49,7 @@
         $.ajaxSetup({
 			async:false
 		});
+        var showAddBtn = location.href.indexOf("showAddBtn")!=-1;
         $(() => {
             $.get("/xml/bf_jc.txt", function (txt) {
                 var matchArr = txt.split("$");
@@ -244,7 +245,11 @@
                 html.push('<td rowspan="2">' +Goal2GoalCn( pan) + '</td>');
                 html.push('<td rowspan="2">' + h1 + '</td>');
                 html.push('<td rowspan="2">' + a1 + '</td>');
-                html.push('<td rowspan="2"><a href="/bolool.html?id=' + match.id + '&europe='+h+','+d+','+a+'&asia='+h1+','+pan+','+a1+'&hId='+match.hId+'&aId='+match.aId+'" target="_blank">查看</a></td>');
+                html.push('<td rowspan="2"><a href="/bolool.html?id=' + match.id + '&europe='+h+','+d+','+a+'&asia='+h1+','+pan+','+a1+'&hId='+match.hId+'&aId='+match.aId+'" target="_blank">查看</a>&nbsp;');
+                if(showAddBtn){
+                	html.push('<a href="javascript:add()">添加比赛</a>');
+                }
+                html.push('</td>');
                 html.push('</tr>');
                 html.push('<tr class="lid_' + match.league.id + '">');
 

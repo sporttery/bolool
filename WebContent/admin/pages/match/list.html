@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<title>会员列表-Secretzq Frame型后台管理系统-Secretzq 1.0</title>
+		<title>比赛列表-Secretzq Frame型后台管理系统-Secretzq 1.0</title>
 		<meta name="renderer" content="webkit" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0" />
@@ -18,8 +18,8 @@
 	<body>
 		<div class="weadmin-nav">
 			<span class="layui-breadcrumb">
-				<a href="javascript:;">首页</a> <a href="javascript:;">会员管理</a>
-				<a href="javascript:;"> <cite>会员列表</cite></a>
+				<a href="javascript:;">首页</a> <a href="javascript:;">比赛管理</a>
+				<a href="javascript:;"> <cite>比赛列表</cite></a>
 			</span>
 			<a class="layui-btn layui-btn-sm" style="margin-top:3px;float:right" href="javascript:location.replace(location.href);"
 			 title="刷新">
@@ -39,7 +39,7 @@
 						<input class="layui-input" placeholder="截止日" name="end" id="end" />
 					</div>
 					<div class="layui-inline">
-						<input type="text" name="username" placeholder="请输入用户名" autocomplete="off" class="layui-input" />
+						<input type="text" name="teamName" placeholder="请输入球队名称" autocomplete="off" class="layui-input" />
 					</div>
 					<button class="layui-btn" lay-submit="" lay-filter="sreach">
 						<i class="layui-icon layui-icon-search"></i>
@@ -47,21 +47,29 @@
 				</form>
 			</div>
 			<div class="weadmin-block">
-				<span class="fr"  style="line-height:40px">共有数据：<b id=totalnum>0</b> 条</span>
+				<span class="fr" style="line-height:40px">共有数据：<b id=totalnum>0</b>  条</span>
 			</div>
 			<table class="layui-table" id="memberList">
 				<thead>
 					<tr>
-						<th>ID</th>
-						<th>openID</th>
-						<th>APPID</th>
-						<th>APP名称</th>
-						<th>用户名</th>
-						<th>头像</th>
-						<th>加入时间</th>
+						<th rowspan=2>ID</th>
+						<th rowspan=2>竞彩编号</th>
+						<th rowspan=2>赛事</th>
+						<th rowspan=2>主队</th>
+						<th rowspan=2>客队</th>
+						<th rowspan=2>比赛时间</th>
+						<th rowspan=2>全场比分</th>
+						<th rowspan=2>半场比分</th>
+						<th rowspan=2>比赛状态</th>
+						<th>赔率</th>
+					</tr>
+					<tr>
+					<th>胜</th>
+					<th>平</th>
+					<th>负</th>
 					</tr>
 				</thead>
-				<tbody id="userlist">
+				<tbody id="datalist">
 					
 				</tbody>
 			</table>
@@ -95,7 +103,7 @@
 		function gotoPage(pageNo){
 			var start = $("#start").val();
 			var end = $("#end").val();
-			var username = $("#username").val();
+			var teamName = $("#teamName").val();
 			var postData = {pageNo};
 			if(start!=""){
 				postData.start = start;
@@ -103,10 +111,10 @@
 			if(end!=""){
 				postData.end = end;
 			}
-			if(username != ""){
-				postData.username = username;
+			if(teamName != ""){
+				postData.teamName = teamName;
 			}
-			$.post("/adminS/userlist",postData,function(result){
+			$.post("/adminS/matchlist",postData,function(result){
 				result = JSON.parse(result);
 				var count =result.count;
 				var pageSize = result.pageSize;
@@ -118,18 +126,23 @@
 					for(var i=0;i<list.length;i++){
 						html.push('<tr data-id="'+(i+1)+'">');
 						html.push('<td>'+list[i].id+'</td>');
-						html.push('<td>'+list[i].open_id+'</td>');
-						html.push('<td>'+list[i].nickname+'</td>');
-						html.push('<td>'+list[i].avatar+'</td>');
-						html.push('<td>'+list[i].app_id+'</td>');
-						html.push('<td>'+list[i].app_name+'</td>');
-						html.push('<td>'+list[i].insert_time+'</td>');
+						html.push('<td>'+list[i].num+'</td>');
+						html.push('<td>'+list[i].l_cn+'</td>');
+						html.push('<td>'+list[i].h_cn+'</td>');
+						html.push('<td>'+list[i].a_cn+'</td>');
+						html.push('<td>'+list[i].playtime+'</td>');
+						html.push('<td>'+list[i].fullscore+'</td>');
+						html.push('<td>'+list[i].halfscore+'</td>');
+						html.push('<td>'+list[i].match_status+'</td>');
+						html.push('<td>'+list[i].h+'</td>');
+						html.push('<td>'+list[i].d+'</td>');
+						html.push('<td>'+list[i].a+'</td>');
 						html.push('</tr>');
 					}
-					$("#userlist").html(html.join(''));
+					$("#datalist").html(html.join(''));
 					genPage(count,pageNo,pageSize);
 				}else{
-					$("#userlist").html('<tr><td colspan=7>暂无数据</td></tr>');
+					$("#datalist").html('<tr><td colspan=12>暂无数据</td></tr>');
 				}
 			});
 		}

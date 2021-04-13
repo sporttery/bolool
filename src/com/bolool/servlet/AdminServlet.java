@@ -19,6 +19,10 @@ import com.bolool.vo.Result;
 import com.google.gson.Gson;
 @WebServlet(value = { "/adminS/*"})
 public class AdminServlet extends HttpServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(AdminServlet.class);
 	
 	@Override
@@ -29,6 +33,7 @@ public class AdminServlet extends HttpServlet {
 			DataSourceFactory.init();
 		}catch (Exception e) {
 			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 	@Override
@@ -68,6 +73,56 @@ public class AdminServlet extends HttpServlet {
 		doGet(req, resp);
 	}
 	public void matchlist(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String teamName = req.getParameter("teamName");
+		String start = req.getParameter("start");
+		String end = req.getParameter("end");
+		String pageNo = req.getParameter("pageNo");
+		if(pageNo==null || !StringUtils.isNumeric(pageNo)) {
+			pageNo = "1";
+		}
+		int pageSize = 20;
+		Result result = new Result();
+		String wherestr="";
+		boolean hasAnd = false;
+		if(!StringUtils.isBlank(teamName)) {
+			wherestr += "(h_cn like '%"+DBHelper.getSafeSqlParam(teamName)+"%' or a_cn  like '%"+DBHelper.getSafeSqlParam(teamName)+"%')";
+			hasAnd = true;
+		}
+		if(!StringUtils.isBlank(start)) {
+			if(hasAnd) {
+				wherestr += " and ";
+			}
+			wherestr += " playtime >='"+DBHelper.getSafeSqlParam(start)+"'";
+			hasAnd = true;
+		}
+		if(!StringUtils.isBlank(end)) {
+			if(hasAnd) {
+				wherestr += " and ";
+			}
+			wherestr += " playtime <='"+DBHelper.getSafeSqlParam(end)+"'";
+			hasAnd = true;
+		}
+		String column = "id,l_cn,h_cn,a_cn,playtime,fullscore,halfscore,num,h,d,a,match_status";
+		String sql ="select m."+column+" from t_match_info m left join t_match_odds_had o on m.id = o.id";
+		String countSql = "select  m."+column+"from t_match_info m left join t_match_odds_had o on m.id = o.id";
+		if(hasAnd) {
+			sql += " where "+wherestr;
+			countSql += " where "+wherestr;
+		}
+		int limitPage = Integer.parseInt(pageNo) ;
+		String count = DBHelper.selectOne(countSql);
+		if(count==null) {
+			count = "0";
+		}
+		sql += " limit " + (limitPage * pageSize) +"," + (limitPage+1) * pageSize;
+		java.util.List<HashMap<String,String>> list = DBHelper.selectListSql(sql,column.split(","));
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		data.put("count", count);
+		data.put("pageNo", limitPage);
+		data.put("pageSize", pageSize);
+		data.put("list",list);
+		result.setData(data);
+		resp.getWriter().write(result.toString());
 	}
 	public void userlist(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String username = req.getParameter("username");
@@ -89,28 +144,29 @@ public class AdminServlet extends HttpServlet {
 			if(hasAnd) {
 				wherestr += " and ";
 			}
-			wherestr += " insert_time >='"+DBHelper.getSafeSqlParam(start)+"'";
+			wherestr += " u.insert_time >='"+DBHelper.getSafeSqlParam(start)+"'";
 			hasAnd = true;
 		}
 		if(!StringUtils.isBlank(end)) {
 			if(hasAnd) {
 				wherestr += " and ";
 			}
-			wherestr += " insert_time <='"+DBHelper.getSafeSqlParam(end)+"'";
+			wherestr += " u.insert_time <='"+DBHelper.getSafeSqlParam(end)+"'";
 			hasAnd = true;
 		}
-		String sql ="select * from t_user_info ";
+		String sql ="select u.id,open_id,app_id,nickname,avatar,u.insert_time,app_name from t_user_info u left join t_app_info a on u.app_id = a.app_id";
+		String countSql = "select count(*) from t_user_info u left join t_app_info a on u.app_id = a.app_id";
 		if(hasAnd) {
 			sql += " where "+wherestr;
+			countSql += " where "+wherestr;
 		}
 		int limitPage = Integer.parseInt(pageNo) ;
-		String countSql = sql.replace("*", "count(*)");
 		String count = DBHelper.selectOne(countSql);
 		if(count==null) {
 			count = "0";
 		}
 		sql += " limit " + (limitPage * pageSize) +"," + (limitPage+1) * pageSize;
-		java.util.List<HashMap<String,String>> list = DBHelper.selectListSql(sql,new String[] {"id","open_id","app_id","nickname","insert_time","avatar"});
+		java.util.List<HashMap<String,String>> list = DBHelper.selectListSql(sql,new String[] {"id","open_id","app_id","nickname","insert_time","avatar","app_name"});
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put("count", count);
 		data.put("pageNo", limitPage);
