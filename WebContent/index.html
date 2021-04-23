@@ -2,46 +2,46 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta charset="UTF-8" />
-    <title>菠萝足球-竞彩欧亚盘显示</title>
-    <!-- 新 Bootstrap 核心 CSS 文件 -->
-    <link rel="stylesheet" href="res/bootstrap.min.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>菠萝足球-竞彩欧亚盘显示</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="res/bootstrap.min.css" />
 
-    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
-    <link rel="stylesheet" href="res/bootstrap-theme.min.css" />
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="res/bootstrap-theme.min.css" />
 
-    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
-    <script src="res/jquery.min.js"></script>
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="res/jquery.min.js"></script>
 
-    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-    <script src="res/bootstrap.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="res/bootstrap.min.js"></script>
 
-    <style type="text/css">
-        #matchlist td{
-            text-align: center;
-            vertical-align: middle;
-        }
-    </style>
+<style type="text/css">
+#matchlist td {
+	text-align: center;
+	vertical-align: middle;
+}
+</style>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
       <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
 
 <body>
-    <div class="container-fluid theme-showcase" role="main">
-        <div class="view">
-            <table class="table table-bordered">
-                <thead id="thead"></thead>
-                <tbody id="matchlist"></tbody>
-            </table>
-        </div>
-    </div>
-    <script type="text/javascript">
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="view">
+			<table class="table table-bordered">
+				<thead id="thead"></thead>
+				<tbody id="matchlist"></tbody>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
         var matchData = {},
             leagueData = {};
         var i_count = 0;
@@ -103,28 +103,32 @@
                     }
                 }
                 load_flag[0] = 1;
-                $.get("/xml/goallottery8.txt", function (txt) {
-                    var oddsArr = txt.split("$");
-                    // console.log(oddsArr);
-                    for (var i = 0; i < oddsArr.length; i++) {
-                        //"1915421!12436209^0.25^1.12^0.78^0^1.02^0.88!100012862^3.30^2.40^2.87^3.50^2.70^2.50!13749288^2.75^0.98^0.92^3.00^1.02^0.88"
-                        var oddsDataArr = oddsArr[i].split("!");
-                        var id = oddsDataArr[0];
-                        //12436209^0.25^1.12^0.78^0^1.02^0.88 赔率id^初盘口^初主^初客^即盘^即主^即客
-                        var asia = oddsDataArr[1].split("^");
-                        //100012862^3.30^2.40^2.87^3.50^2.70^2.50  赔率id^初平^初主^初客^即平^即主^即客
-                        var europe = oddsDataArr[2].split("^");
-                        //13749288^2.75^0.98^0.92^3.00^1.02^0.8 赔率id^初盘口^初主^初客^即盘^即主^即客
-                        var dx = oddsDataArr[3].split("^");
-                        if (!matchData["_" + id]) {
-                            continue;
-                        }
-                        matchData["_" + id]["asia"] = asia;
-                        matchData["_" + id]["europe"] = europe;
-                        matchData["_" + id]["dx"] = dx;
-                    }
-                    load_flag[1] = 1;
-                })
+                if(!showAddBtn){
+	                $.get("/xml/goallottery8.txt", function (txt) {
+	                    var oddsArr = txt.split("$");
+	                    // console.log(oddsArr);
+	                    for (var i = 0; i < oddsArr.length; i++) {
+	                        //"1915421!12436209^0.25^1.12^0.78^0^1.02^0.88!100012862^3.30^2.40^2.87^3.50^2.70^2.50!13749288^2.75^0.98^0.92^3.00^1.02^0.88"
+	                        var oddsDataArr = oddsArr[i].split("!");
+	                        var id = oddsDataArr[0];
+	                        //12436209^0.25^1.12^0.78^0^1.02^0.88 赔率id^初盘口^初主^初客^即盘^即主^即客
+	                        var asia = oddsDataArr[1].split("^");
+	                        //100012862^3.30^2.40^2.87^3.50^2.70^2.50  赔率id^初平^初主^初客^即平^即主^即客
+	                        var europe = oddsDataArr[2].split("^");
+	                        //13749288^2.75^0.98^0.92^3.00^1.02^0.8 赔率id^初盘口^初主^初客^即盘^即主^即客
+	                        var dx = oddsDataArr[3].split("^");
+	                        if (!matchData["_" + id]) {
+	                            continue;
+	                        }
+	                        matchData["_" + id]["asia"] = asia;
+	                        matchData["_" + id]["europe"] = europe;
+	                        matchData["_" + id]["dx"] = dx;
+	                    }
+	                    load_flag[1] = 1;
+	                })
+                }else{
+                	  load_flag[1] = 1;
+                }
                 $.get("/xml/odds_jc.txt", function (txt) {
                     var jcOddsArr = txt.split("!");
                     for (var i = 0; i < jcOddsArr.length; i++) {
@@ -177,8 +181,10 @@
             headhtml.push('<th rowspan="2">比赛时间</th>');
             headhtml.push('<th rowspan="2">让球</th>');
             headhtml.push('<th colspan="3" style="text-align:center">胜平负赔率</th>');
-            headhtml.push('<th colspan="3" style="text-align:center">bet365欧赔</th>');
-            headhtml.push('<th colspan="3" style="text-align:center">bet365亚赔</th>');
+            if(!showAddBtn){
+	            headhtml.push('<th colspan="3" style="text-align:center">bet365欧赔</th>');
+	            headhtml.push('<th colspan="3" style="text-align:center">bet365亚赔</th>');
+            }
             headhtml.push('<th rowspan="2">分析</th>');
             headhtml.push('</tr>');
 
@@ -186,12 +192,14 @@
             headhtml.push('<th>胜</th>');
             headhtml.push('<th>平</th>');
             headhtml.push('<th>负</th>');
+            if(!showAddBtn){
             headhtml.push('<th>胜</th>');
             headhtml.push('<th>平</th>');
             headhtml.push('<th>负</th>');
             headhtml.push('<th>盘</th>');
             headhtml.push('<th>主</th>');
             headhtml.push('<th>客</th>');
+            }
             headhtml.push('</tr>');
 
             $("#thead").html(headhtml.join(""));
@@ -233,23 +241,31 @@
                 html.push('<td>' + match.had[0] + '</td>');
                 html.push('<td>' + match.had[1] + '</td>');
                 html.push('<td>' + match.had[2] + '</td>');
-                var h=match.europe[2];
-                var d=match.europe[1];
-                var a=match.europe[3];
-                html.push('<td rowspan="2">' + h + '</td>');
-                html.push('<td rowspan="2">' + d + '</td>');
-                html.push('<td rowspan="2">' + a + '</td>');
-                var h1=match.asia[2];
-                var pan=match.asia[1];
-                var a1=match.asia[3];
-                html.push('<td rowspan="2">' +Goal2GoalCn( pan) + '</td>');
-                html.push('<td rowspan="2">' + h1 + '</td>');
-                html.push('<td rowspan="2">' + a1 + '</td>');
-                html.push('<td rowspan="2"><a href="/bolool.html?id=' + match.id + '&europe='+h+','+d+','+a+'&asia='+h1+','+pan+','+a1+'&hId='+match.hId+'&aId='+match.aId+'" target="_blank">查看</a>&nbsp;');
-                if(showAddBtn){
-                	html.push('<a href="javascript:add()">添加比赛</a>');
+                if(!showAddBtn){
+	                var h=match.europe[2];
+	                var d=match.europe[1];
+	                var a=match.europe[3];
+	                html.push('<td rowspan="2">' + h + '</td>');
+	                html.push('<td rowspan="2">' + d + '</td>');
+	                html.push('<td rowspan="2">' + a + '</td>');
+	                var h1=match.asia[2];
+	                var pan=match.asia[1];
+	                var a1=match.asia[3];
+	                html.push('<td rowspan="2">' +Goal2GoalCn( pan) + '</td>');
+	                html.push('<td rowspan="2">' + h1 + '</td>');
+	                html.push('<td rowspan="2">' + a1 + '</td>');
                 }
-                html.push('</td>');
+               
+                if(showAddBtn){
+                	html.push('<td>');
+                	html.push('<a href="javascript:add(\''+k+'\',\'had\')">添加投注</a>');
+                	html.push('</td>');
+                }else{
+                	html.push('<td rowspan="2">');
+                	html.push('<a href="/bolool.html?id=' + match.id + '&europe='+h+','+d+','+a+'&asia='+h1+','+pan+','+a1+'&hId='+match.hId+'&aId='+match.aId+'" target="_blank">查看</a>');
+                	html.push('</td>');
+                }
+                
                 html.push('</tr>');
                 html.push('<tr class="lid_' + match.league.id + '">');
 
@@ -257,12 +273,49 @@
                 html.push('<td>' + match.hhad[0] + '</td>');
                 html.push('<td>' + match.hhad[1] + '</td>');
                 html.push('<td>' + match.hhad[2] + '</td>');
-
+                if(showAddBtn){
+                	html.push('<td>');
+                	html.push('<a href="javascript:add(\''+k+'\',\'hhad\')">添加投注</a>');
+                	html.push('</td>');
+                }
                 html.push('</tr>');
 
             }
             $("#matchlist").html(html.join(""));
 
+        }
+        function add(key,type){
+        	var match = matchData[key];
+        	if(!match){
+        		alert("数据异常");
+        		return;
+        	}
+        	var postData = {};
+        	postData.id = match.id;
+        	postData.h_cn = match.h_name;
+        	postData.a_cn = match.a_name;
+        	postData.l_cn = match.l_name;
+        	postData.playtime = match.playtime;
+        	postData.rq = match.rq;
+        	postData.h_id = match.hId;
+        	postData.a_id = match.aId;
+        	postData.l_id = match.l_id;
+        	postData.num = match.num;
+        	postData.match_status = match.status;
+        	postData.h=match.had[0]|| "";
+        	postData.d=match.had[1]|| "";
+        	postData.a=match.had[2]|| "";
+        	postData.h1=match.hhad[0] || "";
+        	postData.d1=match.hhad[1]|| "";
+        	postData.a1=match.hhad[2]|| "";
+        	$.post("/adminS/matchadd",postData,function(result){
+        		result = JSON.parse(result);
+        		if(result.code==0){
+        			alert("添加成功!");
+        		}else{
+        			alert("添加失败!" +  result.msg);
+        		}
+        	});
         }
     </script>
 </body>
