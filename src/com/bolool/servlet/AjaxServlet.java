@@ -44,7 +44,8 @@ public class AjaxServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 	
-	
+	//bet365的公司ID
+	private static Integer companyId = 27;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -444,19 +445,19 @@ $.get("/zhuzuo.asp?page="+start,getData(start));
 		String column = "id,leagueName,leagueId,seasonName,round,playtime,homeName,homeId,awayId,awayName,fullscore,halfscore,s,p,f,h,pan,a,hresult,aresult,hscore,ascore,hsection,asection";
 		String sql = "select m." + column
 				+ " from t_match_odds o left join t_match m on o.matchId = m.id left join t_bolool" + topN
-				+ " b on m.id = b.id ";
+				+ " b on m.id = b.id where o.companyId="+companyId;
 //		String column = "id,leagueName,leagueId,seasonName,round,playtime,homeName,homeId,awayId,awayName,fullscore,halfscore,s,p,f,h,pan,a,matchlist";
 //		String sql = "select m."+column+" from t_match m left join t_match_odds o on m.id = o.matchId left join t_match_history h on m.id = h.id ";
 		if (europeArr.length == 3 && asiaArr.length == 3) {
-			String sql1 = sql + " where o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = "
+			String sql1 = sql + " and o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = "
 					+ europeArr[2];
-			String sql2 = sql + " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a="
+			String sql2 = sql + " and o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a="
 					+ asiaArr[2];
 			sql = "select * from ( " + sql1 + " union all " + sql2 + ") t where leagueName is not null and  fullscore<>'-' ";
 		} else if (asiaArr.length == 3) {
-			sql += " where o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a=" + asiaArr[2] + " and leagueName is not null and  fullscore<>'-' ";
+			sql += " and o.h = " + asiaArr[0] + " and o.pan = '" + asiaArr[1] + "' and o.a=" + asiaArr[2] + " and leagueName is not null and  fullscore<>'-' ";
 		} else {
-			sql += " where o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = " + europeArr[2]+ " and leagueName is not null and  fullscore<>'-' ";
+			sql += " and o.s = " + europeArr[0] + " and o.p = " + europeArr[1] + " and o.f = " + europeArr[2]+ " and leagueName is not null and  fullscore<>'-' ";
 		}
 		List<HashMap<String, String>> list = DBHelper.selectListSql(sql + "  order by concat(h,pan,f,s,p,f) ", column.split(","));
 		response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
@@ -503,7 +504,7 @@ $.get("/zhuzuo.asp?page="+start,getData(start));
 			ids = DBHelper.getSafeSqlParam(ids);
 			String column = "id,s,p,f,h,pan,a,hresult,aresult,hscore,ascore,hsection,asection";
 			String sql = "select o.matchId as " + column + " from  t_match_odds o left join t_bolool" + topN
-					+ " b on o.matchId = b.id where o.matchId in (" + ids + ") and companyId=27";
+					+ " b on o.matchId = b.id where o.matchId in (" + ids + ") and companyId="+companyId;
 			List<HashMap<String, String>> historyMatchList = DBHelper.selectListSql(sql, column.split(","));
 			response.setHeader("Content-Type", "application/json; charset=UTF-8 "); // 设置响应头的编码
 			response.getWriter().write(new Gson().toJson(historyMatchList));
