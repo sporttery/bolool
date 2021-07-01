@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+	<properties resource="config.properties" />
+	<context id="context1">
+		<commentGenerator>
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="false" />
+		</commentGenerator>
+		<jdbcConnection connectionURL="${jdbcUrl}"
+			driverClass="${driver}" password="${password}" userId="${user}" />
+		<javaModelGenerator
+			targetPackage="com.bolool.model" targetProject="bolool" />
+		<javaClientGenerator
+			targetPackage="com.bolool.mybatis" targetProject="bolool"
+			type="XMLMAPPER" />
+		<table schema="match_db" tableName="t_danchang_match" enableDeleteByPrimaryKey="true">
+			<!-- <generatedKey column="id" sqlStatement="Mysql" identity="true" /> -->
+			<ignoreColumn column="insert_time" />
+		</table>
+		<table schema="match_db" tableName="t_danchang_calcinfo" enableInsert="true" enableDeleteByPrimaryKey="true">
+			<!-- <generatedKey column="id" sqlStatement="Mysql" identity="true" /> -->
+			<ignoreColumn column="insert_time" />
+		</table>
+		<table schema="match_db" tableName="t_danchang_calcinfo_match"  enableInsert="true" enableDeleteByPrimaryKey="true">
+			<!-- <generatedKey column="id" sqlStatement="Mysql" identity="true" /> -->
+		</table>
+		<table schema="match_db" tableName="t_danchang_calcinfo_result"  enableInsert="true" enableDeleteByPrimaryKey="true">
+			<!-- <generatedKey column="id" sqlStatement="Mysql" identity="true" /> -->
+			<ignoreColumn column="insert_time" />
+		</table>
+		<table schema="match_db" tableName="t_danchang_calcinfo_result_match"  enableInsert="true" enableDeleteByPrimaryKey="true">
+			<!-- <generatedKey column="id" sqlStatement="Mysql" identity="true" /> -->
+		</table>
+
+	</context>
+</generatorConfiguration>
