@@ -44,36 +44,37 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.SqlBuilder;
 
 @Mapper
 public interface TDanchangCalcinfoMapper {
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	BasicColumn[] selectList = BasicColumn.columnList(id, info, issue, minOdds, status, count, totalCount);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@SelectProvider(type = SqlProviderAdapter.class, method = "select")
 	long count(SelectStatementProvider selectStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@DeleteProvider(type = SqlProviderAdapter.class, method = "delete")
 	int delete(DeleteStatementProvider deleteStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "record.id", before = false, resultType = Integer.class)
 	@InsertProvider(type = SqlProviderAdapter.class, method = "insert")
 	int insert(InsertStatementProvider<TDanchangCalcinfo> insertStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@InsertProvider(type = SqlProviderAdapter.class, method = "insertMultiple")
 	int insertMultiple(MultiRowInsertStatementProvider<TDanchangCalcinfo> multipleInsertStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@SelectProvider(type = SqlProviderAdapter.class, method = "select")
 	@ResultMap("TDanchangCalcinfoResult")
 	Optional<TDanchangCalcinfo> selectOne(SelectStatementProvider selectStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@SelectProvider(type = SqlProviderAdapter.class, method = "select")
 	@Results(id = "TDanchangCalcinfoResult", value = {
 			@Result(column = "id", property = "id", jdbcType = JdbcType.VARCHAR, id = true),
@@ -85,26 +86,26 @@ public interface TDanchangCalcinfoMapper {
 			@Result(column = "total_count", property = "totalCount", jdbcType = JdbcType.INTEGER) })
 	List<TDanchangCalcinfo> selectMany(SelectStatementProvider selectStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	@UpdateProvider(type = SqlProviderAdapter.class, method = "update")
 	int update(UpdateStatementProvider updateStatement);
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default long count(CountDSLCompleter completer) {
 		return MyBatis3Utils.countFrom(this::count, TDanchangCalcinfo, completer);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.929+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int delete(DeleteDSLCompleter completer) {
 		return MyBatis3Utils.deleteFrom(this::delete, TDanchangCalcinfo, completer);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int deleteByPrimaryKey(String id_) {
 		return delete(c -> c.where(id, isEqualTo(id_)));
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int insert(TDanchangCalcinfo record) {
 		return MyBatis3Utils.insert(this::insert, record, TDanchangCalcinfo,
 				c -> c.map(id).toProperty("id").map(info).toProperty("info").map(issue).toProperty("issue").map(minOdds)
@@ -112,7 +113,7 @@ public interface TDanchangCalcinfoMapper {
 						.map(totalCount).toProperty("totalCount"));
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int insertMultiple(Collection<TDanchangCalcinfo> records) {
 		return MyBatis3Utils.insertMultiple(this::insertMultiple, records, TDanchangCalcinfo,
 				c -> c.map(id).toProperty("id").map(info).toProperty("info").map(issue).toProperty("issue").map(minOdds)
@@ -120,7 +121,7 @@ public interface TDanchangCalcinfoMapper {
 						.map(totalCount).toProperty("totalCount"));
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int insertSelective(TDanchangCalcinfo record) {
 		return MyBatis3Utils.insert(this::insert, record, TDanchangCalcinfo,
 				c -> c.map(id).toPropertyWhenPresent("id", record::getId).map(info)
@@ -132,32 +133,32 @@ public interface TDanchangCalcinfoMapper {
 						.toPropertyWhenPresent("totalCount", record::getTotalCount));
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default Optional<TDanchangCalcinfo> selectOne(SelectDSLCompleter completer) {
 		return MyBatis3Utils.selectOne(this::selectOne, selectList, TDanchangCalcinfo, completer);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default List<TDanchangCalcinfo> select(SelectDSLCompleter completer) {
 		return MyBatis3Utils.selectList(this::selectMany, selectList, TDanchangCalcinfo, completer);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default List<TDanchangCalcinfo> selectDistinct(SelectDSLCompleter completer) {
 		return MyBatis3Utils.selectDistinct(this::selectMany, selectList, TDanchangCalcinfo, completer);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default Optional<TDanchangCalcinfo> selectByPrimaryKey(String id_) {
 		return selectOne(c -> c.where(id, isEqualTo(id_)));
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int update(UpdateDSLCompleter completer) {
 		return MyBatis3Utils.update(this::update, TDanchangCalcinfo, completer);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	static UpdateDSL<UpdateModel> updateAllColumns(TDanchangCalcinfo record, UpdateDSL<UpdateModel> dsl) {
 		return dsl.set(id).equalTo(record::getId).set(info).equalTo(record::getInfo).set(issue)
 				.equalTo(record::getIssue).set(minOdds).equalTo(record::getMinOdds).set(status)
@@ -165,7 +166,7 @@ public interface TDanchangCalcinfoMapper {
 				.equalTo(record::getTotalCount);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	static UpdateDSL<UpdateModel> updateSelectiveColumns(TDanchangCalcinfo record, UpdateDSL<UpdateModel> dsl) {
 		return dsl.set(id).equalToWhenPresent(record::getId).set(info).equalToWhenPresent(record::getInfo).set(issue)
 				.equalToWhenPresent(record::getIssue).set(minOdds).equalToWhenPresent(record::getMinOdds).set(status)
@@ -173,14 +174,14 @@ public interface TDanchangCalcinfoMapper {
 				.equalToWhenPresent(record::getTotalCount);
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int updateByPrimaryKey(TDanchangCalcinfo record) {
 		return update(c -> c.set(info).equalTo(record::getInfo).set(issue).equalTo(record::getIssue).set(minOdds)
 				.equalTo(record::getMinOdds).set(status).equalTo(record::getStatus).set(count).equalTo(record::getCount)
 				.set(totalCount).equalTo(record::getTotalCount).where(id, isEqualTo(record::getId)));
 	}
 
-	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-01T17:48:34.211+08:00", comments = "Source Table: t_danchang_calcinfo")
+	@Generated(value = "org.mybatis.generator.api.MyBatisGenerator", date = "2021-07-03T18:40:03.93+08:00", comments = "Source Table: t_danchang_calcinfo")
 	default int updateByPrimaryKeySelective(TDanchangCalcinfo record) {
 		return update(c -> c.set(info).equalToWhenPresent(record::getInfo).set(issue)
 				.equalToWhenPresent(record::getIssue).set(minOdds).equalToWhenPresent(record::getMinOdds).set(status)

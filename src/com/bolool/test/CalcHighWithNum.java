@@ -143,6 +143,7 @@ public class CalcHighWithNum implements ICalc {
 				resultMatch.setAwardStatus(aoBoWin ? "是" : "否");
 				resultMatch.setBetMoney(aoBoWinBet.intValue());
 				resultMatch.setBetOdds(aoBoWinSp);
+				resultMatch.setNum(i+1);
 				calcinfoResultMatchList.add(resultMatch);
 				if (aoBoWin) {
 					danchangWin = false;
