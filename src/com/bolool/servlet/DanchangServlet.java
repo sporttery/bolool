@@ -2,6 +2,7 @@ package com.bolool.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +34,28 @@ public class DanchangServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		doPost(req, resp);
 	}
+	
+	Connection getConnection(){
+		String mybatisConfigPath = "mybatis-config.xml";
+		InputStream inputStream = null;
+		try {
+			inputStream = Resources.getResourceAsStream(mybatisConfigPath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+		SqlSession session = sqlSessionFactory.openSession();
+		Connection conn = session.getConnection();
+		return conn;
+	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String url = req.getRequestURI();
+		if(url.indexOf(".jsp")!=-1) {
+			req.getRequestDispatcher("/jsp"+url).forward(req,resp);
+			return;
+		}
 		resp.addHeader("Access-Control-Allow-Origin", "*");
 		resp.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		resp.addHeader("Access-Control-Allow-Headers",

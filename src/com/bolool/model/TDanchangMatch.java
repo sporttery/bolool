@@ -2,6 +2,8 @@ package com.bolool.model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+
 import javax.annotation.Generated;
 
 public class TDanchangMatch {
@@ -393,5 +395,14 @@ public class TDanchangMatch {
 		return aoBoResult;
 	}
 
+	public HashMap<String,Object> getPropMap() {
+		return propMap;
+	}
+
 	private String aoBoResult;
+	
+	
+	private HashMap<String,Object> propMap = new HashMap<String,Object>();
+	
+	
 }
