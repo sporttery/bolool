@@ -867,7 +867,7 @@ thead {
 			ab.high.avgBet=(ab.high.bet/rs.high.abWinCount).toFixed(2);
 			msgDiv.hide();
 			msgDiv.append("<tr><td colspan=7>筛选比赛<font color=red>"+tmpList.length+"</font>场，进行<font color=red>"+
-			chuan+"串1【"+jjsy+"】</font>组合后结果<a href='javascript:showDetail(\""+key+"\")'>"+totalDan+"</a>单</td></tr>");
+			chuan+"串1【"+jjsy+"】</font>组合后结果<a href='javascript:showDetail(\""+key+"\")'>"+totalDan+"</a>单，每单金额："+jcBet+" 共"+jcBet*totalDan+"</td></tr>");
 			msgDiv.append("<tr><td>澳博低赔</td><td>"+rs.low.bdWinCount+"单</td><td>"+bd.low.maxAward+" </td><td>"+bd.low.minAward+"</td> <td> "+bd.low.avgAward
 			+"</td><td>"+rs.low.abWinCount+"单</td><td>"+ab.low.maxBet+" </td><td>"+ab.low.avgBet+" </td><td>"+rs.low.totalWin.toFixed(2)+"</td></tr>"
 			+"<tr><td>澳博高赔</td><td>"+rs.high.bdWinCount+"单</td><td>"+bd.high.maxAward+"</td><td>"+bd.high.minAward+" </td><td> "+bd.high.avgAward
