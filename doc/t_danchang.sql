@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 127.0.0.1
+ Source Server         : local
  Source Server Type    : MySQL
  Source Server Version : 50733
  Source Host           : localhost:3306
- Source Schema         : match_db
+ Source Schema         : bolool
 
  Target Server Type    : MySQL
  Target Server Version : 50733
  File Encoding         : 65001
 
- Date: 01/07/2021 19:37:48
+ Date: 16/07/2021 15:08:49
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,7 @@ CREATE TABLE `t_danchang_calcinfo`  (
   `total_count` int(11) NULL DEFAULT NULL COMMENT '当期总场次',
   `insert_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '北单赛程按期筛选满足条件的期号' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '北单赛程按期筛选满足条件的期号' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for t_danchang_calcinfo_match
@@ -42,7 +42,7 @@ CREATE TABLE `t_danchang_calcinfo_match`  (
   `calcinfo_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '关联的计算id',
   `danchang_id` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '关联的比赛id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for t_danchang_calcinfo_result
@@ -69,7 +69,7 @@ CREATE TABLE `t_danchang_calcinfo_result`  (
   `remark` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '说明',
   `insert_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for t_danchang_calcinfo_result_match
@@ -83,7 +83,7 @@ CREATE TABLE `t_danchang_calcinfo_result_match`  (
   `bet_money` int(11) NULL DEFAULT NULL COMMENT '投注金额',
   `award_status` varchar(2) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否中奖',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for t_danchang_match
@@ -117,7 +117,9 @@ CREATE TABLE `t_danchang_match`  (
   `w1` decimal(8, 2) NULL DEFAULT NULL COMMENT '澳门胜 即时盘',
   `d1` decimal(8, 2) NULL DEFAULT NULL COMMENT '澳门平 即时盘',
   `l1` decimal(8, 2) NULL DEFAULT NULL COMMENT '澳门负 即时盘',
+  `odds` decimal(8, 2) NULL DEFAULT NULL COMMENT '对冲的赔率',
+  `return_race` decimal(8, 3) NULL DEFAULT NULL COMMENT '返还率',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '北单赛程表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '北单赛程表' ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;
